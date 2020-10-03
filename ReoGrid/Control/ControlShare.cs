@@ -233,21 +233,14 @@ namespace unvell.ReoGrid
 			};
 
 			this.workbook.WorkbookSaved += (s, e) =>
-				{
-					this.WorkbookSaved?.Invoke(s, e);
-				};
+			{
+				this.WorkbookSaved?.Invoke(s, e);
+			};
 
 			this.actionManager.BeforePerformAction += (s, e) =>
-				{
-					if (this.BeforeActionPerform != null)
-					{
-						var arg = new BeforeActionPerformEventArgs(e.Action);
-
-						this.BeforeActionPerform(this, arg);
-
-						e.Cancel = arg.IsCancelled;
-					}
-				};
+			{
+				this.BeforeActionPerform?.Invoke(this, e);
+			};
 
 			// register for moniting reusable action
 			this.actionManager.AfterPerformAction += (s, e) =>
@@ -256,8 +249,7 @@ namespace unvell.ReoGrid
 				{
 					this.lastReusableAction = e.Action as WorksheetReusableAction;
 				}
-
-				this.ActionPerformed?.Invoke(this, new WorkbookActionEventArgs(e.Action));
+				this.ActionPerformed?.Invoke(this, e);
 			};
 		}
 
@@ -704,6 +696,15 @@ namespace unvell.ReoGrid
 
 		private WorksheetReusableAction lastReusableAction;
 
+		public bool CanUndo(IAction action)
+		{
+			return actionManager.UndoStack.Contains((IUndoableAction)action);
+		}
+		public bool CanRedo(IAction action)
+		{
+			return actionManager.RedoStack.Contains((IUndoableAction)action);
+		}
+
 		public void DoAction(BaseWorksheetAction action)
 		{
 			this.DoAction(this.currentWorksheet, action);
@@ -837,7 +838,7 @@ namespace unvell.ReoGrid
 					}
 				}
 
-				if (Undid != null) Undid(this, new WorkbookActionEventArgs(action));
+				if (Undid != null) Undid(this, new ActionEventArgs(action, ActionBehavior.Undo));
 			}
 		}
 
@@ -881,7 +882,7 @@ namespace unvell.ReoGrid
 					}
 				}
 
-				Redid?.Invoke(this, new WorkbookActionEventArgs(action));
+				Redid?.Invoke(this, new ActionEventArgs(action, ActionBehavior.Redo));
 			}
 		}
 
@@ -1020,22 +1021,22 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Event fired before action perform.
 		/// </summary>
-		public event EventHandler<WorkbookActionEventArgs> BeforeActionPerform;
+		public event EventHandler<ActionEventArgs> BeforeActionPerform;
 
 		/// <summary>
 		/// Event fired when any action performed.
 		/// </summary>
-		public event EventHandler<WorkbookActionEventArgs> ActionPerformed;
+		public event EventHandler<ActionEventArgs> ActionPerformed;
 
 		/// <summary>
 		/// Event fired when Undo operation performed by user.
 		/// </summary>
-		public event EventHandler<WorkbookActionEventArgs> Undid;
+		public event EventHandler<ActionEventArgs> Undid;
 
 		/// <summary>
 		/// Event fired when Reod operation performed by user.
 		/// </summary>
-		public event EventHandler<WorkbookActionEventArgs> Redid;
+		public event EventHandler<ActionEventArgs> Redid;
 
 		#endregion // Actions
 

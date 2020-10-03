@@ -65,55 +65,6 @@ namespace unvell.ReoGrid.Events
 		}
 	}
 
-	[Obsolete("use WorkbookActionEventArgs instead")]
-	public class ActionPerformedEventArgs : WorkbookActionEventArgs
-	{
-		public ActionPerformedEventArgs(IAction action) : base(action) { }
-	}
-
-	#region Actions
-
-	/// <summary>
-	/// Arguments of event which will be fired when action is performed by worksheet
-	/// </summary>
-	public class WorkbookActionEventArgs : EventArgs
-	{
-		/// <summary>
-		/// Action is performed
-		/// </summary>
-		public IAction Action { get; private set; }
-
-		/// <summary>
-		/// Create this event argument with specified action
-		/// </summary>
-		/// <param name="action">instance of action</param>
-		public WorkbookActionEventArgs(IAction action)
-		{
-			this.Action = action;
-		}
-	}
-
-	/// <summary>
-	/// Event argument for before action perform
-	/// </summary>
-	public class BeforeActionPerformEventArgs : WorkbookActionEventArgs
-	{
-		/// <summary>
-		/// Determine whehter to abort perform current action
-		/// </summary>
-		public bool IsCancelled { get; set; }
-
-		/// <summary>
-		/// Create event argument with specified action
-		/// </summary>
-		/// <param name="action">Action to be performed</param>
-		public BeforeActionPerformEventArgs(IAction action) : base(action)
-		{
-		}
-	}
-
-	#endregion // Actions
-
 	#region Worksheet Managements
 
 	/// <summary>

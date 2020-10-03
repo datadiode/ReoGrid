@@ -20,7 +20,7 @@ using System;
 
 using unvell.ReoGrid.IO;
 using unvell.ReoGrid.Actions;
-using unvell.ReoGrid.Events;
+using unvell.Common;
 using unvell.ReoGrid.Graphics;
 
 #if WINFORM
@@ -124,9 +124,9 @@ namespace unvell.ReoGrid.Main
 		void RepeatLastAction(RangePosition range);
 		//bool CanUndo();
 		//bool CanRedo();
-		event EventHandler<WorkbookActionEventArgs> ActionPerformed;
-		event EventHandler<WorkbookActionEventArgs> Undid;
-		event EventHandler<WorkbookActionEventArgs> Redid;
+		event EventHandler<ActionEventArgs> ActionPerformed;
+		event EventHandler<ActionEventArgs> Undid;
+		event EventHandler<ActionEventArgs> Redid;
 		//event EventHandler Repeated;
 		void ClearActionHistory();
 		void ClearActionHistoryForWorksheet(Worksheet sheet);
