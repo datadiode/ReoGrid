@@ -1067,6 +1067,15 @@ namespace unvell.ReoGrid
 #endif // DEBUG
 		}
 
+		public void SetDiffFlag(PlainStyleFlag Flag)
+		{
+			if (StyleParentKind != StyleParentKind.Own)
+			{
+				CreateOwnStyle();
+			}
+			InnerStyle.Flag = InnerStyle.Flag & ~PlainStyleFlag.DiffFlags | Flag;
+		}
+
 		[NonSerialized]
 		private ReferenceCellStyle referenceStyle;
 

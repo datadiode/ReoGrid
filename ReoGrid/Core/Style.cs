@@ -1267,12 +1267,17 @@ namespace unvell.ReoGrid
 		/// </summary>
 		Padding = 0x800000,
 
-		[Obsolete("use RotationAngle instead")]
-		RotateAngle = RotationAngle,
 		/// <summary>
 		/// Rotation angle for cell text
 		/// </summary>
 		RotationAngle = 0x1000000,
+
+		/// <summary>
+		/// Diff flags
+		/// </summary>
+		DiffInsert = 0x2000000,
+		DiffChange = 0x4000000,
+		DiffFlags = 0x6000000,
 
 		/// <summary>
 		/// [Union flag] All flags of font style

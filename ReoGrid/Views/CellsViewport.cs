@@ -923,19 +923,36 @@ namespace unvell.ReoGrid.Views
 		#region DrawCell Background
 		internal void DrawCellBackground(CellDrawingContext dc, int row, int col, Cell cell, bool refPosition = false)
 		{
-			WorksheetRangeStyle style;
-
+			SolidColor BackColor = SolidColor.Transparent;
+			SolidColor FillPatternColor = SolidColor.Transparent;
+			HatchStyles FillPatternStyle = HatchStyles.Min;
 			if (cell == null)
 			{
 				StyleParentKind pKind = StyleParentKind.Own;
-				style = StyleUtility.FindCellParentStyle(this.sheet, row, col, out pKind);
+				WorksheetRangeStyle style = StyleUtility.FindCellParentStyle(this.sheet, row, col, out pKind);
+				BackColor = style.BackColor;
+				FillPatternColor = style.FillPatternColor;
+				FillPatternStyle = style.FillPatternStyle;
 			}
 			else
 			{
-				style = cell.InnerStyle;
+				WorksheetRangeStyle style = cell.InnerStyle;
+				if ((style.Flag & PlainStyleFlag.DiffChange) != 0)
+				{
+					BackColor = sheet.controlAdapter.ControlStyle.DiffColorChange;
+				}
+				else if ((style.Flag & PlainStyleFlag.DiffInsert) != 0)
+				{
+					BackColor = sheet.controlAdapter.ControlStyle.DiffColorInsert;
+				}
+				else
+				{
+					BackColor = style.BackColor;
+					FillPatternColor = style.FillPatternColor;
+					FillPatternStyle = style.FillPatternStyle;
+				}
 			}
-
-			if (style.BackColor.A > 0)
+			if (BackColor.A > 0)
 			{
 				var startPos = new CellPosition(row, col);
 
@@ -953,13 +970,13 @@ namespace unvell.ReoGrid.Views
 				{
 					var g = dc.Graphics;
 
-					if (style.FillPatternColor.A > 0)
+					if (FillPatternColor.A > 0)
 					{
-						g.FillRectangle(style.FillPatternStyle, style.FillPatternColor, style.BackColor, rect);
+						g.FillRectangle(FillPatternStyle, FillPatternColor, BackColor, rect);
 					}
 					else
 					{
-						g.FillRectangle(rect, style.BackColor);
+						g.FillRectangle(rect, BackColor);
 					}
 				}
 			}

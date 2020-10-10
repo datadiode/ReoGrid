@@ -244,6 +244,9 @@ namespace unvell.ReoGrid
 			this.SelectionBorderWidth = 3;
 		}
 
+		public SolidColor DiffColorChange { get => colors[ControlAppearanceColors.RowHeadSelected]; }
+		public SolidColor DiffColorInsert { get => colors[ControlAppearanceColors.RowHeadFullSelected]; }
+
 		internal SolidColor GetColHeadStartColor(bool isHover, bool isSelected, bool isFullSelected, bool isInvalid)
 		{
 			if (isFullSelected)
