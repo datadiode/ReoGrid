@@ -109,6 +109,65 @@ namespace unvell.Common.Win32Lib
 #endregion
 
 			WM_USER = 0x0400,
+
+			EM_SETRECT = 0xB3,
+
+			TCM_FIRST = 0x1300,
+			TCM_SETEXTENDEDSTYLE = TCM_FIRST + 52,
+			TCM_HITTEST = TCM_FIRST + 13,
+			TCM_SETCURSEL = TCM_FIRST + 12,
+			TCM_GETCURFOCUS = TCM_FIRST + 47,
+			TCM_SETCURFOCUS = TCM_FIRST + 48,
+			TCM_GETITEM = TCM_FIRST + 60,
+			TCM_SETITEM = TCM_FIRST + 61,
+		}
+
+		public enum TCHT
+		{
+			TCHT_NOWHERE = 1,
+			TCHT_ONITEMICON = 2,
+			TCHT_ONITEMLABEL = 4,
+			TCHT_ONITEM = TCHT_ONITEMICON | TCHT_ONITEMLABEL,
+		}
+
+		public enum TCIF : int
+		{
+			TCIF_TEXT = 0x1,
+			TCIF_IMAGE = 0x2,
+			TCIF_RTLREADING = 0x4,
+			TCIF_PARAM = 0x8,
+			TCIF_STATE = 0x10,
+		}
+
+		public enum TCIS : int
+		{
+			TCIS_BUTTONPRESSED = 0x1,
+			TCIS_HIGHLIGHTED = 0x2,
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct RECT
+		{
+			public int left, top, right, bottom;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct TCHITTESTINFO
+		{
+			public Point pt;
+			public int flags;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public class TCITEM
+		{
+			public TCIF mask;
+			public TCIS dwState;
+			public TCIS dwStateMask;
+			public string pszText;
+			public int cchTextMax;
+			public int iImage;
+			public IntPtr lParam;
 		}
 
 		public enum EndSessionParam : long
@@ -129,6 +188,12 @@ namespace unvell.Common.Win32Lib
 
 		[DllImport("USER32.DLL")]
 		public static extern int SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+		[DllImport("USER32.DLL")]
+		public static extern int SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, ref Win32.RECT lParam);
+		[DllImport("USER32.DLL")]
+		public static extern int SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, ref Win32.TCHITTESTINFO lParam);
+		[DllImport("USER32.DLL")]
+		public static extern int SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, ref Win32.TCITEM lParam);
 
 		[DllImport("USER32.DLL")]
 		public static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
