@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using unvell.ReoGrid.DataFormat;
 
 namespace unvell.ReoGrid.IO
 {
@@ -29,12 +30,15 @@ namespace unvell.ReoGrid.IO
 	{
 		public const int DEFAULT_READ_BUFFER_LINES = 512;
 		
-		private static Regex lineRegex = new Regex("\\s*(\\\"(?<item>[^\\\"]*)\\\"|(?<item>[^,]*))\\s*,?", RegexOptions.Compiled);
-
-		public static void Read(Stream stream, Worksheet sheet, RangePosition targetRange, 
-			Encoding encoding = null, int bufferLines = DEFAULT_READ_BUFFER_LINES, bool autoSpread = true)
+		public static void Read(Stream stream, Worksheet sheet, Encoding encoding, CSVFormatArgument csvArg)
 		{
-			targetRange = sheet.FixRange(targetRange);
+			var autoSpread = csvArg.AutoSpread;
+			var lineRegex = csvArg.LineRegex;
+			var targetRange = sheet.FixRange(csvArg.TargetRange);
+			var bufferLines = csvArg.BufferLines;
+
+			// Don't auto-format cells to prevent accidental data corruption
+			sheet.DisableSettings(WorksheetSettings.Edit_AutoFormatCell);
 
 			string[] lines = new string[bufferLines];
 			List<object>[] bufferLineList = new List<object>[bufferLines];
@@ -98,8 +102,10 @@ namespace unvell.ReoGrid.IO
 
 							foreach (Match m in lineRegex.Matches(line))
 							{
-								toBuffer.Add(m.Groups["item"].Value);
-
+								if (m.Index != line.Length) // ignore an empty match at end of line
+								{
+									toBuffer.Add(m.Groups["item"].Value);
+								}
 								if (toBuffer.Count >= targetRange.Cols) break;
 							}
 
@@ -144,19 +150,13 @@ namespace unvell.ReoGrid.IO
 			throw new NotSupportedException();
 		}
 
-		public void Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
+		public object Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
 		{
-			bool autoSpread = true;
-			int bufferLines = CSVFormat.DEFAULT_READ_BUFFER_LINES;
-			RangePosition targetRange = RangePosition.EntireRange;
-
 			CSVFormatArgument csvArg = arg as CSVFormatArgument;
 
-			if (csvArg != null)
+			if (csvArg == null)
 			{
-				autoSpread = csvArg.AutoSpread;
-				bufferLines = csvArg.BufferLines;
-				targetRange = csvArg.TargetRange;
+				csvArg = new CSVFormatArgument();
 			}
 		
 			Worksheet sheet = null;
@@ -177,12 +177,19 @@ namespace unvell.ReoGrid.IO
 				sheet.Reset();
 			}
 
-			CSVFormat.Read(stream, sheet, targetRange, encoding, bufferLines, autoSpread);
+			CSVFormat.Read(stream, sheet, encoding, csvArg);
+			return csvArg;
 		}
 
 		public void Save(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
 		{
-			throw new NotSupportedException("Saving entire workbook as CSV is not supported, use Worksheet.ExportAsCSV instead.");
+			CSVFormatArgument csvArg = arg as CSVFormatArgument;
+			if (workbook.Worksheets.Count != 1)
+			{
+				throw new NotSupportedException("Saving entire workbook as CSV is not supported, use Worksheet.ExportAsCSV instead.");
+			}
+			var sheet = workbook.Worksheets[0]; // workbook.GetWorksheetByName("Sheet1");
+			sheet.ExportAsCSV(stream, RangePosition.EntireRange, null, arg);
 			//int fromRow = 0, fromCol = 0, toRow = 0, toCol = 0;
 
 			//if (args != null)
@@ -201,36 +208,35 @@ namespace unvell.ReoGrid.IO
 	/// </summary>
 	public class CSVFormatArgument
 	{
+		public static readonly Regex RegexComma     = new Regex("(?<item>((\\\"[^\\\"]*\\\")|[^,])*),?", RegexOptions.Compiled);
+		public static readonly Regex RegexSemicolon = new Regex("(?<item>((\\\"[^\\\"]*\\\")|[^;])*);?", RegexOptions.Compiled);
+		public static readonly Regex RegexPipe      = new Regex("(?<item>((\\\"[^\\\"]*\\\")|[^\\|])*)\\|?", RegexOptions.Compiled);
+		public static readonly Regex RegexTab       = new Regex("(?<item>[^\\t]*)\\t?", RegexOptions.Compiled);
+
 		/// <summary>
 		/// Determines whether or not allow to expand worksheet to load more data from CSV file. (Default is True)
 		/// </summary>
-		public bool AutoSpread { get; set; }
+		public bool AutoSpread { get; set; } = true;
 
 		/// <summary>
 		/// Determines how many rows read from CSV file one time. (Default is CSVFormat.DEFAULT_READ_BUFFER_LINES = 512)
 		/// </summary>
-		public int BufferLines { get; set; }
+		public int BufferLines { get; set; } = CSVFormat.DEFAULT_READ_BUFFER_LINES;
 
 		/// <summary>
 		/// Determines the default worksheet name if CSV file loaded into a new workbook. (Default is "Sheet1")
 		/// </summary>
-		public string SheetName { get; set; }
+		public string SheetName { get; set; } = "Sheet1";
 
 		/// <summary>
 		/// Determines where to start import CSV data on worksheet.
 		/// </summary>
-		public RangePosition TargetRange { get; set; }
+		public RangePosition TargetRange { get; set; } = RangePosition.EntireRange;
 
 		/// <summary>
-		/// Create the argument object instance.
+		/// Determines the regular expression used to parse the lines. (Default is RegexComma)
 		/// </summary>
-		public CSVFormatArgument()
-		{
-			this.AutoSpread = true;
-			this.BufferLines = CSVFormat.DEFAULT_READ_BUFFER_LINES;
-			this.SheetName = "Sheet1";
-			this.TargetRange = RangePosition.EntireRange;
-		}
+		public Regex LineRegex { get; set; } = RegexComma;
 	}
 	#endregion // CSV File Provider
 

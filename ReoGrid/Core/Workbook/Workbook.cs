@@ -137,15 +137,15 @@ namespace unvell.ReoGrid
 
 		public void Save(string path)
 		{
-			this.Save(path, FileFormat._Auto);
+			Save(path, FileFormat._Auto);
 		}
 
-		public void Save(string path, IO.FileFormat fileFormat)
+		public void Save(string path, IO.FileFormat fileFormat, object arg = null)
 		{
-			this.Save(path, fileFormat, Encoding.Default);
+			Save(path, fileFormat, Encoding.Default, arg);
 		}
 
-		public void Save(string path, IO.FileFormat fileFormat, Encoding encoding)
+		public void Save(string path, IO.FileFormat fileFormat, Encoding encoding, object arg = null)
 		{
 			if (fileFormat == IO.FileFormat._Auto)
 			{
@@ -164,18 +164,27 @@ namespace unvell.ReoGrid
 				}
 			}
 
-			using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+			var temp = Path.GetTempFileName();
+			try
 			{
-				Save(fs, fileFormat, encoding);
+				using (var fs = new FileStream(temp, FileMode.Create, FileAccess.Write))
+				{
+					Save(fs, fileFormat, encoding, arg);
+				}
+				File.Copy(temp, path, true);
+			}
+			finally
+			{
+				File.Delete(temp);
 			}
 		}
 
-		public void Save(System.IO.Stream stream, IO.FileFormat fileFormat)
+		public void Save(System.IO.Stream stream, IO.FileFormat fileFormat, object arg = null)
 		{
-			this.Save(stream, fileFormat, Encoding.Default);
+			Save(stream, fileFormat, Encoding.Default, arg);
 		}
 
-		public void Save(System.IO.Stream stream, IO.FileFormat fileFormat, Encoding encoding)
+		public void Save(System.IO.Stream stream, IO.FileFormat fileFormat, Encoding encoding, object arg = null)
 		{
 			IFileFormatProvider provider = null;
 
@@ -191,7 +200,7 @@ namespace unvell.ReoGrid
 
 			try
 			{
-				provider.Save(this, stream, encoding, null);
+				provider.Save(this, stream, encoding, arg);
 			}
 			finally
 			{
@@ -209,15 +218,15 @@ namespace unvell.ReoGrid
 
 		public void Load(string path)
 		{
-			this.Load(path, IO.FileFormat._Auto);
+			Load(path, IO.FileFormat._Auto);
 		}
 
-		public void Load(string path, IO.FileFormat fileFormat)
+		public object Load(string path, IO.FileFormat fileFormat, object arg = null)
 		{
-			this.Load(path, fileFormat, Encoding.Default);
+			return Load(path, fileFormat, Encoding.Default, arg);
 		}
 
-		public void Load(string path, IO.FileFormat fileFormat, Encoding encoding)
+		public object Load(string path, IO.FileFormat fileFormat, Encoding encoding, object arg = null)
 		{
 			if (fileFormat == IO.FileFormat._Auto)
 			{
@@ -235,10 +244,10 @@ namespace unvell.ReoGrid
 					throw new NotSupportedException("Cannot determine the file format to load workbook from specified path, try specify explicitly the file format by argument.");
 				}
 			}
-
+			object ret = null;
 			using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
 			{
-				this.Load(fs, fileFormat, encoding == null ? Encoding.Default : encoding);
+				ret = Load(fs, fileFormat, encoding == null ? Encoding.Default : encoding, arg);
 			}
 
 			// for csv only
@@ -249,15 +258,17 @@ namespace unvell.ReoGrid
 					this.worksheets[0].Name = Path.GetFileNameWithoutExtension(path);
 				}
 			}
+			return ret;
 		}
 
-		public void Load(System.IO.Stream stream, IO.FileFormat fileFormat)
+		public object Load(System.IO.Stream stream, IO.FileFormat fileFormat, object arg)
 		{
-			this.Load(stream, fileFormat, Encoding.Default);
+			return Load(stream, fileFormat, Encoding.Default, arg);
 		}
 
-		public void Load(System.IO.Stream stream, IO.FileFormat fileFormat, Encoding encoding)
+		public object Load(System.IO.Stream stream, IO.FileFormat fileFormat, Encoding encoding, object arg)
 		{
+			object ret = null;
 			if (fileFormat == FileFormat._Auto)
 			{
 				throw new System.ArgumentException("File format 'Auto' is invalid for loading workbook from stream, try specify a file format.");
@@ -279,17 +290,18 @@ namespace unvell.ReoGrid
 
 			try
 			{
-				provider.Load(this, stream, encoding, null);
+				ret = provider.Load(this, stream, encoding, arg);
 			}
 			finally
 			{
-				if (this.controlAdapter != null)
+				if (controlAdapter != null)
 				{
-					this.controlAdapter.ChangeCursor(CursorStyle.PlatformDefault);
+					controlAdapter.ChangeCursor(CursorStyle.PlatformDefault);
 				}
 
-				this.WorkbookLoaded?.Invoke(this, null);
+				WorkbookLoaded?.Invoke(this, null);
 			}
+			return ret;
 		}
 
 		/// <summary>

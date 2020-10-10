@@ -285,7 +285,7 @@ namespace unvell.ReoGrid
 		/// <param name="fileFormat">Specified file format used to save workbook</param>
 		public void Save(string path)
 		{
-			this.Save(path, IO.FileFormat._Auto);
+			Save(path, IO.FileFormat._Auto);
 		}
 
 		/// <summary>
@@ -293,9 +293,9 @@ namespace unvell.ReoGrid
 		/// </summary>
 		/// <param name="path">Full file path to save workbook</param>
 		/// <param name="fileFormat">Specified file format used to save workbook</param>
-		public void Save(string path, IO.FileFormat fileFormat)
+		public void Save(string path, IO.FileFormat fileFormat, object arg = null)
 		{
-			this.Save(path, fileFormat, Encoding.Default);
+			Save(path, fileFormat, Encoding.Default, arg);
 		}
 
 		/// <summary>
@@ -304,9 +304,9 @@ namespace unvell.ReoGrid
 		/// <param name="path">Full file path to save workbook</param>
 		/// <param name="fileFormat">Specified file format used to save workbook</param>
 		/// <param name="encoding">Encoding used to read plain-text from resource. (Optional)</param>
-		public void Save(string path, IO.FileFormat fileFormat, Encoding encoding)
+		public void Save(string path, IO.FileFormat fileFormat, Encoding encoding, object arg = null)
 		{
-			this.workbook.Save(path, fileFormat, encoding);
+			workbook.Save(path, fileFormat, encoding, arg);
 		}
 
 		/// <summary>
@@ -314,9 +314,9 @@ namespace unvell.ReoGrid
 		/// </summary>
 		/// <param name="stream">Stream to output data of workbook</param>
 		/// <param name="fileFormat">Specified file format used to save workbook</param>
-		public void Save(Stream stream, unvell.ReoGrid.IO.FileFormat fileFormat)
+		public void Save(Stream stream, IO.FileFormat fileFormat, object arg = null)
 		{
-			this.workbook.Save(stream, fileFormat, Encoding.Default);
+			workbook.Save(stream, fileFormat, Encoding.Default, arg);
 		}
 
 		/// <summary>
@@ -325,9 +325,9 @@ namespace unvell.ReoGrid
 		/// <param name="stream">Stream to output data of workbook</param>
 		/// <param name="fileFormat">Specified file format used to save workbook</param>
 		/// <param name="encoding">Encoding used to read plain-text from resource. (Optional)</param>
-		public void Save(Stream stream, unvell.ReoGrid.IO.FileFormat fileFormat, Encoding encoding)
+		public void Save(Stream stream, IO.FileFormat fileFormat, Encoding encoding, object arg = null)
 		{
-			this.workbook.Save(stream, fileFormat, encoding);
+			workbook.Save(stream, fileFormat, encoding, arg);
 		}
 
 		/// <summary>
@@ -336,7 +336,7 @@ namespace unvell.ReoGrid
 		/// <param name="path">Path to open file and read data.</param>
 		public void Load(string path)
 		{
-			this.Load(path, IO.FileFormat._Auto, Encoding.Default);
+			Load(path, IO.FileFormat._Auto, Encoding.Default);
 		}
 
 		/// <summary>
@@ -344,9 +344,9 @@ namespace unvell.ReoGrid
 		/// </summary>
 		/// <param name="path">Path to open file and read data.</param>
 		/// <param name="fileFormat">Flag used to determine what format should be used to read data from file.</param>
-		public void Load(string path, IO.FileFormat fileFormat)
+		public object Load(string path, IO.FileFormat fileFormat, object arg = null)
 		{
-			this.Load(path, fileFormat, Encoding.Default);
+			return Load(path, fileFormat, Encoding.Default, arg);
 		}
 
 		/// <summary>
@@ -355,9 +355,9 @@ namespace unvell.ReoGrid
 		/// <param name="path">Path to open file and read data.</param>
 		/// <param name="fileFormat">Flag used to determine what format should be used to read data from file.</param>
 		/// <param name="encoding">Encoding used to read plain-text from resource. (Optional)</param>
-		public void Load(string path, IO.FileFormat fileFormat, Encoding encoding)
+		public object Load(string path, IO.FileFormat fileFormat, Encoding encoding, object arg = null)
 		{
-			this.workbook.Load(path, fileFormat, encoding);
+			return workbook.Load(path, fileFormat, encoding, arg);
 		}
 
 		/// <summary>
@@ -365,9 +365,9 @@ namespace unvell.ReoGrid
 		/// </summary>
 		/// <param name="stream">Stream to read data of workbook.</param>
 		/// <param name="fileFormat">Flag used to determine what format should be used to read data from file.</param>
-		public void Load(Stream stream, unvell.ReoGrid.IO.FileFormat fileFormat)
+		public object Load(Stream stream, unvell.ReoGrid.IO.FileFormat fileFormat, object arg = null)
 		{
-			this.Load(stream, fileFormat, Encoding.Default);
+			return Load(stream, fileFormat, Encoding.Default, arg);
 		}
 
 		/// <summary>
@@ -376,14 +376,14 @@ namespace unvell.ReoGrid
 		/// <param name="stream">Stream to read data of workbook.</param>
 		/// <param name="fileFormat">Flag used to determine what format should be used to read data from file.</param>
 		/// <param name="encoding">Encoding used to read plain-text data from specified stream.</param>
-		public void Load(Stream stream, unvell.ReoGrid.IO.FileFormat fileFormat, Encoding encoding)
+		public object Load(Stream stream, unvell.ReoGrid.IO.FileFormat fileFormat, Encoding encoding, object arg = null)
 		{
-			this.workbook.Load(stream, fileFormat, encoding);
-
+			object ret = workbook.Load(stream, fileFormat, encoding, arg);
 			if (this.workbook.worksheets.Count > 0)
 			{
 				this.CurrentWorksheet = this.workbook.worksheets[0];
 			}
+			return ret;
 		}
 		#endregion // Save & Load
 

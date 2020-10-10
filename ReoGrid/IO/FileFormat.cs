@@ -77,7 +77,7 @@ namespace unvell.ReoGrid.IO
 		/// <param name="stream">Stream to input serialized data of workbook</param>
 		/// <param name="encoding">Encoding used to read plain-text file format</param>
 		/// <param name="arg">Arguments of format provider</param>
-		void Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg);
+		object Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg);
 
 		/// <summary>
 		/// Save spreadsheet to specified stream
@@ -114,7 +114,7 @@ namespace unvell.ReoGrid.IO
 		/// <param name="stream">Input stream</param>
 		/// <param name="encoding">Encoding used to read text-based stream, such as XML</param>
 		/// <param name="arg">Provider custom parameters</param>
-		public void Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
+		public object Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
 		{
 			Worksheet sheet = null;
 
@@ -129,6 +129,7 @@ namespace unvell.ReoGrid.IO
 			}
 
 			sheet.LoadRGF(stream);
+			return null;
 		}
 
 		public void Save(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
@@ -156,14 +157,15 @@ namespace unvell.ReoGrid.IO
 			return Path.GetExtension(file).Equals(".xlsx", StringComparison.CurrentCultureIgnoreCase);
 		}
 
-		public void Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
+		public object Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
 		{
-			unvell.ReoGrid.IO.OpenXML.ExcelReader.ReadStream(workbook, stream);
+			OpenXML.ExcelReader.ReadStream(workbook, stream);
+			return null;
 		}
 
 		public void Save(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
 		{
-			unvell.ReoGrid.IO.OpenXML.ExcelWriter.WriteStream(workbook, stream);
+			OpenXML.ExcelWriter.WriteStream(workbook, stream);
 		}
 	}
 
