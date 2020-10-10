@@ -1799,9 +1799,9 @@ namespace unvell.ReoGrid.Views
 					{
 						CellPosition pos = CellsViewport.GetPosByPoint(this, location);
 
-						if (sheet.lastChangedSelectionRange != sheet.selectionRange)
-						{
-							sheet.lastChangedSelectionRange = sheet.selectionRange;
+						//if (sheet.lastChangedSelectionRange != sheet.selectionRange)
+						//{
+							//sheet.lastChangedSelectionRange = sheet.selectionRange;
 							sheet.selEnd = pos;
 
 #if WINFORM || WPF
@@ -1828,7 +1828,7 @@ namespace unvell.ReoGrid.Views
 								sheet.RaiseScriptEvent("onselectionchange");
 							}
 #endif // EX_SCRIPT
-						}
+						//}
 
 						{
 							int row = pos.Row;

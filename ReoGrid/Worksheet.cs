@@ -1512,7 +1512,7 @@ namespace unvell.ReoGrid
 		internal RGFloat headerAdjustNewValue = 0;
 
 		internal Point lastMouseMoving = new Point(-1, -1);
-		internal RangePosition lastChangedSelectionRange = RangePosition.Empty;
+		//internal RangePosition lastChangedSelectionRange = RangePosition.Empty;
 		internal RangePosition draggingSelectionRange = RangePosition.Empty;
 		internal CellPosition focusMovingRangeOffset = CellPosition.Empty;
 
