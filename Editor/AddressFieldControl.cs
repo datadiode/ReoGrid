@@ -53,23 +53,21 @@ namespace unvell.ReoGrid.Editor
 			}
 			set
 			{
-				if (this.workbook != null)
+				if (workbook != null)
 				{
-					this.workbook.CurrentWorksheetChanged -= workbook_CurrentWorksheetChanged;
-
+					workbook_CurrentWorksheetChanged(null, null);
+					workbook.CurrentWorksheetChanged -= workbook_CurrentWorksheetChanged;
 					workbook.Disposed -= grid_Disposed;
 				}
 
-				this.worksheet = null;
-				this.workbook = value;
+				worksheet = null;
+				workbook = value;
 
 				if (workbook != null)
 				{
-					this.workbook.CurrentWorksheetChanged += workbook_CurrentWorksheetChanged;
-			
 					workbook.Disposed += grid_Disposed;
-
-					RefreshCurrentAddress();
+					workbook.CurrentWorksheetChanged += workbook_CurrentWorksheetChanged;
+					workbook_CurrentWorksheetChanged(null, null);
 				}
 			}
 		}

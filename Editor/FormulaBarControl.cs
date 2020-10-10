@@ -198,21 +198,20 @@ namespace unvell.ReoGrid.Editor
 				
 				if (grid != null)
 				{
-					grid.Disposed -= grid_Disposed;
-
+					grid_CurrentWorksheetChanged(null, null);
 					grid.CurrentWorksheetChanged -= grid_CurrentWorksheetChanged;
-					this.worksheet = null;
-					this.txtFormula.Text = string.Empty;
+					grid.Disposed -= grid_Disposed;
+					txtFormula.Text = string.Empty;
 				}
 
+				worksheet = null;
 				grid = value;
 
 				if (grid != null)
 				{
 					grid.Disposed += grid_Disposed;
-
-					this.worksheet = grid.CurrentWorksheet;
 					grid.CurrentWorksheetChanged += grid_CurrentWorksheetChanged;
+					grid_CurrentWorksheetChanged(null, null);
 				}
 			}
 		}
