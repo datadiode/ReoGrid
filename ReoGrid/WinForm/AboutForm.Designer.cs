@@ -52,7 +52,6 @@ namespace unvell.ReoGrid.WinForm
 			this.label1 = new System.Windows.Forms.Label();
 			this.btnOK = new System.Windows.Forms.Button();
 			this.lnkHP = new System.Windows.Forms.LinkLabel();
-			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.labVersion = new System.Windows.Forms.Label();
 			this.textBox2 = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
@@ -61,7 +60,7 @@ namespace unvell.ReoGrid.WinForm
 			// 
 			this.label1.AutoSize = true;
 			this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label1.Location = new System.Drawing.Point(8, 12);
+			this.label1.Location = new System.Drawing.Point(8, 9);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(251, 18);
 			this.label1.TabIndex = 0;
@@ -70,7 +69,7 @@ namespace unvell.ReoGrid.WinForm
 			// btnOK
 			// 
 			this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.btnOK.Location = new System.Drawing.Point(465, 319);
+			this.btnOK.Location = new System.Drawing.Point(465, 331);
 			this.btnOK.Name = "btnOK";
 			this.btnOK.Size = new System.Drawing.Size(75, 25);
 			this.btnOK.TabIndex = 1;
@@ -80,24 +79,12 @@ namespace unvell.ReoGrid.WinForm
 			// lnkHP
 			// 
 			this.lnkHP.AutoSize = true;
-			this.lnkHP.Location = new System.Drawing.Point(9, 44);
+			this.lnkHP.Location = new System.Drawing.Point(12, 337);
 			this.lnkHP.Name = "lnkHP";
 			this.lnkHP.Size = new System.Drawing.Size(102, 13);
 			this.lnkHP.TabIndex = 2;
 			this.lnkHP.TabStop = true;
 			this.lnkHP.Text = "http://ReoGrid.NET";
-			// 
-			// textBox1
-			// 
-			this.textBox1.BackColor = System.Drawing.SystemColors.Control;
-			this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.textBox1.Location = new System.Drawing.Point(12, 261);
-			this.textBox1.Multiline = true;
-			this.textBox1.Name = "textBox1";
-			this.textBox1.ReadOnly = true;
-			this.textBox1.Size = new System.Drawing.Size(425, 92);
-			this.textBox1.TabIndex = 3;
-			this.textBox1.Text = resources.GetString("textBox1.Text");
 			// 
 			// labVersion
 			// 
@@ -111,12 +98,12 @@ namespace unvell.ReoGrid.WinForm
 			// textBox2
 			// 
 			this.textBox2.BackColor = System.Drawing.SystemColors.Window;
-			this.textBox2.Location = new System.Drawing.Point(11, 73);
+			this.textBox2.Location = new System.Drawing.Point(11, 33);
 			this.textBox2.Multiline = true;
 			this.textBox2.Name = "textBox2";
 			this.textBox2.ReadOnly = true;
 			this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.textBox2.Size = new System.Drawing.Size(529, 178);
+			this.textBox2.Size = new System.Drawing.Size(529, 292);
 			this.textBox2.TabIndex = 3;
 			this.textBox2.Text = resources.GetString("textBox2.Text");
 			// 
@@ -124,10 +111,9 @@ namespace unvell.ReoGrid.WinForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(552, 359);
+			this.ClientSize = new System.Drawing.Size(552, 366);
 			this.Controls.Add(this.labVersion);
 			this.Controls.Add(this.textBox2);
-			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.lnkHP);
 			this.Controls.Add(this.btnOK);
 			this.Controls.Add(this.label1);
@@ -149,7 +135,6 @@ namespace unvell.ReoGrid.WinForm
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button btnOK;
 		private System.Windows.Forms.LinkLabel lnkHP;
-		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.Label labVersion;
 		private System.Windows.Forms.TextBox textBox2;
 	}
