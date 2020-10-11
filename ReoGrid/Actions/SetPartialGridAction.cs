@@ -51,6 +51,7 @@ namespace unvell.ReoGrid.Actions
 			backupData = Worksheet.GetPartialGrid(base.Range, PartialGridCopyFlag.All, ExPartialGridCopyFlag.BorderOutsideOwner);
 			Debug.Assert(backupData != null);
 			base.Range = base.Worksheet.SetPartialGridRepeatly(base.Range, data);
+			Worksheet.RequestInvalidate();
 			Worksheet.SelectRange(base.Range);
 		}
 

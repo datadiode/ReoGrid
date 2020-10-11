@@ -538,9 +538,15 @@ namespace unvell.ReoGrid
 
 				if (!HasSettings(WorksheetSettings.Edit_Readonly))
 				{
-					this.DeleteRangeData(currentCopingRange);
-					this.RemoveRangeStyles(currentCopingRange, PlainStyleFlag.All);
-					this.RemoveRangeBorders(currentCopingRange, BorderPositions.All);
+					var actionSupportedControl = this.controlAdapter.ControlInstance as IActionControl;
+					if (actionSupportedControl != null)
+					{
+						var action = new CombinedWorksheetAction(this, currentCopingRange);
+						action.Add(new RemoveRangeDataAction(currentCopingRange));
+						action.Add(new RemoveRangeStyleAction(currentCopingRange, PlainStyleFlag.All));
+						action.Add(new RemoveRangeBorderAction(currentCopingRange, BorderPositions.All));
+						actionSupportedControl.DoAction(this, action);
+					}
 				}
 
 				if (AfterCut != null)
