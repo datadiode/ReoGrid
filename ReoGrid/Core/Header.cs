@@ -426,9 +426,9 @@ namespace unvell.ReoGrid
 		/// <param name="row">Start row index to set</param>
 		/// <param name="count">Number of rows to set</param>
 		/// <param name="height">Height value of row</param>
-		public void SetRowsHeight(int row, int count, ushort height)
+		public void SetRowsHeight(int row, int count, ushort height, Func<int, int> heightGetter = null)
 		{
-			SetRowsHeight(row, count, r => height, true);
+			SetRowsHeight(row, count, heightGetter != null ? heightGetter : r => height, true);
 		}
 
 		internal void SetRowsHeight(int row, int count, Func<int, int> heightGetter, bool processOutlines)
@@ -613,7 +613,7 @@ namespace unvell.ReoGrid
 				}
 			}
 
-			this.RowsHeightChanged?.Invoke(this, new RowsHeightChangedEventArgs(row, count, heightGetter(row)));
+			this.RowsHeightChanged?.Invoke(this, new RowsHeightChangedEventArgs(row, count, heightGetter(row), heightGetter));
 
 #if DEBUG
 			watch.Stop();

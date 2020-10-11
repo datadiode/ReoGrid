@@ -614,11 +614,13 @@ namespace unvell.ReoGrid.Events
 		/// The new height that has been changed for rows.
 		/// </summary>
 		public int Height { get; private set; }
+		public Func<int, int> HeightGetter { get; private set; }
 
-		internal RowsHeightChangedEventArgs(int index, int count, int height)
+		internal RowsHeightChangedEventArgs(int index, int count, int height, Func<int, int> heightGetter = null)
 			: base(index, count)
 		{
 			this.Height = height;
+			this.HeightGetter = heightGetter;
 		}
 	}
 	#endregion // Row Changes
