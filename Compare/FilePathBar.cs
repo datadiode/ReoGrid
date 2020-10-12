@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -41,6 +42,8 @@ namespace unvell.ReoGrid.Editor
 		};
 		private readonly TabControl tc;
 		private bool dirty = false;
+
+		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public bool Dirty
 		{
 			get => dirty;
@@ -53,6 +56,8 @@ namespace unvell.ReoGrid.Editor
 				}
 			}
 		}
+
+		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public SeletionType Selection
 		{
 			get => (SeletionType)tc.SelectedIndex;
@@ -255,6 +260,7 @@ namespace unvell.ReoGrid.Editor
 
 		private string Path;
 
+		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public new string Text
 		{
 			get
