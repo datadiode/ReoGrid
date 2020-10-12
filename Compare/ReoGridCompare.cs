@@ -47,6 +47,7 @@ using unvell.ReoGrid.Drawing.Text;
 using unvell.UIControls;
 
 using Point = System.Drawing.Point;
+using System.Collections;
 
 namespace unvell.ReoGrid.Editor
 {
@@ -83,6 +84,19 @@ namespace unvell.ReoGrid.Editor
 		private object arg2;
 		private LinkedList<IAction> undoStack = new LinkedList<IAction>();
 		private LinkedList<IAction> redoStack = new LinkedList<IAction>();
+		public void ParseArguments(IList arguments)
+		{
+			if (arguments.Count > 0)
+			{
+				header1.Text = (string)arguments[0];
+				header1.Modified = true;
+			}
+			if (arguments.Count > 1)
+			{
+				header2.Text = (string)arguments[1];
+				header2.Modified = true;
+			}
+		}
 		/// <summary>
 		/// Create instance of ReoGrid Editor.
 		/// </summary>
@@ -2483,6 +2497,10 @@ namespace unvell.ReoGrid.Editor
 
 		protected override void OnShown(EventArgs e)
 		{
+			if (header2.Modified)
+				header2.Selection = FilePathBar.SeletionType.AutoDetect;
+			if (header1.Modified)
+				header1.Selection = FilePathBar.SeletionType.AutoDetect;
 			base.OnShown(e);
 		}
 

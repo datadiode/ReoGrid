@@ -53,7 +53,11 @@ namespace unvell.ReoGrid.Editor
 				}
 			}
 		}
-		public SeletionType Selection { get => (SeletionType)tc.SelectedIndex; }
+		public SeletionType Selection
+		{
+			get => (SeletionType)tc.SelectedIndex;
+			set => tc.SelectedIndex = (int)value;
+		}
 		public event EventHandler SelectionChanged;
 		private void BrowseForFile(string defext)
 		{
