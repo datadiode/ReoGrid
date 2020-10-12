@@ -473,7 +473,7 @@ namespace unvell.ReoGrid.Editor
 			this.saveToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.saveToolStripButton.Name = "saveToolStripButton";
 			this.saveToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.saveToolStripButton.Text = "Save";
+			this.saveToolStripButton.Text = "Save (Ctrl+S)";
 			// 
 			// printPreviewToolStripButton
 			// 
@@ -483,7 +483,7 @@ namespace unvell.ReoGrid.Editor
 			this.printPreviewToolStripButton.Name = "printPreviewToolStripButton";
 			this.printPreviewToolStripButton.Size = new System.Drawing.Size(23, 22);
 			this.printPreviewToolStripButton.Text = "toolStripButton1";
-			this.printPreviewToolStripButton.ToolTipText = "Print Preview";
+			this.printPreviewToolStripButton.ToolTipText = "Print Preview (Ctrl+R)";
 			this.printPreviewToolStripButton.Click += new System.EventHandler(this.printPreviewToolStripButton_Click);
 			// 
 			// copyToolStripButton
@@ -493,7 +493,7 @@ namespace unvell.ReoGrid.Editor
 			this.copyToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.copyToolStripButton.Name = "copyToolStripButton";
 			this.copyToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.copyToolStripButton.Text = "Copy";
+			this.copyToolStripButton.Text = "Copy (Ctrl+C)";
 			this.copyToolStripButton.Click += new System.EventHandler(this.copyRangeToolStripMenuItem_Click);
 			// 
 			// cutToolStripButton
@@ -503,7 +503,7 @@ namespace unvell.ReoGrid.Editor
 			this.cutToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.cutToolStripButton.Name = "cutToolStripButton";
 			this.cutToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.cutToolStripButton.Text = "Cut";
+			this.cutToolStripButton.Text = "Cut (Ctrl+X)";
 			this.cutToolStripButton.Click += new System.EventHandler(this.cutRangeToolStripMenuItem_Click);
 			// 
 			// pasteToolStripButton
@@ -513,7 +513,7 @@ namespace unvell.ReoGrid.Editor
 			this.pasteToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.pasteToolStripButton.Name = "pasteToolStripButton";
 			this.pasteToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.pasteToolStripButton.Text = "Paste";
+			this.pasteToolStripButton.Text = "Paste (Ctrl+V)";
 			this.pasteToolStripButton.Click += new System.EventHandler(this.pasteRangeToolStripMenuItem_Click);
 			// 
 			// styleBrushToolStripButton
@@ -540,7 +540,7 @@ namespace unvell.ReoGrid.Editor
 			this.undoToolStripButton.Name = "undoToolStripButton";
 			this.undoToolStripButton.Size = new System.Drawing.Size(23, 22);
 			this.undoToolStripButton.Text = "Undo";
-			this.undoToolStripButton.ToolTipText = "Undo";
+			this.undoToolStripButton.ToolTipText = "Undo (Ctrl+Z)";
 			// 
 			// redoToolStripButton
 			// 
@@ -550,7 +550,7 @@ namespace unvell.ReoGrid.Editor
 			this.redoToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.redoToolStripButton.Name = "redoToolStripButton";
 			this.redoToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.redoToolStripButton.Text = "Redo";
+			this.redoToolStripButton.Text = "Redo (Ctrl+Y)";
 			// 
 			// toolStripSeparator14
 			// 
@@ -565,7 +565,7 @@ namespace unvell.ReoGrid.Editor
 			this.nextDiffToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.nextDiffToolStripButton.Name = "nextDiffToolStripButton";
 			this.nextDiffToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.nextDiffToolStripButton.Text = "Redo";
+			this.nextDiffToolStripButton.Text = "Next Difference (Alt+Down)";
 			// 
 			// prevDiffToolStripButton
 			// 
@@ -575,7 +575,7 @@ namespace unvell.ReoGrid.Editor
 			this.prevDiffToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.prevDiffToolStripButton.Name = "prevDiffToolStripButton";
 			this.prevDiffToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.prevDiffToolStripButton.Text = "Redo";
+			this.prevDiffToolStripButton.Text = "Previous Difference (Alt+Up)";
 			// 
 			// toolStripSeparator16
 			// 
@@ -590,7 +590,7 @@ namespace unvell.ReoGrid.Editor
 			this.firstDiffToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.firstDiffToolStripButton.Name = "firstDiffToolStripButton";
 			this.firstDiffToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.firstDiffToolStripButton.Text = "Redo";
+			this.firstDiffToolStripButton.Text = "First Difference (Alt+Home)";
 			// 
 			// lastDiffToolStripButton
 			// 
@@ -600,7 +600,7 @@ namespace unvell.ReoGrid.Editor
 			this.lastDiffToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.lastDiffToolStripButton.Name = "lastDiffToolStripButton";
 			this.lastDiffToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.lastDiffToolStripButton.Text = "Redo";
+			this.lastDiffToolStripButton.Text = "Last Difference (Alt+End)";
 			// 
 			// toolStripSeparator15
 			// 
@@ -615,7 +615,7 @@ namespace unvell.ReoGrid.Editor
 			this.left2rightToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.left2rightToolStripButton.Name = "left2rightToolStripButton";
 			this.left2rightToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.left2rightToolStripButton.Text = "Redo";
+			this.left2rightToolStripButton.Text = "Copy Right (Alt+Right)";
 			// 
 			// right2leftToolStripButton
 			// 
@@ -625,7 +625,7 @@ namespace unvell.ReoGrid.Editor
 			this.right2leftToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.right2leftToolStripButton.Name = "right2leftToolStripButton";
 			this.right2leftToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.right2leftToolStripButton.Text = "Redo";
+			this.right2leftToolStripButton.Text = "Copy Left (Alt+Left)";
 			// 
 			// toolStripSeparator11
 			// 
@@ -1189,7 +1189,7 @@ namespace unvell.ReoGrid.Editor
 			this.cellMergeToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.cellMergeToolStripButton.Name = "cellMergeToolStripButton";
 			this.cellMergeToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.cellMergeToolStripButton.Text = "Merge";
+			this.cellMergeToolStripButton.Text = "Merge (Ctrl+M)";
 			// 
 			// unmergeRangeToolStripButton
 			// 
@@ -1198,7 +1198,7 @@ namespace unvell.ReoGrid.Editor
 			this.unmergeRangeToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.unmergeRangeToolStripButton.Name = "unmergeRangeToolStripButton";
 			this.unmergeRangeToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.unmergeRangeToolStripButton.Text = "Unmerge";
+			this.unmergeRangeToolStripButton.Text = "Unmerge (Ctrl+Shift+M)";
 			// 
 			// toolStripSeparator5
 			// 
