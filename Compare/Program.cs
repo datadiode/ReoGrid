@@ -21,6 +21,17 @@ using System.Windows.Forms;
 
 namespace unvell.ReoGrid.Editor
 {
+	class ToolStripRenderer : ToolStripProfessionalRenderer
+	{
+		protected override void OnRenderButtonBackground(ToolStripItemRenderEventArgs e)
+		{
+			// Suppress pressedness visualization while doing PerformClick()
+			if (e.Item.Pressed && !e.Item.Selected)
+				return;
+			base.OnRenderButtonBackground(e);
+		}
+	}
+
 	static class Program
 	{
 		/// <summary>

@@ -89,6 +89,7 @@ namespace unvell.ReoGrid.Editor
 		public ReoGridCompare()
 		{
 			InitializeComponent();
+			toolStrip1.Renderer = new ToolStripRenderer();
 
 			nextDiffToolStripButton.Click += nextDiffToolStripButton_Click;
 			prevDiffToolStripButton.Click += prevDiffToolStripButton_Click;
