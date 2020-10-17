@@ -88,17 +88,22 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// No selection will be drawn.
 		/// </summary>
-		None,
+		None = 0,
 
 		/// <summary>
 		/// Default selection style.
 		/// </summary>
-		Default,
+		Default = 1,
 
 		/// <summary>
 		/// Windows classic focus rectangle style.
 		/// </summary>
-		FocusRect,
+		FocusRect = 2,
+
+		/// <summary>
+		/// Combines both styles.
+		/// </summary>
+		Hybrid = Default | FocusRect,
 	}
 
 	/// <summary>

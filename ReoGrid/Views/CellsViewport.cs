@@ -1005,7 +1005,7 @@ namespace unvell.ReoGrid.Views
 				{
 					SolidColor selectionFillColor = controlStyle.Colors[ControlAppearanceColors.SelectionFill];
 
-					if (sheet.SelectionStyle == WorksheetSelectionStyle.Default)
+					if ((sheet.SelectionStyle & WorksheetSelectionStyle.Default) != 0)
 					{
 						var range = this.sheet.GetRangeIfMergedCell(this.sheet.focusPos);
 						var scaledFocusPosRect = GetScaledAndClippedRangeRect(this, range.StartPos, range.EndPos, 0);
@@ -1033,7 +1033,7 @@ namespace unvell.ReoGrid.Views
 							g.DrawRectangle(scaledSelectionRect, selectionBorderColor, selectionBorderWidth, LineStyles.Solid);
 						}
 					}
-					else if (this.sheet.SelectionStyle == WorksheetSelectionStyle.FocusRect)
+					if ((sheet.SelectionStyle & WorksheetSelectionStyle.FocusRect) != 0)
 					{
 						g.DrawRectangle(scaledSelectionRect, SolidColor.Black, 1, LineStyles.Dot);
 					}
