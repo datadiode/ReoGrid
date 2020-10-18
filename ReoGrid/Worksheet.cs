@@ -2031,12 +2031,7 @@ namespace unvell.ReoGrid
 			}
 #endif
 
-			if (!this.selStart.IsEmpty &&
-				// if there is request to cancel notify to cell body about this KeyUp event
-				// do not pass key up to cell body.
-				// sometimes this raised when an Escape key is received to cancel editing.
-				// see KeyDown event of EditTextBox.
-				!DropKeyUpAfterEndEdit)
+			if (!this.selStart.IsEmpty)
 			{
 				var cell = cells[this.selStart.Row, this.selStart.Col];
 				if (cell != null && cell.body != null)
@@ -2045,9 +2040,6 @@ namespace unvell.ReoGrid
 					if (processed) this.RequestInvalidate();
 				}
 			}
-
-			// ignore to pass KeyUp to cell body only once
-			DropKeyUpAfterEndEdit = false;
 
 			this.CellKeyUp?.Invoke(this, new CellKeyDownEventArgs
 			{
@@ -2058,13 +2050,6 @@ namespace unvell.ReoGrid
 
 			return true;
 		}
-
-		/// <summary>
-		/// Sometimes when in editing mode, the Escape key used to cancel editing,
-		/// The keyUp event of Escape to cancel editing should be ignored to pass to cell body.
-		/// When this flag is true, the KeyUp event notify to the cell body will be ignored once.
-		/// </summary>
-		internal bool DropKeyUpAfterEndEdit { get; set; }
 
 		/// <summary>
 		/// Event raised before key pressed down on spreadsheet

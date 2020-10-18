@@ -1200,7 +1200,6 @@ namespace unvell.ReoGrid
 					if (inputChar == (int)Keys.Escape)
 					{
 						sheet.EndEdit(EndEditReason.Cancel);
-						sheet.DropKeyUpAfterEndEdit = true;
 						return;
 					}
 					if (inputChar == (int)Keys.Tab)
