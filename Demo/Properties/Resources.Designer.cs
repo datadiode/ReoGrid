@@ -19,7 +19,7 @@ namespace unvell.ReoGrid.Demo.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -85,7 +85,7 @@ namespace unvell.ReoGrid.Demo.Properties {
         ///
         ///.csharpcode .str { color: #a31515; }
         ///
-        ///.csharp [rest of string was truncated]&quot;;.
+        ///.csharpcode .op { color: #0000c [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AddingObjectDemo_src {
             get {
@@ -129,7 +129,8 @@ namespace unvell.ReoGrid.Demo.Properties {
         /// * PURPOSE.
         /// *
         /// * ReoGrid Demo project released under MIT license.
-        /// * Copyright (c) 20 [rest of string was truncated]&quot;;.
+        /// *
+        /// * Copyright (c) 2012-2016 Jing [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DemoCategory {
             get {

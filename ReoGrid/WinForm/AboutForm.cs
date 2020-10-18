@@ -43,7 +43,7 @@ namespace unvell.ReoGrid.WinForm
 			InitializeComponent();
 
 			lnkHP.Click += (s, e) => Process.Start(lnkHP.Text);
-			labVersion.Text = "version datadiode " + ProductVersion;
+			labVersion.Text = "version " + ProductVersion;
 
 			textBox2.Text = unvell.ReoGrid.Properties.Resources.EULA_EN;
 		}

@@ -19,7 +19,7 @@ namespace unvell.ReoGrid.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -81,7 +81,17 @@ namespace unvell.ReoGrid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to END-USER LICENSE AGREEMENT FOR UNVELL IMPORTANT PLEASE READ THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT CAREFULLY BEFORE CONTINUING WITH THIS PROGRAM INSTALL: UNVELL End-User License Agreement (&quot;EULA&quot;) is a legal agreement between you (either an individual or a single entity) and UNVELL. for the UNVELL software product(s) identified above which may include associated software components, media, printed materials, and &quot;online&quot; or electronic documentation (&quot;EULA&quot;). By installing, copying, or otherwise  [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to MIT License
+        ///
+        ///Copyright (c) 2013-2020 Jing &lt;lujing@unvell.com&gt;
+        ///Copyright (c) 2013-2020 unvell.com, All rights reserved.
+        ///
+        ///Permission is hereby granted, free of charge, to any person obtaining a copy
+        ///of this software and associated documentation files (the &quot;Software&quot;), to deal
+        ///in the Software without restriction, including without limitation the rights
+        ///to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        ///copies of the Software, and to permit persons to whom the Software is
+        ///furnis [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string EULA_EN {
             get {
@@ -198,7 +208,8 @@ namespace unvell.ReoGrid.Properties {
         ///			&lt;/a:lt2&gt;
         ///			&lt;a:accent1&gt;
         ///				&lt;a:srgbClr val=&quot;4F81BD&quot;/&gt;
-        ///		 [rest of string was truncated]&quot;;.
+        ///			&lt;/a:accent1&gt;
+        ///			&lt; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string theme1 {
             get {
