@@ -27,7 +27,6 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows.Automation;
 using System.Windows.Automation.Provider;
-using System.Runtime.InteropServices;
 
 using unvell.Common;
 
@@ -154,8 +153,6 @@ namespace unvell.ReoGrid.Editor
 			grid2.CurrentWorksheetChanged += Grid_CurrentWorksheetChanged;
 			grid1.ActionPerformed += Grid_ActionPerformed;
 			grid2.ActionPerformed += Grid_ActionPerformed;
-			grid1.VisibleChanged += (s, e) => saveAsLeftToolStripMenuItem.Enabled = grid1.Visible;
-			grid2.VisibleChanged += (s, e) => saveAsRightToolStripMenuItem.Enabled = grid2.Visible;
 			grid1.Visible = false;
 			grid2.Visible = false;
 
@@ -1695,12 +1692,21 @@ namespace unvell.ReoGrid.Editor
 					Cursor = Cursors.Default;
 				}
 			}
+			// Diff navigation commands
 			nextDiffToolStripButton.Enabled = findings;
 			prevDiffToolStripButton.Enabled = findings;
 			firstDiffToolStripButton.Enabled = findings;
 			lastDiffToolStripButton.Enabled = findings;
 			left2rightToolStripButton.Enabled = findings;
 			right2leftToolStripButton.Enabled = findings;
+			// Save commands
+			saveLeftToolStripMenuItem.Enabled = header1.Dirty;
+			saveRightToolStripMenuItem.Enabled = header2.Dirty;
+			bool dirty = header1.Dirty || header2.Dirty;
+			saveToolStripMenuItem.Enabled = dirty;
+			saveToolStripButton.Enabled = dirty;
+			saveAsLeftToolStripMenuItem.Enabled = grid1.Visible;
+			saveAsRightToolStripMenuItem.Enabled = grid2.Visible;
 			toolStripButton_EnabledChanged(this, EventArgs.Empty);
 		}
 
@@ -1722,6 +1728,7 @@ namespace unvell.ReoGrid.Editor
 			bool dirty = header1.Dirty || header2.Dirty;
 			saveToolStripMenuItem.Enabled = dirty;
 			saveToolStripButton.Enabled = dirty;
+			toolStripButton_EnabledChanged(this, EventArgs.Empty);
 		}
 
 		/// <summary>
