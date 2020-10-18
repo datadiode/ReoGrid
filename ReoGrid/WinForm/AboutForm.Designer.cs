@@ -111,13 +111,14 @@ namespace unvell.ReoGrid.WinForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.CancelButton = this.btnOK;
 			this.ClientSize = new System.Drawing.Size(552, 366);
 			this.Controls.Add(this.labVersion);
 			this.Controls.Add(this.textBox2);
 			this.Controls.Add(this.lnkHP);
 			this.Controls.Add(this.btnOK);
 			this.Controls.Add(this.label1);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "AboutForm";
