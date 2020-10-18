@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using unvell.ReoGrid.WinForm;
 
 namespace unvell.ReoGrid.Editor
 {
@@ -43,72 +44,29 @@ namespace unvell.ReoGrid.Editor
 		}
 
 		/// <summary>
-		/// https://github.com/adamabdelhamed/PowerArgs
-		/// Copyright (c) 2013 Adam Abdelhamed
-		/// SPDX-License-Identifier: MIT
-		/// Converts a single string that represents a command line to be executed into a
-		/// string list, accounting for quoted arguments that may or may not contain spaces.
-		/// </summary>
-		/// <param name="commandLine">The raw arguments as a single string</param>
-		/// <returns>a converted string list with the arguments properly broken up</returns>
-		public static List<string> SplitCommandLine(string commandLine)
-		{
-			List<string> ret = new List<string>();
-			string currentArg = string.Empty;
-			bool insideDoubleQuotes = false;
-
-			for (int i = 0; i < commandLine.Length; i++)
-			{
-				var c = commandLine[i];
-
-				if (insideDoubleQuotes && c == '"')
-				{
-					ret.Add(currentArg);
-					currentArg = string.Empty;
-					insideDoubleQuotes = !insideDoubleQuotes;
-				}
-				else if (!insideDoubleQuotes && c == ' ')
-				{
-					if (currentArg.Length > 0)
-					{
-						ret.Add(currentArg);
-						currentArg = string.Empty;
-					}
-				}
-				else if (c == '"')
-				{
-					insideDoubleQuotes = !insideDoubleQuotes;
-				}
-				else if (c == '\\' && i < commandLine.Length - 1 && commandLine[i + 1] == '"')
-				{
-					currentArg += '"';
-					i++;
-				}
-				else
-				{
-					currentArg += c;
-				}
-			}
-
-			if (currentArg.Length > 0)
-			{
-				ret.Add(currentArg);
-			}
-
-			return ret;
-		}
-
-		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static void Main()
+		static int Main(string[] args)
 		{
-			var arguments = new ArrayList(Environment.GetCommandLineArgs());
-			arguments.RemoveAt(0);
+			var arguments = new ArrayList(args);
+			int i;
+			if ((i = arguments.IndexOf("/About")) != -1)
+			{
+				arguments.RemoveAt(i);
+				var dlg = new AboutForm();
+				if (i < arguments.Count)
+					dlg.Text = (string)arguments[i];
+				dlg.ShowDialog();
+				return 0;
+			}
 			var mainForm = new ReoGridCompare();
 			mainForm.ParseArguments(arguments);
-			Application.Run(mainForm);
+			if (mainForm.FormBorderStyle == FormBorderStyle.None)
+				mainForm.Show();
+			else
+				Application.Run(mainForm);
+			return 0;
 		}
 	}
 }

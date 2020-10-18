@@ -25,6 +25,9 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
+using System.Windows.Automation;
+using System.Windows.Automation.Provider;
+using System.Runtime.InteropServices;
 
 using unvell.Common;
 
@@ -48,6 +51,8 @@ using unvell.UIControls;
 
 using Point = System.Drawing.Point;
 using System.Collections;
+using unvell.Common.Win32Lib;
+using System.Threading;
 
 namespace unvell.ReoGrid.Editor
 {
@@ -76,6 +81,12 @@ namespace unvell.ReoGrid.Editor
 			LineRegex = CSVFormatArgument.RegexPipe
 		};
 
+		private enum Side : int
+		{
+			Left = 1,
+			Right = 2,
+		};
+
 		/// <summary>
 		/// Flag to avoid scroll two controls recursively
 		/// </summary>
@@ -86,6 +97,20 @@ namespace unvell.ReoGrid.Editor
 		private LinkedList<IAction> redoStack = new LinkedList<IAction>();
 		public void ParseArguments(IList arguments)
 		{
+			int i;
+			if ((i = arguments.IndexOf("/ParentWindow")) != -1)
+			{
+				arguments.RemoveAt(i);
+				if (i < arguments.Count)
+				{
+					IntPtr hwndParent = (IntPtr)Convert.ToInt64((string)arguments[i], 16);
+					arguments.RemoveAt(i);
+					FormBorderStyle = FormBorderStyle.None;
+					CreateControl();
+					Win32.SetWindowLong(Handle, Win32.GWL_STYLE, Win32.GetWindowLong(Handle, Win32.GWL_STYLE) | Win32.WS_CHILD);
+					Win32.SetParent(Handle, hwndParent);
+				}
+			}
 			if (arguments.Count > 0)
 			{
 				header1.Text = (string)arguments[0];
@@ -117,21 +142,22 @@ namespace unvell.ReoGrid.Editor
 			header1.SelectionChanged += (s, e) => arg1 = LoadOneFile(grid1, header1);
 			header2.SelectionChanged += (s, e) => arg2 = LoadOneFile(grid2, header2);
 
+			grid1.GotFocus += Grid_GotFocus;
+			grid2.GotFocus += Grid_GotFocus;
+			grid1.LostFocus += Grid_LostFocus;
+			grid2.LostFocus += Grid_LostFocus;
+			grid1.WorksheetInserted += Grid_WorksheetInserted;
+			grid2.WorksheetInserted += Grid_WorksheetInserted;
+			grid1.WorksheetRemoved += Grid_WorksheetRemoved;
+			grid2.WorksheetRemoved += Grid_WorksheetRemoved;
+			grid1.CurrentWorksheetChanged += Grid_CurrentWorksheetChanged;
+			grid2.CurrentWorksheetChanged += Grid_CurrentWorksheetChanged;
+			grid1.ActionPerformed += Grid_ActionPerformed;
+			grid2.ActionPerformed += Grid_ActionPerformed;
+			grid1.VisibleChanged += (s, e) => saveAsLeftToolStripMenuItem.Enabled = grid1.Visible;
+			grid2.VisibleChanged += (s, e) => saveAsRightToolStripMenuItem.Enabled = grid2.Visible;
 			grid1.Visible = false;
 			grid2.Visible = false;
-			grid1.GotFocus += Grid_GotFocus;
-			grid1.LostFocus += Grid_LostFocus;
-			grid1.WorksheetInserted += Grid_WorksheetInserted;
-			grid1.WorksheetRemoved += Grid_WorksheetRemoved;
-			grid1.CurrentWorksheetChanged += Grid_CurrentWorksheetChanged;
-			grid1.ActionPerformed += Grid_ActionPerformed;
-
-			grid2.GotFocus += Grid_GotFocus;
-			grid2.LostFocus += Grid_LostFocus;
-			grid2.WorksheetInserted += Grid_WorksheetInserted;
-			grid2.WorksheetRemoved += Grid_WorksheetRemoved;
-			grid2.CurrentWorksheetChanged += Grid_CurrentWorksheetChanged;
-			grid2.ActionPerformed += Grid_ActionPerformed;
 
 			// Simulate some events which went undetected
 			Grid_WorksheetInserted(grid1, new WorksheetInsertedEventArgs(grid1.CurrentWorksheet));
@@ -296,9 +322,12 @@ namespace unvell.ReoGrid.Editor
 				}
 			};
 
-			saveToolStripButton.Click += (s, e) => SaveDocument();
-			saveToolStripMenuItem.Click += (s, e) => SaveDocument();
-			saveAsToolStripMenuItem.Click += (s, e) => SaveAsDocument();
+			saveToolStripButton.Click += (s, e) => Save(Side.Left | Side.Right);
+			saveToolStripMenuItem.Click += (s, e) => Save(Side.Left | Side.Right);
+			saveLeftToolStripMenuItem.Click += (s, e) => Save(Side.Left);
+			saveRightToolStripMenuItem.Click += (s, e) => Save(Side.Right);
+			saveAsLeftToolStripMenuItem.Click += (s, e) => SaveAs(Side.Left);
+			saveAsRightToolStripMenuItem.Click += (s, e) => SaveAs(Side.Right);
 
 			groupRowsToolStripMenuItem.Click += groupRowsToolStripMenuItem_Click;
 			groupRowsToolStripMenuItem1.Click += groupRowsToolStripMenuItem_Click;
@@ -689,6 +718,13 @@ namespace unvell.ReoGrid.Editor
 			return base.ProcessCmdKey(ref msg, keyData);
 		}
 
+		private void toolStripButton_EnabledChanged(object sender, EventArgs e)
+		{
+			AutomationEventArgs args = new AutomationEventArgs(InvokePatternIdentifiers.InvokedEvent);
+			var provider = AutomationInteropProvider.HostProviderFromHandle(toolStrip1.Handle);
+			AutomationInteropProvider.RaiseAutomationEvent(InvokePatternIdentifiers.InvokedEvent, provider, args);
+		}
+
 		private void ExportAsCsv(RangePosition range)
 		{
 			using (SaveFileDialog dlg = new SaveFileDialog())
@@ -1038,7 +1074,6 @@ namespace unvell.ReoGrid.Editor
 			// File
 			fileToolStripMenuItem.Text = LangResource.Menu_File;
 			saveToolStripMenuItem.Text = LangResource.Menu_File_Save;
-			saveAsToolStripMenuItem.Text = LangResource.Menu_File_Save_As;
 			exportAsHtmlToolStripMenuItem.Text = LangResource.Menu_File_Export_As_HTML;
 			exportAsCSVToolStripMenuItem.Text = LangResource.Menu_File_Export_As_CSV;
 			exportSelectedRangeToolStripMenuItem.Text = LangResource.Menu_File_Export_As_CSV_Selected_Range;
@@ -1216,61 +1251,30 @@ namespace unvell.ReoGrid.Editor
 			header2.SetupUILanguage();
 		}
 
-		System.Globalization.CultureInfo cultureEN_US;
-		System.Globalization.CultureInfo cultureJP_JP;
-		System.Globalization.CultureInfo cultureZH_CN;
-		System.Globalization.CultureInfo cultureDE_DE;
-
-		public void ChangeLanguageToEnglish()
+		void ChangeLanguage(string culture)
 		{
-			if (cultureEN_US == null) cultureEN_US = new System.Globalization.CultureInfo("en-US");
-			System.Threading.Thread.CurrentThread.CurrentUICulture = cultureEN_US;
-
+			Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(culture);
 			SetupUILanguage();
 		}
 
-		public void ChangeLanguageToJapanese()
+		void englishenUSToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (cultureJP_JP == null) cultureJP_JP = new System.Globalization.CultureInfo("ja-JP");
-			System.Threading.Thread.CurrentThread.CurrentUICulture = cultureJP_JP;
-
-			SetupUILanguage();
+			ChangeLanguage("en-US");
 		}
 
-		public void ChangeLanguageToChinese()
+		void japanesejpJPToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (cultureZH_CN == null) cultureZH_CN = new System.Globalization.CultureInfo("zh-CN");
-			System.Threading.Thread.CurrentThread.CurrentUICulture = cultureZH_CN;
-
-			SetupUILanguage();
+			ChangeLanguage("ja-JP");
 		}
 
-		public void ChangeLanguageToGerman()
+		void simplifiedChinesezhCNToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (cultureDE_DE == null) cultureDE_DE = new System.Globalization.CultureInfo("de-DE");
-			System.Threading.Thread.CurrentThread.CurrentUICulture = cultureDE_DE;
-
-			SetupUILanguage();
+			ChangeLanguage("zh-CN");
 		}
 
-		private void englishenUSToolStripMenuItem_Click(object sender, EventArgs e)
+		void germandeDEToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			ChangeLanguageToEnglish();
-		}
-
-		private void japanesejpJPToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			ChangeLanguageToJapanese();
-		}
-
-		private void simplifiedChinesezhCNToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			ChangeLanguageToChinese();
-		}
-
-		private void germandeDEToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			ChangeLanguageToGerman();
+			ChangeLanguage("de-DE");
 		}
 		#endregion // Langauge
 
@@ -1370,6 +1374,7 @@ namespace unvell.ReoGrid.Editor
 					unfreezeToolStripMenuItem.Enabled = worksheet.IsFrozen;
 
 					isUIUpdating = false;
+					toolStripButton_EnabledChanged(this, EventArgs.Empty);
 				};
 
 				if (InvokeRequired)
@@ -1474,11 +1479,9 @@ namespace unvell.ReoGrid.Editor
 		public FilePathBar CurrentHeader { get => GridControl == grid1 ? header1 : header2; }
 		public string CurrentFilePath { get => CurrentHeader.Text; }
 
-		private void SaveOneFile(ReoGridControl grid, FilePathBar header, object arg)
+		private bool SaveOneFile(ReoGridControl grid, string path, object arg)
 		{
-			var path = header.Dirty ? header.Text : null;
-			if (string.IsNullOrEmpty(path))
-				return;
+			var dirty = true;
 			FileFormat fm = FileFormat._Auto;
 			if (path.EndsWith(".xlsx", StringComparison.CurrentCultureIgnoreCase))
 			{
@@ -1495,17 +1498,19 @@ namespace unvell.ReoGrid.Editor
 			try
 			{
 				grid.Save(path, fm, arg);
-				header.Dirty = false;
+				dirty = false;
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show(this, "Save error: " + ex.Message, "Save Workbook", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 			}
+			return dirty;
 		}
 
-		private void SetCurrentDocumentFile(string filepath)
+		private void SaveOneFile(ReoGridControl grid, FilePathBar header, object arg)
 		{
-			CurrentHeader.Text = filepath;
+			if (header.Dirty)
+				header.Dirty = SaveOneFile(grid, header.Text, arg);
 		}
 
 		private void RemoveUndoRedoActions(ReoGridControl grid)
@@ -1571,6 +1576,7 @@ namespace unvell.ReoGrid.Editor
 			if (header.Selection < FilePathBar.SeletionType.Clear)
 			{
 				grid.Visible = true;
+				header.Modified = false;
 				Rescan();
 			}
 			return arg;
@@ -1695,57 +1701,56 @@ namespace unvell.ReoGrid.Editor
 			lastDiffToolStripButton.Enabled = findings;
 			left2rightToolStripButton.Enabled = findings;
 			right2leftToolStripButton.Enabled = findings;
+			toolStripButton_EnabledChanged(this, EventArgs.Empty);
 		}
 
 		/// <summary>
 		/// Save current document
 		/// </summary>
-		public void SaveDocument()
+		private void Save(Side which)
 		{
-			SaveOneFile(grid1, header1, arg1);
-			SaveOneFile(grid2, header2, arg2);
+			if ((which & Side.Left) != 0)
+			{
+				SaveOneFile(grid1, header1, arg1);
+				saveLeftToolStripMenuItem.Enabled = header1.Dirty;
+			}
+			if ((which & Side.Right) != 0)
+			{
+				SaveOneFile(grid2, header2, arg2);
+				saveRightToolStripMenuItem.Enabled = header2.Dirty;
+			}
+			bool dirty = header1.Dirty || header2.Dirty;
+			saveToolStripMenuItem.Enabled = dirty;
+			saveToolStripButton.Enabled = dirty;
 		}
 
 		/// <summary>
 		/// Save current document by specifying new file path
 		/// </summary>
 		/// <returns>true if operation is successful, otherwise false</returns>
-		public bool SaveAsDocument()
+		private void SaveAs(Side which)
 		{
-			/*using (SaveFileDialog sfd = new SaveFileDialog())
+			using (SaveFileDialog sfd = new SaveFileDialog())
 			{
 				sfd.Filter = LangResource.Filter_Save_File;
-
-				if (!string.IsNullOrEmpty(CurrentFilePath))
+				var path = (which == Side.Left ? header1 : header2).Text;
+				if (!string.IsNullOrEmpty(path))
 				{
-					sfd.FileName = Path.GetFileNameWithoutExtension(CurrentFilePath);
-
-					var format = GetFormatByExtension(CurrentFilePath);
-
-					switch (format)
+					sfd.FileName = Path.GetFileNameWithoutExtension(path);
+					var ext = Path.GetExtension(path);
+					var pos = sfd.Filter.LastIndexOf(ext);
+					if (pos != -1)
 					{
-						case FileFormat.Excel2007:
-							sfd.FilterIndex = 1;
-							break;
-
-						case FileFormat.ReoGridFormat:
-							sfd.FilterIndex = 2;
-							break;
-
-						case FileFormat.CSV:
-							sfd.FilterIndex = 3;
-							break;
+						pos -= sfd.Filter.Substring(0, pos).Replace("|", "").Length;
+						sfd.FilterIndex = (pos + 1) / 2;
 					}
 				}
-
 				if (sfd.ShowDialog(this) == DialogResult.OK)
 				{
-					SaveFile(sfd.FileName);
-					return true;
+					SaveOneFile(which == Side.Left ? grid1 : grid2,
+						sfd.FileName, which == Side.Left ? arg1 : arg2);
 				}
-			}*/
-
-			return false;
+			}
 		}
 
 		protected override void OnLoad(EventArgs e)
@@ -1765,68 +1770,6 @@ namespace unvell.ReoGrid.Editor
 			// CurrentWorksheet.Save("..\\..\\autosave.rgf");
 #endif // DEBUG
 		}
-
-		public bool CloseDocument()
-		{
-			if (GridControl.IsWorkbookEmpty)
-			{
-				return true;
-			}
-
-			var dr = MessageBox.Show(LangResource.Msg_Save_Changes, "ReoGrid Editor", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-
-			if (dr == System.Windows.Forms.DialogResult.No)
-				return true;
-			else if (dr == System.Windows.Forms.DialogResult.Cancel)
-				return false;
-
-			FileFormat format = FileFormat._Auto;
-
-			if (!string.IsNullOrEmpty(CurrentFilePath))
-			{
-				format = GetFormatByExtension(CurrentFilePath);
-			}
-
-			if (format == FileFormat._Auto || string.IsNullOrEmpty(CurrentFilePath))
-			{
-				return SaveAsDocument();
-			}
-			else
-			{
-				SaveDocument();
-			}
-
-			return true;
-		}
-
-		private FileFormat GetFormatByExtension(string path)
-		{
-			if (string.IsNullOrEmpty(path))
-			{
-				return FileFormat._Auto;
-			}
-
-			string ext = Path.GetExtension(CurrentFilePath);
-
-			if (ext.Equals(".rgf", StringComparison.CurrentCultureIgnoreCase)
-				|| ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase))
-			{
-				return FileFormat.ReoGridFormat;
-			}
-			else if (ext.Equals(".xlsx", StringComparison.CurrentCultureIgnoreCase))
-			{
-				return FileFormat.Excel2007;
-			}
-			else if (ext.Equals(".csv", StringComparison.CurrentCultureIgnoreCase))
-			{
-				return FileFormat.CSV;
-			}
-			else
-			{
-				return FileFormat._Auto;
-			}
-		}
-
 		#endregion
 
 		#region Alignment
@@ -2497,6 +2440,14 @@ namespace unvell.ReoGrid.Editor
 
 		protected override void OnShown(EventArgs e)
 		{
+			if (FormBorderStyle == FormBorderStyle.None)
+			{
+				menuStrip1.Visible = false;
+				toolStrip1.Visible = false;
+				WindowState = FormWindowState.Maximized;
+				header1.AllowDrop = false;
+				header2.AllowDrop = false;
+			}
 			if (header2.Modified)
 				header2.Selection = FilePathBar.SeletionType.AutoDetect;
 			if (header1.Modified)
@@ -2994,6 +2945,7 @@ namespace unvell.ReoGrid.Editor
 		#endregion // Filter
 		private void Grid_ActionPerformed(object sender, ActionEventArgs e)
 		{
+			var grid = sender as ReoGridControl;
 			if (e.Behavior == ActionBehavior.Do)
 			{
 				redoStack.Clear();
@@ -3001,15 +2953,29 @@ namespace unvell.ReoGrid.Editor
 				if (undoStack.Count() > 30)
 					undoStack.RemoveFirst();
 			}
+			else
+			{
+				grid.Focus();
+			}
 			// TODO: Which actions are worth marking documents as dirty?
 			if (e.Action as SetColumnsWidthAction == null &&
 				e.Action as SetRowsHeightAction == null &&
 				e.Action as CreateAutoFilterAction == null)
 			{
 				if (sender == grid1)
+				{
 					header1.Dirty = true;
+					saveLeftToolStripMenuItem.Enabled = true;
+					saveToolStripMenuItem.Enabled = true;
+					saveToolStripButton.Enabled = true;
+				}
 				else if (sender == grid2)
+				{
 					header2.Dirty = true;
+					saveRightToolStripMenuItem.Enabled = true;
+					saveToolStripMenuItem.Enabled = true;
+					saveToolStripButton.Enabled = true;
+				}
 				Rescan();
 			}
 			UpdateMenuAndToolStrips();
@@ -3047,6 +3013,8 @@ namespace unvell.ReoGrid.Editor
 		}
 		private void Grid_CurrentWorksheetChanged(object sender, System.EventArgs e)
 		{
+			var owner = sender as ReoGridControl;
+			owner.CurrentWorksheet.SelectionStyle = owner.Focused ? WorksheetSelectionStyle.Hybrid : WorksheetSelectionStyle.Default;
 			if (sender == GridControl)
 			{
 				grid_SelectionRangeChanged(CurrentWorksheet, new RangeEventArgs(CurrentWorksheet.SelectionRange));
@@ -3063,7 +3031,7 @@ namespace unvell.ReoGrid.Editor
 		}
 		private void Grid_GotFocus(object sender, System.EventArgs e)
 		{
-			ReoGridControl owner = (ReoGridControl)sender;
+			var owner = sender as ReoGridControl;
 			if (formulaBar.GridControl != owner)
 			{
 				if (nameManagerForm != null)
@@ -3091,7 +3059,8 @@ namespace unvell.ReoGrid.Editor
 		}
 		private void Grid_LostFocus(object sender, System.EventArgs e)
 		{
-			ReoGridControl owner = (ReoGridControl)sender;
+			var owner = sender as ReoGridControl;
+			owner.CurrentWorksheet.SelectionStyle = owner.Focused ? WorksheetSelectionStyle.Hybrid : WorksheetSelectionStyle.Default;
 			var enable = owner.Focused;
 			cutToolStripButton.Enabled = enable;
 			cutToolStripMenuItem.Enabled = enable;
