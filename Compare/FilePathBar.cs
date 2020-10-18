@@ -22,6 +22,7 @@ namespace unvell.ReoGrid.Editor
 			Clear,
 			Nop
 		}
+
 		private string GetDroppedFileName(DragEventArgs e)
 		{
 			IDataObject data = e.Data;
@@ -35,12 +36,15 @@ namespace unvell.ReoGrid.Editor
 				return null;
 			return value.ToString();
 		}
+
 		private static readonly StringFormat format = new StringFormat
 		{
 			Alignment = StringAlignment.Center,
 			LineAlignment = StringAlignment.Near
 		};
+
 		private readonly TabControl tc;
+		private string path;
 		private bool dirty = false;
 
 		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -63,7 +67,16 @@ namespace unvell.ReoGrid.Editor
 			get => (SeletionType)tc.SelectedIndex;
 			set => tc.SelectedIndex = (int)value;
 		}
+
 		public event EventHandler SelectionChanged;
+
+		private void AlignButtons()
+		{
+			tc.Left = Width - tc.GetTabRect(tc.AllowDrop ? 5 : 4).Right;
+			tc.Anchor = AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+			tc.SelectedIndex = -1;
+		}
+
 		private void BrowseForFile(string defext)
 		{
 			OpenFileDialog dlg = new OpenFileDialog();
@@ -77,6 +90,7 @@ namespace unvell.ReoGrid.Editor
 				Modified = true;
 			}
 		}
+
 		public void SetupUILanguage()
 		{
 			tc.TabPages[0].ToolTipText = LangResource.OpenTabDelimitedFile;
@@ -87,6 +101,13 @@ namespace unvell.ReoGrid.Editor
 			tc.TabPages[5].ToolTipText = LangResource.CloseCurrentFile;
 			LayoutNeeded(this, EventArgs.Empty);
 		}
+
+		protected override void OnBorderStyleChanged(EventArgs e)
+		{
+			AlignButtons();
+			base.OnBorderStyleChanged(e);
+		}
+
 		// Constructor
 		public FilePathBar()
 		{
@@ -95,7 +116,7 @@ namespace unvell.ReoGrid.Editor
 			GotFocus += (s, e) =>
 			{
 				LayoutNeeded(this, EventArgs.Empty);
-				if (string.IsNullOrEmpty(Path))
+				if (string.IsNullOrEmpty(path))
 				{
 					Win32.HideCaret(Handle);
 				}
@@ -106,7 +127,6 @@ namespace unvell.ReoGrid.Editor
 			tc = new TabControl();
 			tc.Appearance = TabAppearance.Buttons;
 			tc.CreateControl();
-			tc.AllowDrop = true;
 			tc.ShowToolTips = true;
 			tc.TabPages.Add("tsv");
 			tc.TabPages.Add("csv");
@@ -133,14 +153,15 @@ namespace unvell.ReoGrid.Editor
 			};
 			tc.ItemSize = new System.Drawing.Size(25, Height);
 			tc.TabStop = true;
-			tc.Width = tc.GetTabRect(tc.TabCount - 2).Right + 2;
-			tc.Multiline = true;
-			tc.SelectedIndex = -1;
 			tc.SelectedIndexChanged += (s, e) =>
 			{
 				if (tc.SelectedIndex == -1)
 					return;
-				if (!Modified)
+				if (!AllowDrop)
+				{
+					Modified = true;
+				}
+				else if (!Modified)
 				{
 					switch (tc.SelectedIndex)
 					{
@@ -163,13 +184,13 @@ namespace unvell.ReoGrid.Editor
 				}
 				if (Modified)
 				{
-					Modified = false;
 					SelectionChanged?.Invoke(s, e);
 					Dirty = false;
-					tc.TabIndex = Enabled ? tc.TabCount : tc.SelectedIndex;
+					tc.TabIndex = Modified ? tc.TabCount : tc.SelectedIndex;
+					Modified = false;
 					tc.Invalidate();
 				}
-				Enabled = string.IsNullOrEmpty(Path);
+				Enabled = string.IsNullOrEmpty(path);
 				Win32.SendMessage(tc.Handle, (uint)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)SeletionType.Nop, IntPtr.Zero);
 				tc.SelectedIndex = -1;
 				if (Enabled)
@@ -199,8 +220,8 @@ namespace unvell.ReoGrid.Editor
 			};
 			tc.Cursor = System.Windows.Forms.Cursors.Arrow;
 			Controls.Add(tc);
-			tc.Left = Width - tc.Width;
-			tc.Anchor = AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
+			tc.Width = 4000;
+			AllowDrop = true;
 		}
 		private void tab_DragOver(object sender, DragEventArgs e)
 		{
@@ -224,8 +245,9 @@ namespace unvell.ReoGrid.Editor
 
 		private void ShowText(string text)
 		{
-			if (!DesignMode)
-				base.Text = text;
+			bool tmp = Modified;
+			base.Text = text;
+			Modified = tmp;
 		}
 
 		private void LayoutNeeded(object sender, EventArgs e)
@@ -233,43 +255,55 @@ namespace unvell.ReoGrid.Editor
 			var rc = new Win32.RECT();
 			rc.left = 2;
 			rc.top = 2;
-			rc.right = ClientSize.Width - 2 - tc.Width;
+			rc.right = tc.Left;
 			rc.bottom = ClientSize.Height;
 			Win32.SendMessage(Handle, (uint)Win32.WMessages.EM_SETRECT, IntPtr.Zero, ref rc);
-			if (string.IsNullOrEmpty(Path))
+			if (string.IsNullOrEmpty(path))
 			{
 				ShowText(LangResource.PleaseSelectSomeFile);
 				Select(0, 0);
 			}
 			else if (Focused)
 			{
-				ShowText(Path);
+				ShowText(path);
 				if (tc.SelectedIndex != -1)
 					Select(0, 0);
 			}
 			else
 			{
-				var ellipsified = string.Copy(Path);
-				var sizeAvail = new System.Drawing.Size(Width - tc.Width, Height);
+				var ellipsified = string.Copy(path);
+				var sizeAvail = new System.Drawing.Size(rc.right - rc.left, Height);
 				if (dirty)
 					sizeAvail.Width -= TextRenderer.MeasureText("* ", Font).Width;
 				TextRenderer.MeasureText(ellipsified, Font, sizeAvail, TextFormatFlags.ModifyString | TextFormatFlags.PathEllipsis);
-				base.Text = dirty ? "* " + ellipsified : ellipsified;
+				ShowText(dirty ? "* " + ellipsified : ellipsified);
 			}
 		}
 
-		private string Path;
+		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public new bool AllowDrop
+		{
+			get
+			{
+				return tc.AllowDrop;
+			}
+			set
+			{
+				tc.AllowDrop = value;
+				AlignButtons();
+			}
+		}
 
 		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public new string Text
 		{
 			get
 			{
-				return Path;
+				return path;
 			}
 			set
 			{
-				Path = value;
+				path = value;
 				LayoutNeeded(this, EventArgs.Empty);
 			}
 		}
