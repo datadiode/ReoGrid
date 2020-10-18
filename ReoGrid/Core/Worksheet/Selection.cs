@@ -825,7 +825,7 @@ namespace unvell.ReoGrid
 
 		#region Keyboard Move
 
-		private void OnTabKeyPressed(bool shiftKeyDown)
+		internal void OnTabKeyPressed(bool shiftKeyDown)
 		{
 			if (this.selectionMode == WorksheetSelectionMode.None)
 			{
@@ -885,7 +885,7 @@ namespace unvell.ReoGrid
 			this.focusReturnColumn = backupReturnCol;
 		}
 
-		private void OnEnterKeyPressed(bool shiftKeyDown)
+		internal void OnEnterKeyPressed(bool shiftKeyDown)
 		{
 			if (this.selectionMode == WorksheetSelectionMode.None)
 			{

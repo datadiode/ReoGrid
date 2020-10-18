@@ -66,6 +66,12 @@ namespace unvell.ReoGrid
 		IRangePickableControl, IContextMenuControl, IPersistenceWorkbook, IActionControl, IWorkbook,
 		IScrollableWorksheetContainer
 	{
+		/// <summary>
+		/// Whether the control accepts the Tab key.
+		/// TODO: For now this is coupled to the worksheet's SelectionStyle, which isn't terribly reasonable.
+		/// </summary>
+		internal bool AcceptsTab => currentWorksheet?.SelectionStyle != WorksheetSelectionStyle.Hybrid;
+
 		#region Constructor, Init & Dispose
 		private WinFormControlAdapter adapter;
 
@@ -776,39 +782,16 @@ namespace unvell.ReoGrid
 		protected override bool IsInputKey(Keys keyData)
 		{
 			// TODO: if (editTextbox.Visible) ...
-			if (this.currentWorksheet.currentEditingCell != null) return false;
+			if (currentWorksheet.currentEditingCell != null)
+				return false;
 
+			switch (keyData)
+			{
+				case Keys.Tab:
+				case Keys.Tab | Keys.Shift:
+					return AcceptsTab;
+			}
 			return true;
-
-			//switch (keyData)
-			//{
-			//	case Keys.Up:
-			//	case Keys.Down:
-			//	case Keys.Left:
-			//	case Keys.Right:
-
-			//	case Keys.Up | Keys.Shift:
-			//	case Keys.Down | Keys.Shift:
-			//	case Keys.Left | Keys.Shift:
-			//	case Keys.Right | Keys.Shift:
-
-			//	case Keys.Control | Keys.C:
-			//	case Keys.Control | Keys.X:
-			//	case Keys.Control | Keys.V:
-
-			//	case Keys.Control | Keys.Z:
-			//	case Keys.Control | Keys.Y:
-
-			//	case Keys.Control | Keys.Oemplus:
-			//	case Keys.Control | Keys.OemMinus:
-			//	case Keys.Control | Keys.D0:
-
-			//	case Keys.Control | Keys.A:
-
-			//		return true;
-			//}
-
-			//return base.IsInputKey(keyData);
 		}
 
 		/// <summary>
@@ -875,7 +858,7 @@ namespace unvell.ReoGrid
 
 		#region Sheet Tab
 
-		private WinForm.SheetTabControl sheetTab;
+		private SheetTabControl sheetTab;
 		private Panel bottomPanel;
 		private ContextMenuStrip sheetListMenu;
 		private ContextMenuStrip sheetContextMenu;
@@ -1021,6 +1004,8 @@ namespace unvell.ReoGrid
 
 				SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 				BackColor = Color.Transparent;
+				AcceptsTab = true;
+				AcceptsReturn = true;
 
 				this.graphics = System.Drawing.Graphics.FromHwnd(this.Handle);
 			}
@@ -1028,79 +1013,40 @@ namespace unvell.ReoGrid
 			{
 				sf = new StringFormat(StringFormat.GenericDefault);
 			}
-            protected override void OnKeyDown(KeyEventArgs e)
-            {
-                var sheet = owner.currentWorksheet;
-
-                if (sheet.currentEditingCell != null && Visible)
-                {
-                    bool isProcessed = false;
-
-                    // in single line text
-                    if (!TextWrap && Text.IndexOf('\n') == -1)
-                    {
-                        isProcessed = true;
-                        if (e.KeyCode == Keys.Up)
-                        {
-                            ProcessSelectionMoveKey(e, sheet, () => sheet.MoveSelectionUp());
-                        }
-                        else if (e.KeyCode == Keys.Down)
-                        {
-                            ProcessSelectionMoveKey(e, sheet, () => sheet.MoveSelectionDown());
-                        }
-                        else if (e.KeyCode == Keys.Left && SelectionStart == 0)
-                        {
-                            ProcessSelectionMoveKey(e, sheet, () => sheet.MoveSelectionLeft());
-                        }
-                        else if (e.KeyCode == Keys.Right && SelectionStart == Text.Length)
-                        {
-                            ProcessSelectionMoveKey(e, sheet, () => sheet.MoveSelectionRight());
-                        }
-                        else
-                        {
-                            isProcessed = false;
-                        }
-                    }
-
-                    if (!isProcessed)
-                    {
-                        if (!Toolkit.IsKeyDown(Win32.VKey.VK_CONTROL) && e.KeyCode == Keys.Enter)
-                        {
-                            ProcessSelectionMoveKey(e, sheet, () => sheet.MoveSelectionForward());
-                        }
-                    }
-                }
-            }
-
-            private void ProcessSelectionMoveKey(KeyEventArgs e, Worksheet sheet, Action moveAction)
-            {
-                e.SuppressKeyPress = true;
-                sheet.EndEdit(Text);
-                moveAction();
-            }
-
-            protected override bool ProcessCmdKey(ref Message msg, System.Windows.Forms.Keys keyData)
+			protected override void OnKeyDown(KeyEventArgs e)
 			{
 				var sheet = owner.currentWorksheet;
 
-				if (keyData == System.Windows.Forms.Keys.Escape)
+				if (sheet.currentEditingCell != null && Visible)
 				{
-					sheet.EndEdit(EndEditReason.Cancel);
-					sheet.DropKeyUpAfterEndEdit = true;
-
-					return true;
-				}
-				else if (keyData == System.Windows.Forms.Keys.Tab
-					|| keyData == (System.Windows.Forms.Keys.Tab | System.Windows.Forms.Keys.Shift))
-				{
-					sheet.EndEdit(EndEditReason.NormalFinish);
-					sheet.OnKeyDown((KeyCode)keyData);
-
-					return true;
-				}
-				else
-				{
-					return base.ProcessCmdKey(ref msg, keyData);
+					// in single line text
+					if (!TextWrap && Text.IndexOf('\n') == -1)
+					{
+						if (e.KeyCode == Keys.Up)
+						{
+							sheet.EndEdit(Text);
+							sheet.MoveSelectionUp();
+							e.SuppressKeyPress = true;
+						}
+						else if (e.KeyCode == Keys.Down)
+						{
+							sheet.EndEdit(Text);
+							sheet.MoveSelectionDown();
+							e.SuppressKeyPress = true;
+						}
+						else if (e.KeyCode == Keys.Left && SelectionStart == 0)
+						{
+							sheet.EndEdit(Text);
+							sheet.MoveSelectionLeft();
+							e.SuppressKeyPress = true;
+						}
+						else if (e.KeyCode == Keys.Right && SelectionStart == Text.Length)
+						{
+							sheet.EndEdit(Text);
+							sheet.MoveSelectionRight();
+							e.SuppressKeyPress = true;
+						}
+					}
 				}
 			}
 
@@ -1214,20 +1160,60 @@ namespace unvell.ReoGrid
 				}
 			}
 
+			protected override bool IsInputKey(Keys keyData)
+			{
+				switch (keyData)
+				{
+					case Keys.Tab:
+					case Keys.Tab | Keys.Shift:
+						owner.currentWorksheet.EndEdit(EndEditReason.NormalFinish);
+						return owner.AcceptsTab;
+				}
+				return true;
+			}
+
 			#region IME
 			protected override void WndProc(ref Message m)
 			{
+				if (m.Msg == (int)Win32.WMessages.WM_GETDLGCODE)
+				{
+					if (m.WParam == (IntPtr)Win32.VKey.VK_TAB && !owner.AcceptsTab)
+						return;
+					m.Result = (IntPtr)(Win32.DLGC.DLGC_WANTMESSAGE | Win32.DLGC.DLGC_HASSETSEL);
+					return;
+				}
 				if (m.Msg == (int)Win32.WMessages.WM_CHAR)
 				{
+					var sheet = owner.currentWorksheet;
+
 					int inputChar = m.WParam.ToInt32();
 
-					if (inputChar != 8			// backspace
+					if (inputChar != 8         // backspace
 						&& inputChar != 13     // enter
 						&& inputChar != 27     // escape
-						//&& inputChar != '\t'   // tab
+						&& inputChar != '\t'   // tab
 						)
 					{
-						inputChar = this.owner.currentWorksheet.RaiseCellEditCharInputed(m.WParam.ToInt32());
+						inputChar = sheet.RaiseCellEditCharInputed(inputChar);
+					}
+
+					if (inputChar == (int)Keys.Escape)
+					{
+						sheet.EndEdit(EndEditReason.Cancel);
+						sheet.DropKeyUpAfterEndEdit = true;
+						return;
+					}
+					if (inputChar == (int)Keys.Tab)
+					{
+						sheet.EndEdit(EndEditReason.NormalFinish);
+						sheet.OnTabKeyPressed(Toolkit.IsKeyDown(Win32.VKey.VK_SHIFT));
+						return;
+					}
+					if (inputChar == (int)Keys.Enter)
+					{
+						sheet.EndEdit(EndEditReason.NormalFinish);
+						sheet.OnEnterKeyPressed(Toolkit.IsKeyDown(Win32.VKey.VK_SHIFT));
+						return;
 					}
 
 					m.WParam = new IntPtr(inputChar);
@@ -1269,31 +1255,6 @@ namespace unvell.ReoGrid
 		}
 		#endregion // InputTextBox
 
-		/// <summary>
-		/// Handle the dialog char input event.
-		/// </summary>
-		/// <param name="charCode">Character code inputted by user.</param>
-		/// <returns>True if event has been handled; Otherwise return false.</returns>
-		protected override bool ProcessDialogChar(char charCode)
-		{
-			if (Toolkit.IsKeyDown(Win32.VKey.VK_MENU)
-				|| Toolkit.IsKeyDown(Win32.VKey.VK_CONTROL)
-				|| charCode == 8			// backspace
-				|| charCode == 13			// enter
-				|| charCode == 27			// escape
-				|| charCode == '\t'		// tab
-				)
-			{
-				return false;
-			}
-
-			int @char = this.currentWorksheet.RaiseCellEditCharInputed(charCode);
-			if (@char <= 0) return false;
-
-			// start edit on focus cell position
-			return this.currentWorksheet.StartEdit(((char)(int)@char).ToString());
-		}
-
 		private InputTextBox editTextbox;
 
 		#endregion // Edit Control
@@ -1306,30 +1267,47 @@ namespace unvell.ReoGrid
 		/// <param name="m">Windows message</param>
 		protected override void WndProc(ref Message m)
 		{
+			if (m.Msg == (int)Win32.WMessages.WM_GETDLGCODE)
+			{
+				if (m.WParam == (IntPtr)Win32.VKey.VK_TAB && !AcceptsTab)
+					return;
+				m.Result = (IntPtr)Win32.DLGC.DLGC_WANTMESSAGE;
+				return;
+			}
+			if (m.Msg == (int)Win32.WMessages.WM_CHAR)
+			{
+				int inputChar = m.WParam.ToInt32();
+				if (inputChar >= 32)
+				{
+					inputChar = currentWorksheet.RaiseCellEditCharInputed(inputChar);
+					// start edit on focus cell position
+					currentWorksheet.StartEdit(((char)inputChar).ToString());
+				}
+				return;
+			}
 			// ignore the control default context-menu
 			if (m.Msg == (int)Win32.WMessages.WM_CONTEXTMENU)
 			{
 				return;
 			}
-			else
-				// Chinese and Japanese IME will send this message
-				// before start to accept user's input
-				if (m.Msg == (int)Win32.WMessages.WM_IME_STARTCOMPOSITION)
+			// Chinese and Japanese IME will send this message
+			// before start to accept user's input
+			if (m.Msg == (int)Win32.WMessages.WM_IME_STARTCOMPOSITION)
+			{
+				currentWorksheet.StartEdit(string.Empty);
+			}
+			else if (m.Msg == (int)Win32.WMessages.WM_MOUSEHWHEEL)
+			{
+				if (currentWorksheet.ViewportController is IScrollableViewportController)
 				{
-					this.currentWorksheet.StartEdit(string.Empty);
-				}
-				else if (m.Msg == (int)Win32.WMessages.WM_MOUSEHWHEEL)
-				{
-					if (this.currentWorksheet.ViewportController is IScrollableViewportController)
-					{
-						var svc = this.currentWorksheet.ViewportController as IScrollableViewportController;
+					var svc = this.currentWorksheet.ViewportController as IScrollableViewportController;
 
-						// get an overflow error by my logitech mouse t620
-						// fixed by (int)(long) cast
-						int delta = (short)((long)m.WParam >> 16) / 10; // get delta
-						svc.ScrollViews(ScrollDirection.Horizontal, -delta, 0);
-					}
+					// get an overflow error by my logitech mouse t620
+					// fixed by (int)(long) cast
+					int delta = (short)((long)m.WParam >> 16) / 10; // get delta
+					svc.ScrollViews(ScrollDirection.Horizontal, -delta, 0);
 				}
+			}
 
 			base.WndProc(ref m);
 		}
