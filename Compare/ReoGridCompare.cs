@@ -1701,14 +1701,19 @@ namespace unvell.ReoGrid.Editor
 			left2rightToolStripButton.Enabled = findings;
 			right2leftToolStripButton.Enabled = findings;
 			// Save commands
+			UpdateSaveCmdUI();
+			saveAsLeftToolStripMenuItem.Enabled = grid1.Visible;
+			saveAsRightToolStripMenuItem.Enabled = grid2.Visible;
+			toolStripButton_EnabledChanged(this, EventArgs.Empty);
+		}
+
+		private void UpdateSaveCmdUI()
+		{
 			saveLeftToolStripMenuItem.Enabled = header1.Dirty;
 			saveRightToolStripMenuItem.Enabled = header2.Dirty;
 			bool dirty = header1.Dirty || header2.Dirty;
 			saveToolStripMenuItem.Enabled = dirty;
 			saveToolStripButton.Enabled = dirty;
-			saveAsLeftToolStripMenuItem.Enabled = grid1.Visible;
-			saveAsRightToolStripMenuItem.Enabled = grid2.Visible;
-			toolStripButton_EnabledChanged(this, EventArgs.Empty);
 		}
 
 		/// <summary>
@@ -1719,16 +1724,12 @@ namespace unvell.ReoGrid.Editor
 			if ((which & Side.Left) != 0)
 			{
 				SaveOneFile(grid1, header1, arg1);
-				saveLeftToolStripMenuItem.Enabled = header1.Dirty;
 			}
 			if ((which & Side.Right) != 0)
 			{
 				SaveOneFile(grid2, header2, arg2);
-				saveRightToolStripMenuItem.Enabled = header2.Dirty;
 			}
-			bool dirty = header1.Dirty || header2.Dirty;
-			saveToolStripMenuItem.Enabled = dirty;
-			saveToolStripButton.Enabled = dirty;
+			UpdateSaveCmdUI();
 			toolStripButton_EnabledChanged(this, EventArgs.Empty);
 		}
 
@@ -1740,8 +1741,9 @@ namespace unvell.ReoGrid.Editor
 		{
 			using (SaveFileDialog sfd = new SaveFileDialog())
 			{
+				var header = which == Side.Left ? header1 : header2;
 				sfd.Filter = LangResource.Filter_Save_File;
-				var path = (which == Side.Left ? header1 : header2).Text;
+				var path = header.Text;
 				if (!string.IsNullOrEmpty(path))
 				{
 					sfd.FileName = Path.GetFileNameWithoutExtension(path);
@@ -1757,8 +1759,12 @@ namespace unvell.ReoGrid.Editor
 				{
 					SaveOneFile(which == Side.Left ? grid1 : grid2,
 						sfd.FileName, which == Side.Left ? arg1 : arg2);
+					header.Text = sfd.FileName;
+					header.Dirty = false;
 				}
 			}
+			UpdateSaveCmdUI();
+			toolStripButton_EnabledChanged(this, EventArgs.Empty);
 		}
 
 		protected override void OnLoad(EventArgs e)
