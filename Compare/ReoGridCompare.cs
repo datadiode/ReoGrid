@@ -810,7 +810,8 @@ namespace unvell.ReoGrid.Editor
 			{
 				worksheet.IterateCells(worksheet.SelectionRange, false, (r, c, cell) =>
 				{
-					cell.Body = null;
+					if (cell != null)
+						cell.Body = null;
 					return true;
 				});
 			}
