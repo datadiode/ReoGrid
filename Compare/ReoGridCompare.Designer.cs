@@ -2990,17 +2990,20 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// splitContainer1
 			// 
+			this.splitContainer1.AccessibleName = "SplitContainer";
 			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.splitContainer1.Location = new System.Drawing.Point(0, 103);
 			this.splitContainer1.Name = "splitContainer1";
 			// 
 			// splitContainer1.Panel1
 			// 
+			this.splitContainer1.Panel1.AccessibleName = "LeftPanel";
 			this.splitContainer1.Panel1.Controls.Add(this.header1);
 			this.splitContainer1.Panel1.Controls.Add(this.grid1);
 			// 
 			// splitContainer1.Panel2
 			// 
+			this.splitContainer1.Panel2.AccessibleName = "RightPanel";
 			this.splitContainer1.Panel2.Controls.Add(this.header2);
 			this.splitContainer1.Panel2.Controls.Add(this.grid2);
 			this.splitContainer1.Size = new System.Drawing.Size(1002, 575);
@@ -3009,6 +3012,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// header1
 			// 
+			this.header1.AccessibleName = "Header";
 			this.header1.BackColor = System.Drawing.SystemColors.ActiveCaption;
 			this.header1.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.header1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -3022,6 +3026,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// header2
 			// 
+			this.header2.AccessibleName = "Header";
 			this.header2.BackColor = System.Drawing.SystemColors.InactiveCaption;
 			this.header2.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.header2.Dock = System.Windows.Forms.DockStyle.Top;
