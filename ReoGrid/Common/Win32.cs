@@ -202,7 +202,10 @@ namespace unvell.Common.Win32Lib
 		public static extern int SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, ref Win32.TCITEM lParam);
 
 		[DllImport("USER32.DLL")]
-		public static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+		public static extern bool PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+
+		[DllImport("USER32.DLL")]
+		public static extern IntPtr GetFocus();
 
 		[DllImport("USER32.DLL")]
 		public static extern long MAKELPARAM(int wLow, int wHigh);

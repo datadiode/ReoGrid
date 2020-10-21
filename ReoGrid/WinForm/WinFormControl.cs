@@ -1280,7 +1280,11 @@ namespace unvell.ReoGrid
 				{
 					inputChar = currentWorksheet.RaiseCellEditCharInputed(inputChar);
 					// start edit on focus cell position
-					currentWorksheet.StartEdit(((char)inputChar).ToString());
+					if (currentWorksheet.StartEdit(string.Empty))
+					{
+						IntPtr handle = Win32.GetFocus();
+						Win32.PostMessage(handle, m.Msg, m.WParam, m.LParam);
+					}
 				}
 				return;
 			}
