@@ -2649,20 +2649,18 @@ namespace unvell.ReoGrid.Editor
 
 		private void left2rightToolStripButton_Click(object sender, EventArgs e)
 		{
-			CellPosition pos = grid1.CurrentWorksheet.FocusPos;
-			var text = grid1.CurrentWorksheet.GetCellFormula(pos);
-			text = text != null ? "=" + text : grid1.CurrentWorksheet.GetCellData<string>(pos);
-			grid2.CurrentWorksheet.StartEdit(pos, text != null ? text : string.Empty);
-			grid2.CurrentWorksheet.EndEdit(EndEditReason.NormalFinish);
+			var sheet = grid1.CurrentWorksheet;
+			var currentCopingRange = sheet.SelectionRange;
+			var partialGrid = sheet.GetPartialGrid(currentCopingRange);
+			grid2.DoAction(new SetPartialGridAction(currentCopingRange, partialGrid));
 		}
 
 		private void right2leftToolStripButton_Click(object sender, EventArgs e)
 		{
-			CellPosition pos = grid2.CurrentWorksheet.FocusPos;
-			var text = grid2.CurrentWorksheet.GetCellFormula(pos);
-			text = text != null ? "=" + text : grid2.CurrentWorksheet.GetCellData<string>(pos);
-			grid1.CurrentWorksheet.StartEdit(pos, text != null ? text : string.Empty);
-			grid1.CurrentWorksheet.EndEdit(EndEditReason.NormalFinish);
+			var sheet = grid2.CurrentWorksheet;
+			var currentCopingRange = sheet.SelectionRange;
+			var partialGrid = sheet.GetPartialGrid(currentCopingRange);
+			grid1.DoAction(new SetPartialGridAction(currentCopingRange, partialGrid));
 		}
 		#endregion // Editing
 
