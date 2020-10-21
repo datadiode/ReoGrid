@@ -60,14 +60,14 @@ namespace unvell.ReoGrid
 			{
 				case WM_DRAWCLIPBOARD:
 					OnClipboardChanged();
-					Win32.SendMessage(nextClipboardViewer, (uint)m.Msg, m.WParam, m.LParam);
+					Win32.SendMessage(nextClipboardViewer, m.Msg, m.WParam, m.LParam);
 					break;
 
 				case WM_CHANGECBCHAIN:
 					if (m.WParam == nextClipboardViewer)
 						nextClipboardViewer = m.LParam;
 					else
-						Win32.SendMessage(nextClipboardViewer, (uint)m.Msg, m.WParam, m.LParam);
+						Win32.SendMessage(nextClipboardViewer, m.Msg, m.WParam, m.LParam);
 					break;
 
 				default:

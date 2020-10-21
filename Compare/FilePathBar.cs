@@ -191,7 +191,7 @@ namespace unvell.ReoGrid.Editor
 					tc.Invalidate();
 				}
 				Enabled = string.IsNullOrEmpty(path);
-				Win32.SendMessage(tc.Handle, (uint)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)SeletionType.Nop, IntPtr.Zero);
+				Win32.SendMessage(tc.Handle, (int)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)SeletionType.Nop, IntPtr.Zero);
 				tc.SelectedIndex = -1;
 				if (Enabled)
 					Focus();
@@ -205,18 +205,18 @@ namespace unvell.ReoGrid.Editor
 				{
 					Text = path;
 					Modified = true;
-					tc.SelectedIndex = Win32.SendMessage(tc.Handle, (uint)Win32.WMessages.TCM_GETCURFOCUS, IntPtr.Zero, IntPtr.Zero);
+					tc.SelectedIndex = Win32.SendMessage(tc.Handle, (int)Win32.WMessages.TCM_GETCURFOCUS, IntPtr.Zero, IntPtr.Zero);
 				}
 				else
 				{
-					Win32.SendMessage(tc.Handle, (uint)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)SeletionType.Nop, IntPtr.Zero);
+					Win32.SendMessage(tc.Handle, (int)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)SeletionType.Nop, IntPtr.Zero);
 				}
 			};
 			tc.DragEnter += tab_DragOver;
 			tc.DragOver += tab_DragOver;
 			tc.DragLeave += (s, e) =>
 			{
-				Win32.SendMessage(tc.Handle, (uint)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)SeletionType.Nop, IntPtr.Zero);
+				Win32.SendMessage(tc.Handle, (int)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)SeletionType.Nop, IntPtr.Zero);
 			};
 			tc.Cursor = System.Windows.Forms.Cursors.Arrow;
 			Controls.Add(tc);
@@ -229,7 +229,7 @@ namespace unvell.ReoGrid.Editor
 			{
 				Win32.TCHITTESTINFO hittest = new Win32.TCHITTESTINFO();
 				hittest.pt = tc.PointToClient(new Point(e.X, e.Y));
-				int hit = Win32.SendMessage(tc.Handle, (uint)Win32.WMessages.TCM_HITTEST, IntPtr.Zero, ref hittest);
+				int hit = Win32.SendMessage(tc.Handle, (int)Win32.WMessages.TCM_HITTEST, IntPtr.Zero, ref hittest);
 				if (hit == -1 || hit == (int)SeletionType.Clear)
 				{
 					hit = (int)SeletionType.Nop;
@@ -239,7 +239,7 @@ namespace unvell.ReoGrid.Editor
 				{
 					e.Effect = DragDropEffects.Copy;
 				}
-				Win32.SendMessage(tc.Handle, (uint)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)hit, IntPtr.Zero);
+				Win32.SendMessage(tc.Handle, (int)Win32.WMessages.TCM_SETCURFOCUS, (IntPtr)hit, IntPtr.Zero);
 			}
 		}
 
@@ -257,7 +257,7 @@ namespace unvell.ReoGrid.Editor
 			rc.top = 2;
 			rc.right = tc.Left;
 			rc.bottom = ClientSize.Height;
-			Win32.SendMessage(Handle, (uint)Win32.WMessages.EM_SETRECT, IntPtr.Zero, ref rc);
+			Win32.SendMessage(Handle, (int)Win32.WMessages.EM_SETRECT, IntPtr.Zero, ref rc);
 			if (string.IsNullOrEmpty(path))
 			{
 				ShowText(LangResource.PleaseSelectSomeFile);
