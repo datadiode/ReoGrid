@@ -184,8 +184,8 @@ namespace unvell.ReoGrid.Editor
 				}
 				if (Modified)
 				{
-					SelectionChanged?.Invoke(s, e);
 					Dirty = false;
+					SelectionChanged?.Invoke(s, e);
 					tc.TabIndex = Modified ? tc.TabCount : tc.SelectedIndex;
 					Modified = false;
 					tc.Invalidate();
