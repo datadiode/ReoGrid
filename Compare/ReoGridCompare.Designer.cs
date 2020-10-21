@@ -2935,6 +2935,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// grid1
 			// 
+			this.grid1.AccessibleName = "Grid";
 			this.grid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
 			| System.Windows.Forms.AnchorStyles.Left) 
 			| System.Windows.Forms.AnchorStyles.Right)));
@@ -2969,6 +2970,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// grid2
 			// 
+			this.grid2.AccessibleName = "Grid";
 			this.grid2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
 			| System.Windows.Forms.AnchorStyles.Left) 
 			| System.Windows.Forms.AnchorStyles.Right)));
