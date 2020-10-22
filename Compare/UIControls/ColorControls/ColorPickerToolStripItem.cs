@@ -69,11 +69,6 @@ namespace unvell.UIControls
 		void dropPanel_ColorPicked(object sender, EventArgs e)
 		{
 			currentColor = dropPanel.CurrentColor;
-
-			if(CloseOnClick && currentColor is SolidColor)
-			{
-				dropPanel.Close(ToolStripDropDownCloseReason.ItemClicked);
-			}
 			
 			Invalidate();
 			
@@ -85,6 +80,11 @@ namespace unvell.UIControls
 			if (ColorPicked != null)
 			{
 				ColorPicked.Invoke(this, new EventArgs());
+			}
+
+			if(CloseOnClick && currentColor is SolidColor)
+			{
+				dropPanel.Close(ToolStripDropDownCloseReason.ItemClicked);
 			}
 		}
 
