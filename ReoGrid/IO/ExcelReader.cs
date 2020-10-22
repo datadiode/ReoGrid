@@ -191,7 +191,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 				if (sheetView.zoomScale != null)
 				{
 					double zoom = 100;
-					if (double.TryParse(sheetView.zoomScale, out zoom))
+					if (double.TryParse(sheetView.zoomScale, System.Globalization.NumberStyles.Number,
+						ExcelWriter.EnglishCulture, out zoom))
 					{
 						rgSheet.ScaleFactor = (float)(zoom / 100f);
 					}
@@ -1312,7 +1313,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 							default: rgColor = SolidColor.Black; break;
 						}
 
-						if (double.TryParse(color.tint, out tint))
+						if (double.TryParse(color.tint, System.Globalization.NumberStyles.Number,
+							ExcelWriter.EnglishCulture, out tint))
 						{
 							HSLColor hlsColor = ColorUtility.RGBToHSL(rgColor);
 							hlsColor.L = ColorUtility.CalculateFinalLumValue((float)tint, (float)hlsColor.L * 255f) / 255f;
