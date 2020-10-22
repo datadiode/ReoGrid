@@ -1369,9 +1369,9 @@ namespace unvell.Common.Win32Lib
 		[DllImport("user32.dll")]
 		public static extern bool GetCursorPos(ref Point point);
 
-		public static long CreateLParamPoint(int x, int y)
+		public static IntPtr CreateLParamPoint(int x, int y)
 		{
-			return (y << 16) | (x & 0xffff);
+			return (IntPtr)((y << 16) | (x & 0xffff));
 		}
 
 #endregion

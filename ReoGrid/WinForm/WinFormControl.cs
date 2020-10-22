@@ -572,8 +572,8 @@ namespace unvell.ReoGrid
 
 				try
 				{
-					Win32.SendMessage(this.editTextbox.Handle, (int)Win32.WMessages.WM_LBUTTONDOWN, new IntPtr(0), new IntPtr(Win32.CreateLParamPoint(p.X, p.Y)));
-					Win32.SendMessage(this.editTextbox.Handle, (int)Win32.WMessages.WM_LBUTTONUP, new IntPtr(0), new IntPtr(Win32.CreateLParamPoint(p.X, p.Y)));
+					Win32.SendMessage(this.editTextbox.Handle, (int)Win32.WMessages.WM_LBUTTONDOWN, IntPtr.Zero, Win32.CreateLParamPoint(p.X, p.Y));
+					Win32.SendMessage(this.editTextbox.Handle, (int)Win32.WMessages.WM_LBUTTONUP, IntPtr.Zero, Win32.CreateLParamPoint(p.X, p.Y));
 				}
 				catch { }
 			}
