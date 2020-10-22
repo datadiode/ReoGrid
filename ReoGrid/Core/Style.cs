@@ -1594,12 +1594,6 @@ namespace unvell.ReoGrid
 		/// </summary>
 		public PaddingValue Padding { get; set; }
 
-		[Obsolete("use RotationAngle instead")]
-		/// <summary>
-		/// Get or set rotate angle.
-		/// </summary>
-		public int RotateAngle { get; set; }
-
 		/// <summary>
 		/// Get or set rotate angle.
 		/// </summary>
