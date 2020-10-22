@@ -46,6 +46,7 @@ namespace unvell.ReoGrid.Editor
 		private readonly TabControl tc;
 		private string path;
 		private bool dirty = false;
+		private bool active = false;
 
 		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public bool Dirty
@@ -115,13 +116,19 @@ namespace unvell.ReoGrid.Editor
 			ReadOnly = true;
 			GotFocus += (s, e) =>
 			{
+				ReadOnly = true;
 				LayoutNeeded(this, EventArgs.Empty);
 				if (string.IsNullOrEmpty(path))
 				{
 					Win32.HideCaret(Handle);
 				}
 			};
-			LostFocus += LayoutNeeded;
+			LostFocus += (s, e) =>
+			{
+				// Mirror Active as ReadOnly for get_accState()
+				ReadOnly = active;
+				LayoutNeeded(this, EventArgs.Empty);
+			};
 			SizeChanged += LayoutNeeded;
 			Layout += LayoutNeeded;
 			tc = new TabControl();
@@ -277,6 +284,21 @@ namespace unvell.ReoGrid.Editor
 					sizeAvail.Width -= TextRenderer.MeasureText("* ", Font).Width;
 				TextRenderer.MeasureText(ellipsified, Font, sizeAvail, TextFormatFlags.ModifyString | TextFormatFlags.PathEllipsis);
 				ShowText(dirty ? "* " + ellipsified : ellipsified);
+			}
+		}
+
+		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public bool Active
+		{
+			get => active;
+			set
+			{
+				active = value;
+				// Unless focused, mirror Active as ReadOnly for get_accState()
+				if (!Focused)
+					ReadOnly = active;
+				BackColor = active ? SystemColors.ActiveCaption : SystemColors.InactiveCaption;
+				ForeColor = active ? SystemColors.ActiveCaptionText : SystemColors.InactiveCaptionText;
 			}
 		}
 
