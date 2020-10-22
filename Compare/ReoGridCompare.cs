@@ -693,6 +693,10 @@ namespace unvell.ReoGrid.Editor
 		{
 			switch (keyData)
 			{
+				case Keys.F6:
+					// Switch between panes
+					(header1.Active ? grid2 : grid1).Focus();
+					return true;
 				case Keys.Alt | Keys.Down:
 					nextDiffToolStripButton.PerformClick();
 					return true;
@@ -843,13 +847,19 @@ namespace unvell.ReoGrid.Editor
 
 		void worksheet_GridScaled(object sender, EventArgs e)
 		{
-			var worksheet = (Worksheet)sender;
-			zoomToolStripDropDownButton.Text = worksheet.ScaleFactor * 100 + "%";
+			var worksheet = sender as Worksheet;
+			// Don't synchronize with a hidden grid
+			if (grid1.GetWorksheetIndex(worksheet) != -1 && grid1.Visible ||
+				grid2.GetWorksheetIndex(worksheet) != -1 && grid2.Visible)
+			{
+				zoomToolStripDropDownButton.Text = worksheet.ScaleFactor * 100 + "%";
+			}
 		}
 
 		void worksheet_ColumnsWidthChanged(object sender, ColumnsWidthChangedEventArgs e)
 		{
-			if (grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet))
+			if (grid1.Visible && grid2.Visible && // need to avoid synchronization during Load()
+				grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet))
 			{
 				var worksheet = sender != grid1.CurrentWorksheet ? grid1.CurrentWorksheet : grid2.CurrentWorksheet;
 				worksheet.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
@@ -860,7 +870,8 @@ namespace unvell.ReoGrid.Editor
 
 		void worksheet_RowsHeightChanged(object sender, RowsHeightChangedEventArgs e)
 		{
-			if (grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet))
+			if (grid1.Visible && grid2.Visible && // need to avoid synchronization during Load()
+				grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet))
 			{
 				var worksheet = sender != grid1.CurrentWorksheet ? grid1.CurrentWorksheet : grid2.CurrentWorksheet;
 				worksheet.RowsHeightChanged -= worksheet_RowsHeightChanged;
@@ -1623,6 +1634,10 @@ namespace unvell.ReoGrid.Editor
 			sheet2.RowCount = n;
 			sheet1.ColumnCount = m;
 			sheet2.ColumnCount = m;
+			sheet1.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
+			sheet2.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
+			sheet1.RowsHeightChanged -= worksheet_RowsHeightChanged;
+			sheet2.RowsHeightChanged -= worksheet_RowsHeightChanged;
 			// Align column widths on both sides
 			for (var i = 0; i < m; ++i)
 			{
@@ -1633,6 +1648,7 @@ namespace unvell.ReoGrid.Editor
 				else if (colhdr2.Width < colhdr1.Width)
 					colhdr2.Width = colhdr1.Width;
 			}
+			// Align row heights on both sides
 			for (var i = 0; i < n; ++i)
 			{
 				var rowhdr1 = sheet1.GetRowHeader(i);
@@ -1642,10 +1658,14 @@ namespace unvell.ReoGrid.Editor
 				else if (rowhdr2.Height < rowhdr1.Height)
 					rowhdr2.Height = rowhdr1.Height;
 			}
+			sheet1.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
+			sheet2.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
+			sheet1.RowsHeightChanged += worksheet_RowsHeightChanged;
+			sheet2.RowsHeightChanged += worksheet_RowsHeightChanged;
+			// Colorize the differences
 			n = Math.Max(sheet1.MaxContentRow, sheet2.MaxContentRow) + 1;
 			m = Math.Max(sheet1.MaxContentCol, sheet2.MaxContentCol) + 1;
 			var findings = false;
-			// Align row heights on both sides and colorize the differences
 			for (var i = 0; i < n; ++i)
 			{
 				var finding = false;
@@ -3055,10 +3075,8 @@ namespace unvell.ReoGrid.Editor
 			// Reassign even if already assigned to keep the formulaBar updated
 			formulaBar.GridControl = owner;
 
-			(GridControl == grid1 ? header1 : header2).BackColor = SystemColors.ActiveCaption;
-			(GridControl == grid1 ? header1 : header2).ForeColor = SystemColors.ActiveCaptionText;
-			(GridControl != grid1 ? header1 : header2).BackColor = SystemColors.InactiveCaption;
-			(GridControl != grid1 ? header1 : header2).ForeColor = SystemColors.InactiveCaptionText;
+			header1.Active = GridControl == grid1;
+			header2.Active = GridControl == grid2;
 
 			Grid_LostFocus(sender, e);
 
