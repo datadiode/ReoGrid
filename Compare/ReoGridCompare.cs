@@ -1610,7 +1610,7 @@ namespace unvell.ReoGrid.Editor
 					finding = true;
 				}
 			}
-			else if (cell1.GetData<string>() != cell2.GetData<string>())
+			else if (!Equals(cell1.Data, cell2.Data))
 			{
 				cell1.SetDiffFlag(PlainStyleFlag.DiffChange);
 				cell2.SetDiffFlag(PlainStyleFlag.DiffChange);
