@@ -1352,11 +1352,8 @@ namespace unvell.ReoGrid.Utility
 			toCell.DataFormatArgs = fromCell.DataFormatArgs;
 			toCell.Body = fromCell.body == null ? null : fromCell.body.Clone();
 
-			// cell data
-			toCell.InnerData = fromCell.InnerData;
-			toCell.InnerDisplay = fromCell.DisplayText;
-
 #if FORMULA
+			// cell formula (must go before cell data to prevent overwrite!)
 			toCell.Formula = fromCell.Formula;
 
 			if (fromCell.formulaTree != null)
@@ -1367,6 +1364,10 @@ namespace unvell.ReoGrid.Utility
 			// do not copy formula status since SetPartialGrid method will rebuilt formula status.
 			//toCell.formulaStatus = fromCell.formulaStatus;
 #endif // FORMULA
+
+			// cell data
+			toCell.InnerData = fromCell.InnerData;
+			toCell.InnerDisplay = fromCell.DisplayText;
 
 			// properties
 			toCell.FontDirty = fromCell.FontDirty;
