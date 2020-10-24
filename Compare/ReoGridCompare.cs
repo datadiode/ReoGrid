@@ -94,6 +94,7 @@ namespace unvell.ReoGrid.Editor
 		private object arg2;
 		private LinkedList<IAction> undoStack = new LinkedList<IAction>();
 		private LinkedList<IAction> redoStack = new LinkedList<IAction>();
+		private int rowDiffCount = 0;
 		public void ParseArguments(IList arguments)
 		{
 			int i;
@@ -1586,7 +1587,7 @@ namespace unvell.ReoGrid.Editor
 			{
 				grid.Visible = true;
 				header.Modified = false;
-				Rescan();
+				Rescan(RangePosition.EntireRange);
 			}
 			return arg;
 		}
@@ -1624,49 +1625,63 @@ namespace unvell.ReoGrid.Editor
 			return finding;
 		}
 
-		private bool RescanCurrentSheet()
+		private bool RescanCurrentSheet(RangePosition roi)
 		{
 			var sheet1 = grid1.CurrentWorksheet;
 			var sheet2 = grid2.CurrentWorksheet;
-			var n = Math.Max(sheet1.RowCount, sheet2.RowCount);
-			var m = Math.Max(sheet1.ColumnCount, sheet2.ColumnCount);
-			sheet1.RowCount = n;
-			sheet2.RowCount = n;
-			sheet1.ColumnCount = m;
-			sheet2.ColumnCount = m;
-			sheet1.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
-			sheet2.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
-			sheet1.RowsHeightChanged -= worksheet_RowsHeightChanged;
-			sheet2.RowsHeightChanged -= worksheet_RowsHeightChanged;
-			// Align column widths on both sides
-			for (var i = 0; i < m; ++i)
+			int o, n, m;
+			if (roi == RangePosition.EntireRange)
 			{
-				var colhdr1 = sheet1.GetColumnHeader(i);
-				var colhdr2 = sheet2.GetColumnHeader(i);
-				if (colhdr1.Width < colhdr2.Width)
-					colhdr1.Width = colhdr2.Width;
-				else if (colhdr2.Width < colhdr1.Width)
-					colhdr2.Width = colhdr1.Width;
+				n = Math.Max(sheet1.RowCount, sheet2.RowCount);
+				m = Math.Max(sheet1.ColumnCount, sheet2.ColumnCount);
+				sheet1.RowCount = n;
+				sheet2.RowCount = n;
+				sheet1.ColumnCount = m;
+				sheet2.ColumnCount = m;
+				sheet1.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
+				sheet2.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
+				sheet1.RowsHeightChanged -= worksheet_RowsHeightChanged;
+				sheet2.RowsHeightChanged -= worksheet_RowsHeightChanged;
+				// Align column widths on both sides
+				for (var i = 0; i < m; ++i)
+				{
+					var colhdr1 = sheet1.GetColumnHeader(i);
+					var colhdr2 = sheet2.GetColumnHeader(i);
+					if (colhdr1.Width < colhdr2.Width)
+						colhdr1.Width = colhdr2.Width;
+					else if (colhdr2.Width < colhdr1.Width)
+						colhdr2.Width = colhdr1.Width;
+				}
+				// Align row heights on both sides and clear row differences
+				rowDiffCount = 0;
+				for (var i = 0; i < n; ++i)
+				{
+					var rowhdr1 = sheet1.GetRowHeader(i);
+					var rowhdr2 = sheet2.GetRowHeader(i);
+					if (rowhdr1.Height < rowhdr2.Height)
+						rowhdr1.Height = rowhdr2.Height;
+					else if (rowhdr2.Height < rowhdr1.Height)
+						rowhdr2.Height = rowhdr1.Height;
+					rowhdr1.TextColor = Graphics.SolidColor.Transparent;
+					rowhdr2.TextColor = Graphics.SolidColor.Transparent;
+				}
+				sheet1.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
+				sheet2.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
+				sheet1.RowsHeightChanged += worksheet_RowsHeightChanged;
+				sheet2.RowsHeightChanged += worksheet_RowsHeightChanged;
+				// Scan all rows which have some content
+				o = 0;
+				n = Math.Max(sheet1.MaxContentRow, sheet2.MaxContentRow) + 1;
 			}
-			// Align row heights on both sides
-			for (var i = 0; i < n; ++i)
+			else
 			{
-				var rowhdr1 = sheet1.GetRowHeader(i);
-				var rowhdr2 = sheet2.GetRowHeader(i);
-				if (rowhdr1.Height < rowhdr2.Height)
-					rowhdr1.Height = rowhdr2.Height;
-				else if (rowhdr2.Height < rowhdr1.Height)
-					rowhdr2.Height = rowhdr1.Height;
+				// Scan only the rows which intersect the range of interest
+				o = roi.Row;
+				n = o + roi.Rows;
 			}
-			sheet1.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
-			sheet2.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
-			sheet1.RowsHeightChanged += worksheet_RowsHeightChanged;
-			sheet2.RowsHeightChanged += worksheet_RowsHeightChanged;
-			// Colorize the differences
-			n = Math.Max(sheet1.MaxContentRow, sheet2.MaxContentRow) + 1;
 			m = Math.Max(sheet1.MaxContentCol, sheet2.MaxContentCol) + 1;
-			var findings = false;
-			for (var i = 0; i < n; ++i)
+			// Colorize the differences
+			for (var i = o; i < n; ++i)
 			{
 				var finding = false;
 				for (var j = 0; j < m; ++j)
@@ -1682,22 +1697,29 @@ namespace unvell.ReoGrid.Editor
 				var rowhdr2 = sheet2.GetRowHeader(i);
 				if (finding)
 				{
-					rowhdr1.TextColor = Graphics.SolidColor.Red;
-					rowhdr2.TextColor = Graphics.SolidColor.Red;
-					findings = true;
+					if (rowhdr1.TextColor == Graphics.SolidColor.Transparent)
+					{
+						++rowDiffCount;
+						rowhdr1.TextColor = Graphics.SolidColor.Red;
+						rowhdr2.TextColor = Graphics.SolidColor.Red;
+					}
 				}
 				else
 				{
-					rowhdr1.TextColor = Graphics.SolidColor.Transparent;
-					rowhdr2.TextColor = Graphics.SolidColor.Transparent;
+					if (rowhdr1.TextColor != Graphics.SolidColor.Transparent)
+					{
+						--rowDiffCount;
+						rowhdr1.TextColor = Graphics.SolidColor.Transparent;
+						rowhdr2.TextColor = Graphics.SolidColor.Transparent;
+					}
 				}
 			}
 			sheet1.RequestInvalidate();
 			sheet2.RequestInvalidate();
-			return findings;
+			return rowDiffCount != 0;
 		}
 
-		private void Rescan()
+		private void Rescan(RangePosition roi)
 		{
 			var findings = false;
 			if (grid1.Visible && grid2.Visible &&
@@ -1706,12 +1728,19 @@ namespace unvell.ReoGrid.Editor
 				Cursor = Cursors.WaitCursor;
 				try
 				{
-					findings = RescanCurrentSheet();
+					findings = RescanCurrentSheet(roi);
 				}
 				finally
 				{
 					Cursor = Cursors.Default;
 				}
+				compareInfoToolStripStatusLabel.Text = rowDiffCount != 0 ?
+					string.Format(LangRes.LangResource.DifferencesInHowManyRows, rowDiffCount) :
+					LangRes.LangResource.SheetsAreIdentical;
+			}
+			else
+			{
+				compareInfoToolStripStatusLabel.Text = string.Empty;
 			}
 			// Diff navigation commands
 			nextDiffToolStripButton.Enabled = findings;
@@ -3008,7 +3037,25 @@ namespace unvell.ReoGrid.Editor
 					saveToolStripMenuItem.Enabled = true;
 					saveToolStripButton.Enabled = true;
 				}
-				Rescan();
+				var roi = RangePosition.EntireRange;
+				var reusableAction = e.Action as WorksheetReusableAction;
+				if (reusableAction != null &&
+					reusableAction as InsertColumnsAction == null &&
+					reusableAction as RemoveColumnsAction == null &&
+					reusableAction as InsertRowsAction == null &&
+					reusableAction as RemoveRowsAction == null)
+				{
+					roi = reusableAction.Range;
+				}
+				else
+				{
+					var setCellDataAction = e.Action as SetCellDataAction;
+					if (setCellDataAction != null)
+					{
+						roi = new RangePosition(setCellDataAction.Row, setCellDataAction.Col, 1, 1);
+					}
+				}
+				Rescan(roi);
 			}
 			UpdateMenuAndToolStrips();
 		}
@@ -3055,7 +3102,7 @@ namespace unvell.ReoGrid.Editor
 				UpdateSelectionModeAndStyle();
 				UpdateSelectionForwardDirection();
 			}
-			Rescan();
+			Rescan(RangePosition.EntireRange);
 		}
 		private void Header_GotFocus(object sender, System.EventArgs e)
 		{

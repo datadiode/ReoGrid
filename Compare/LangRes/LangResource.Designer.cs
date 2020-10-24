@@ -538,6 +538,15 @@ namespace unvell.ReoGrid.Editor.LangRes {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Differences exist in {0} rows.
+        /// </summary>
+        internal static string DifferencesInHowManyRows {
+            get {
+                return ResourceManager.GetString("DifferencesInHowManyRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Fill.
         /// </summary>
         internal static string Fill {
@@ -2554,6 +2563,15 @@ namespace unvell.ReoGrid.Editor.LangRes {
         internal static string SetHeaderSize_Caption_Row {
             get {
                 return ResourceManager.GetString("SetHeaderSize_Caption_Row", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sheets are identical.
+        /// </summary>
+        internal static string SheetsAreIdentical {
+            get {
+                return ResourceManager.GetString("SheetsAreIdentical", resourceCulture);
             }
         }
         

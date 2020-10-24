@@ -391,6 +391,7 @@ namespace unvell.ReoGrid.Editor
 			this.zoomToolStripDropDownButton = new System.Windows.Forms.ToolStripComboBox();
 			this.fontToolStrip = new System.Windows.Forms.ToolStrip();
 			this.formulaBar = new unvell.ReoGrid.Editor.FormulaBarControl();
+			this.compareInfoToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStrip1.SuspendLayout();
 			this.columnContextMenuStrip.SuspendLayout();
 			this.rowContextMenuStrip.SuspendLayout();
@@ -1727,7 +1728,7 @@ namespace unvell.ReoGrid.Editor
 			this.saveLeftToolStripMenuItem.AccessibleName = "SaveLeft";
 			this.saveLeftToolStripMenuItem.Enabled = false;
 			this.saveLeftToolStripMenuItem.Name = "saveLeftToolStripMenuItem";
-			this.saveLeftToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.saveLeftToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
 			this.saveLeftToolStripMenuItem.Text = "&Save";
 			// 
 			// saveAsLeftToolStripMenuItem
@@ -1735,7 +1736,7 @@ namespace unvell.ReoGrid.Editor
 			this.saveAsLeftToolStripMenuItem.AccessibleName = "SaveLeftAs";
 			this.saveAsLeftToolStripMenuItem.Enabled = false;
 			this.saveAsLeftToolStripMenuItem.Name = "saveAsLeftToolStripMenuItem";
-			this.saveAsLeftToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.saveAsLeftToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
 			this.saveAsLeftToolStripMenuItem.Text = "Save &As...";
 			// 
 			// saveRightToolStripMenu
@@ -1754,7 +1755,7 @@ namespace unvell.ReoGrid.Editor
 			this.saveRightToolStripMenuItem.AccessibleName = "SaveRight";
 			this.saveRightToolStripMenuItem.Enabled = false;
 			this.saveRightToolStripMenuItem.Name = "saveRightToolStripMenuItem";
-			this.saveRightToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.saveRightToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
 			this.saveRightToolStripMenuItem.Text = "&Save";
 			// 
 			// saveAsRightToolStripMenuItem
@@ -1762,7 +1763,7 @@ namespace unvell.ReoGrid.Editor
 			this.saveAsRightToolStripMenuItem.AccessibleName = "SaveRightAs";
 			this.saveAsRightToolStripMenuItem.Enabled = false;
 			this.saveAsRightToolStripMenuItem.Name = "saveAsRightToolStripMenuItem";
-			this.saveAsRightToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.saveAsRightToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
 			this.saveAsRightToolStripMenuItem.Text = "Save &As...";
 			// 
 			// toolStripMenuItem17
@@ -2912,6 +2913,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.statusToolStripStatusLabel,
+			this.compareInfoToolStripStatusLabel,
 			this.rangeInfoToolStripStatusLabel});
 			this.statusStrip1.Location = new System.Drawing.Point(0, 678);
 			this.statusStrip1.Name = "statusStrip1";
@@ -2922,7 +2924,7 @@ namespace unvell.ReoGrid.Editor
 			// statusToolStripStatusLabel
 			// 
 			this.statusToolStripStatusLabel.Name = "statusToolStripStatusLabel";
-			this.statusToolStripStatusLabel.Size = new System.Drawing.Size(727, 17);
+			this.statusToolStripStatusLabel.Size = new System.Drawing.Size(436, 17);
 			this.statusToolStripStatusLabel.Spring = true;
 			this.statusToolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
@@ -3319,6 +3321,13 @@ namespace unvell.ReoGrid.Editor
 			this.formulaBar.Size = new System.Drawing.Size(1002, 28);
 			this.formulaBar.TabIndex = 3;
 			// 
+			// compareInfoToolStripStatusLabel
+			// 
+			this.compareInfoToolStripStatusLabel.AutoSize = false;
+			this.compareInfoToolStripStatusLabel.Name = "compareInfoToolStripStatusLabel";
+			this.compareInfoToolStripStatusLabel.Size = new System.Drawing.Size(260, 17);
+			this.compareInfoToolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
 			// ReoGridCompare
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3702,6 +3711,7 @@ namespace unvell.ReoGrid.Editor
 		private System.Windows.Forms.ToolStripMenuItem saveRightToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem saveAsRightToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem saveLeftToolStripMenuItem;
+		private System.Windows.Forms.ToolStripStatusLabel compareInfoToolStripStatusLabel;
 	}
 }
 

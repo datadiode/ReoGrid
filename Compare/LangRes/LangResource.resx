@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AlignmentPage_Degrees" xml:space="preserve">
     <value>Degrees</value>
@@ -975,5 +975,11 @@
   </data>
   <data name="PleaseSelectSomeFile" xml:space="preserve">
     <value>Please select a file</value>
+  </data>
+  <data name="DifferencesInHowManyRows" xml:space="preserve">
+    <value>Differences exist in {0} rows</value>
+  </data>
+  <data name="SheetsAreIdentical" xml:space="preserve">
+    <value>Sheets are identical</value>
   </data>
 </root>
