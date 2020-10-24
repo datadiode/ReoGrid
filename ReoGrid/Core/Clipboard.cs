@@ -541,10 +541,10 @@ namespace unvell.ReoGrid
 					var actionSupportedControl = this.controlAdapter.ControlInstance as IActionControl;
 					if (actionSupportedControl != null)
 					{
-						var action = new CombinedWorksheetAction(this, currentCopingRange);
-						action.Add(new RemoveRangeDataAction(currentCopingRange));
-						action.Add(new RemoveRangeStyleAction(currentCopingRange, PlainStyleFlag.All));
-						action.Add(new RemoveRangeBorderAction(currentCopingRange, BorderPositions.All));
+						var action = new WorksheetReusableActionGroup(currentCopingRange);
+						action.Actions.Add(new RemoveRangeDataAction(currentCopingRange));
+						action.Actions.Add(new RemoveRangeStyleAction(currentCopingRange, PlainStyleFlag.All));
+						action.Actions.Add(new RemoveRangeBorderAction(currentCopingRange, BorderPositions.All));
 						actionSupportedControl.DoAction(this, action);
 					}
 				}

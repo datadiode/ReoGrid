@@ -15,9 +15,6 @@
  * 
  ****************************************************************************/
 
-using System.Collections.Generic;
-using System.Text;
-
 namespace unvell.ReoGrid.Actions
 {
 	/// <summary>
@@ -51,96 +48,4 @@ namespace unvell.ReoGrid.Actions
 		public abstract WorksheetReusableAction Clone(RangePosition range);
 	}
 
-	public class CombinedWorksheetAction : WorksheetReusableAction
-	{
-		private LinkedList<WorksheetReusableAction> undoStack = new LinkedList<WorksheetReusableAction>();
-
-		/// <summary>
-		/// Create instance.
-		/// </summary>
-		public CombinedWorksheetAction(Worksheet worksheet, RangePosition range)
-			: base(range)
-		{
-			Worksheet = worksheet;
-		}
-
-		/// <summary>
-		/// Create a copy from this action in order to apply the operation to another range.
-		/// </summary>
-		/// <param name="range">New range where this operation will be appiled to.</param>
-		/// <returns>New action instance copied from this action.</returns>
-		public override WorksheetReusableAction Clone(RangePosition range)
-		{
-			var clone = new CombinedWorksheetAction(Worksheet, range);
-			foreach (var action in undoStack)
-			{
-				clone.Add(action.Clone(range));
-			}
-			return clone;
-		}
-
-		/// <summary>
-		/// Add action.
-		/// </summary>
-		/// <param name="action">Action to be added.</param>
-		public void Add(WorksheetReusableAction action)
-		{
-			action.Worksheet = Worksheet;
-			undoStack.AddLast(action);
-		}
-
-		/// <summary>
-		/// Do this action
-		/// </summary>
-		public override void Do()
-		{
-			var node = undoStack.First;
-			while (node != null)
-			{
-				node.Value.Do();
-				node = node.Next;
-			}
-		}
-
-		/// <summary>
-		/// Undo this action
-		/// </summary>
-		public override void Undo()
-		{
-			var node = undoStack.Last;
-			while (node != null)
-			{
-				node.Value.Undo();
-				node = node.Previous;
-			}
-		}
-
-		/// <summary>
-		/// Redo this action
-		/// </summary>
-		public override void Redo()
-		{
-			var node = undoStack.First;
-			while (node != null)
-			{
-				node.Value.Redo();
-				node = node.Next;
-			}
-		}
-
-		/// <summary>
-		/// Get friendly name of this action
-		/// </summary>
-		/// <returns></returns>
-		public override string GetName()
-		{
-			StringBuilder sb = new StringBuilder();
-			foreach (var action in undoStack)
-			{
-				if (sb.Length > 0) sb.Append(", ");
-				sb.Append(action.GetName());
-			}
-			return sb.ToString();
-		}
-	}
 }
