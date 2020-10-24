@@ -3171,6 +3171,7 @@ namespace unvell.ReoGrid.Editor
 			colCutToolStripMenuItem.Enabled = enable;
 			colCopyToolStripMenuItem.Enabled = enable;
 			colPasteToolStripMenuItem.Enabled = enable;
+			toolStripButton_EnabledChanged(this, EventArgs.Empty);
 		}
 #if DEBUG
 		private void ForTest()
