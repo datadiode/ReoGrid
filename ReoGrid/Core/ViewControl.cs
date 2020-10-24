@@ -69,6 +69,24 @@ namespace unvell.ReoGrid
 			set { this.viewportController = value; }
 		}
 
+		public float ViewLeft
+		{
+			get
+			{
+				NormalViewportController normalViewportController = viewportController as NormalViewportController;
+				return normalViewportController != null ? normalViewportController.mainViewport.ViewLeft : 0;
+			}
+		}
+
+		public float ViewTop
+		{
+			get
+			{
+				NormalViewportController normalViewportController = viewportController as NormalViewportController;
+				return normalViewportController != null ? normalViewportController.mainViewport.ViewTop : 0;
+			}
+		}
+
 		internal void UpdateViewportController()
 		{
 			if (this.suspendingUIUpdates) return;
