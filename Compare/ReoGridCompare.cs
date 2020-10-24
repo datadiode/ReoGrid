@@ -90,11 +90,17 @@ namespace unvell.ReoGrid.Editor
 		/// Flag to avoid scroll two controls recursively
 		/// </summary>
 		private bool inScrolling = false;
+		private float ViewLeft = 0;
+		private float ViewTop = 0;
 		private object arg1;
 		private object arg2;
 		private LinkedList<IAction> undoStack = new LinkedList<IAction>();
 		private LinkedList<IAction> redoStack = new LinkedList<IAction>();
 		private int rowDiffCount = 0;
+		private bool KeepSheetsInSync =>
+			grid1.Visible && grid2.Visible && // need to avoid synchronization during Load()
+			grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet);
+
 		public void ParseArguments(IList arguments)
 		{
 			int i;
@@ -167,7 +173,11 @@ namespace unvell.ReoGrid.Editor
 				if (!inScrolling)
 				{
 					inScrolling = true;
-					grid2.ScrollCurrentWorksheet(e.OffsetX, e.OffsetY);
+					var grid = s as ReoGridControl;
+					ViewLeft = grid.CurrentWorksheet.ViewLeft;
+					ViewTop = grid.CurrentWorksheet.ViewTop;
+					if (KeepSheetsInSync)
+						grid2.ScrollCurrentWorksheet(e.OffsetX, e.OffsetY);
 					inScrolling = false;
 				}
 			};
@@ -178,7 +188,11 @@ namespace unvell.ReoGrid.Editor
 				if (!inScrolling)
 				{
 					inScrolling = true;
-					grid1.ScrollCurrentWorksheet(e.OffsetX, e.OffsetY);
+					var grid = s as ReoGridControl;
+					ViewLeft = grid.CurrentWorksheet.ViewLeft;
+					ViewTop = grid.CurrentWorksheet.ViewTop;
+					if (KeepSheetsInSync)
+						grid1.ScrollCurrentWorksheet(e.OffsetX, e.OffsetY);
 					inScrolling = false;
 				}
 			};
@@ -859,8 +873,7 @@ namespace unvell.ReoGrid.Editor
 
 		void worksheet_ColumnsWidthChanged(object sender, ColumnsWidthChangedEventArgs e)
 		{
-			if (grid1.Visible && grid2.Visible && // need to avoid synchronization during Load()
-				grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet))
+			if (KeepSheetsInSync)
 			{
 				var worksheet = sender != grid1.CurrentWorksheet ? grid1.CurrentWorksheet : grid2.CurrentWorksheet;
 				worksheet.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
@@ -871,8 +884,7 @@ namespace unvell.ReoGrid.Editor
 
 		void worksheet_RowsHeightChanged(object sender, RowsHeightChangedEventArgs e)
 		{
-			if (grid1.Visible && grid2.Visible && // need to avoid synchronization during Load()
-				grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet))
+			if (KeepSheetsInSync)
 			{
 				var worksheet = sender != grid1.CurrentWorksheet ? grid1.CurrentWorksheet : grid2.CurrentWorksheet;
 				worksheet.RowsHeightChanged -= worksheet_RowsHeightChanged;
@@ -1714,6 +1726,10 @@ namespace unvell.ReoGrid.Editor
 					}
 				}
 			}
+			inScrolling = true;
+			grid1.ScrollCurrentWorksheet(ViewLeft - sheet1.ViewLeft, ViewTop - sheet1.ViewTop);
+			grid2.ScrollCurrentWorksheet(ViewLeft - sheet2.ViewLeft, ViewTop - sheet2.ViewTop);
+			inScrolling = false;
 			sheet1.RequestInvalidate();
 			sheet2.RequestInvalidate();
 			return rowDiffCount != 0;
@@ -1722,8 +1738,7 @@ namespace unvell.ReoGrid.Editor
 		private void Rescan(RangePosition roi)
 		{
 			var findings = false;
-			if (grid1.Visible && grid2.Visible &&
-				grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet))
+			if (KeepSheetsInSync)
 			{
 				Cursor = Cursors.WaitCursor;
 				try
