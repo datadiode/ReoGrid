@@ -3140,16 +3140,20 @@ namespace unvell.ReoGrid.Editor
 			header1.Active = GridControl == grid1;
 			header2.Active = GridControl == grid2;
 
-			Grid_LostFocus(sender, e);
+			UpdateGridFocus(sender);
 
 			grid_SelectionRangeChanged(CurrentWorksheet, new RangeEventArgs(CurrentWorksheet.SelectionRange));
 			worksheet_GridScaled(CurrentWorksheet, e);
 			UpdateWorksheetSettings(CurrentWorksheet);
 			UpdateSelectionModeAndStyle();
 			UpdateSelectionForwardDirection();
-
 		}
 		private void Grid_LostFocus(object sender, System.EventArgs e)
+		{
+			UpdateGridFocus(sender);
+			toolStripButton_EnabledChanged(this, EventArgs.Empty);
+		}
+		private void UpdateGridFocus(object sender)
 		{
 			var owner = sender as ReoGridControl;
 			owner.CurrentWorksheet.SelectionStyle = owner.Focused ? WorksheetSelectionStyle.Hybrid : WorksheetSelectionStyle.Default;
@@ -3171,7 +3175,6 @@ namespace unvell.ReoGrid.Editor
 			colCutToolStripMenuItem.Enabled = enable;
 			colCopyToolStripMenuItem.Enabled = enable;
 			colPasteToolStripMenuItem.Enabled = enable;
-			toolStripButton_EnabledChanged(this, EventArgs.Empty);
 		}
 #if DEBUG
 		private void ForTest()
