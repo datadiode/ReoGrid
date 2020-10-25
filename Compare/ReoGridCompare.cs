@@ -676,7 +676,12 @@ namespace unvell.ReoGrid.Editor
 				CurrentWorksheet.SetSettings(WorksheetSettings.Formula_AutoUpdateReferenceCell,
 				!suspendReferenceUpdatingToolStripMenuItem.Checked);
 
-			recalculateWorksheetToolStripMenuItem.Click += (s, e) => CurrentWorksheet.Recalculate();
+			recalculateWorksheetToolStripMenuItem.Click += (s, e) =>
+			{
+				grid1.CurrentWorksheet.Recalculate();
+				grid2.CurrentWorksheet.Recalculate();
+				Rescan(RangePosition.EntireRange);
+			};
 
 #if RG_DEBUG
 
