@@ -745,13 +745,29 @@ namespace unvell.ReoGrid.IO.OpenXML
 						}
 					}
 
-					if (rgCell.DataFormat == CellDataFormatFlag.DateTime)
+					switch (rgCell.DataFormat)
 					{
-						rgCell.Data = DataFormatterManager.Instance.DataFormatters[CellDataFormatFlag.DateTime].FormatCell(rgCell);
-					}
-					else
-					{
-						DataFormatterManager.Instance.FormatCell(rgCell);
+						case CellDataFormatFlag.DateTime:
+							rgCell.Data = DataFormatterManager.Instance.DataFormatters[CellDataFormatFlag.DateTime].FormatCell(rgCell);
+							break;
+						case CellDataFormatFlag.General:
+						case CellDataFormatFlag.Number:
+						case CellDataFormatFlag.Percent:
+						case CellDataFormatFlag.Currency:
+							double value;
+							if (double.TryParse(rgCell.InnerData as string, System.Globalization.NumberStyles.Number,
+								ExcelWriter.EnglishCulture, out value))
+							{
+								rgCell.Data = value;
+							}
+							else
+							{
+								DataFormatterManager.Instance.FormatCell(rgCell);
+							}
+							break;
+						default:
+							DataFormatterManager.Instance.FormatCell(rgCell);
+							break;
 					}
 
 #endregion // Data Format
@@ -1473,10 +1489,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 #region Data Format
 
-		//private static Regex numberFormatRegex = new Regex("0*\\.{[0]+}");
-
-		private static Regex currencyFormatRegex = new Regex(@"([^\\\s]*)\\?(\s*)\[\$([^(\-|\])]+)-?[^\]]*\]\\?(\s*)([^\\\s]*)", RegexOptions.Compiled);
-
 		private static NumberDataFormatter.INumberFormatArgs ReadNumberFormatArgs(string pattern, NumberDataFormatter.INumberFormatArgs arg)
 		{
 			if (pattern.StartsWith("[Red]", StringComparison.CurrentCultureIgnoreCase))
@@ -1511,7 +1523,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				pattern = pattern.Substring(index + 1);
 			}
 
-			if (pattern.StartsWith("\\(") && pattern.EndsWith("\\)"))
+			if (pattern.StartsWith("(") && pattern.EndsWith(")"))
 			{
 				// add bracket style
 				arg.NegativeStyle |= NumberDataFormatter.NumberNegativeStyle.Brackets;
@@ -1522,11 +1534,9 @@ namespace unvell.ReoGrid.IO.OpenXML
 				pattern = pattern.Substring(2, pattern.Length - 4);
 			}
 
-			var culture = System.Threading.Thread.CurrentThread.CurrentCulture;
-
 			int len = pattern.Length;
 
-			int decimalSeparatorIndex = pattern.LastIndexOf(culture.NumberFormat.NumberDecimalSeparator, len - 1);
+			int decimalSeparatorIndex = pattern.LastIndexOf(ExcelWriter.EnglishCulture.NumberFormat.NumberDecimalSeparator, len - 1);
 
 			if (decimalSeparatorIndex >= 0 && decimalSeparatorIndex < len - 1)
 			{
@@ -1537,7 +1547,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				arg.DecimalPlaces = 0;
 			}
 
-			arg.UseSeparator = (pattern.IndexOf(culture.NumberFormat.NumberGroupSeparator) > 0);
+			arg.UseSeparator = (pattern.IndexOf(ExcelWriter.EnglishCulture.NumberFormat.NumberGroupSeparator) > 0);
 
 			return arg;
 		}
@@ -1576,59 +1586,29 @@ namespace unvell.ReoGrid.IO.OpenXML
 					if (patterns != null && patterns.Length > 0)
 					{
 						object arg = null;
-						Match currencyMatch = null;
 
 						var pattern = patterns[0];
-
-						if (pattern.StartsWith("\"$\""))
+						var i = pattern.IndexOf('"');
+						var j = pattern.LastIndexOf('"');
+						if (i != j)
 						{
 							flag = CellDataFormatFlag.Currency;
-
 							var carg = (CurrencyDataFormatter.CurrencyFormatArgs)ReadNumberFormatArgs(
-								pattern.Substring(3), new CurrencyDataFormatter.CurrencyFormatArgs());
-
-							carg.PrefixSymbol = "$";
-
-							arg = carg;
-						}
-						// #,##0.00 [$-419E] #,##0.00
-						else if ((currencyMatch = currencyFormatRegex.Match(pattern)).Success)
-						{
-							#region Currency
-							flag = CellDataFormatFlag.Currency;
-							var carg = new CurrencyDataFormatter.CurrencyFormatArgs();
-
-							if (currencyMatch.Groups[1].Length > 0)
+								pattern.Remove(i, j + 1 - i), new CurrencyDataFormatter.CurrencyFormatArgs());
+							if (i == 0)
+								carg.PrefixSymbol = pattern.Substring(i + 1, j - i - 1);
+							else
+								carg.PostfixSymbol = pattern.Substring(i + 1, j - i - 1);
+							if (patterns.Length > 1)
 							{
-								if (currencyMatch.Groups[3].Success)
-								{
-									carg.PostfixSymbol = currencyMatch.Groups[3].Value;
-								}
-
-								if (currencyMatch.Groups[2].Length > 0)
-								{
-									carg.PostfixSymbol = currencyMatch.Groups[2].Value + carg.PostfixSymbol;
-								}
-
-								carg = (CurrencyDataFormatter.CurrencyFormatArgs)ReadNumberFormatArgs(currencyMatch.Groups[1].Value, carg);
+								pattern = patterns[1];
+								i = pattern.IndexOf('"');
+								j = pattern.LastIndexOf('"');
+								var carg1 = (CurrencyDataFormatter.CurrencyFormatArgs)ReadNumberFormatArgs(
+									pattern.Remove(i, j + 1 - i), new CurrencyDataFormatter.CurrencyFormatArgs());
+								carg.NegativeStyle = carg1.NegativeStyle;
 							}
-							else if (currencyMatch.Groups[5].Length > 0)
-							{
-								if (currencyMatch.Groups[3].Success)
-								{
-									carg.PrefixSymbol = currencyMatch.Groups[3].Value;
-								}
-
-								if (currencyMatch.Groups[4].Length > 0)
-								{
-									carg.PrefixSymbol += currencyMatch.Groups[4].Value;
-								}
-
-								carg = (CurrencyDataFormatter.CurrencyFormatArgs)ReadNumberFormatArgs(currencyMatch.Groups[5].Value, carg);
-							}
-
 							arg = carg;
-							#endregion // Currency
 						}
 						else if (pattern.EndsWith("%"))
 						{
