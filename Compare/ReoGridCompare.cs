@@ -2658,7 +2658,7 @@ namespace unvell.ReoGrid.Editor
 							return;
 					} while (sheet1.GetRowHeight(j) == 0 && sheet2.GetRowHeight(j) == 0);
 				}
-			} while (sheet1.GetCellData<string>(j, i) == sheet2.GetCellData<string>(j, i));
+			} while (Equals(sheet1[j, i], sheet2[j, i]));
 			var pos = new CellPosition(j, i);
 			grid1.CurrentWorksheet.FocusPos = pos;
 			grid2.CurrentWorksheet.FocusPos = pos;
@@ -2685,7 +2685,7 @@ namespace unvell.ReoGrid.Editor
 					i = m;
 				}
 				--i;
-			} while (sheet1.GetCellData<string>(j, i) == sheet2.GetCellData<string>(j, i));
+			} while (Equals(sheet1[j, i], sheet2[j, i]));
 			var pos = new CellPosition(j, i);
 			grid1.CurrentWorksheet.FocusPos = pos;
 			grid2.CurrentWorksheet.FocusPos = pos;
