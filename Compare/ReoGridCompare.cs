@@ -2647,6 +2647,7 @@ namespace unvell.ReoGrid.Editor
 			var sheet2 = grid2.CurrentWorksheet;
 			var n = Math.Max(sheet1.MaxContentRow, sheet2.MaxContentRow) + 1;
 			var m = Math.Max(sheet1.MaxContentCol, sheet2.MaxContentCol) + 1;
+			Cell cell, cell1, cell2;
 			do
 			{
 				if (++i >= m)
@@ -2658,7 +2659,10 @@ namespace unvell.ReoGrid.Editor
 							return;
 					} while (sheet1.GetRowHeight(j) == 0 && sheet2.GetRowHeight(j) == 0);
 				}
-			} while (Equals(sheet1[j, i], sheet2[j, i]));
+				cell1 = sheet1.GetCell(j, i);
+				cell2 = sheet2.GetCell(j, i);
+				cell = header1.Active ? cell1 : cell2;
+			} while (cell != null && !cell.IsValidCell || Equals(cell1?.Data, cell2?.Data));
 			var pos = new CellPosition(j, i);
 			grid1.CurrentWorksheet.FocusPos = pos;
 			grid2.CurrentWorksheet.FocusPos = pos;
@@ -2672,6 +2676,7 @@ namespace unvell.ReoGrid.Editor
 			var m = Math.Max(sheet1.MaxContentCol, sheet2.MaxContentCol) + 1;
 			if (j == -1)
 				j = n;
+			Cell cell, cell1, cell2;
 			do
 			{
 				if (i == 0)
@@ -2685,7 +2690,10 @@ namespace unvell.ReoGrid.Editor
 					i = m;
 				}
 				--i;
-			} while (Equals(sheet1[j, i], sheet2[j, i]));
+				cell1 = sheet1.GetCell(j, i);
+				cell2 = sheet2.GetCell(j, i);
+				cell = header1.Active ? cell1 : cell2;
+			} while (cell != null && !cell.IsValidCell || Equals(cell1?.Data, cell2?.Data));
 			var pos = new CellPosition(j, i);
 			grid1.CurrentWorksheet.FocusPos = pos;
 			grid2.CurrentWorksheet.FocusPos = pos;
