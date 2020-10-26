@@ -1531,7 +1531,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				// remove minus symbol
 				arg.NegativeStyle &= ~NumberDataFormatter.NumberNegativeStyle.Minus;
 
-				pattern = pattern.Substring(2, pattern.Length - 4);
+				pattern = pattern.Substring(1, pattern.Length - 2);
 			}
 
 			int len = pattern.Length;
@@ -1593,8 +1593,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 						if (i != j)
 						{
 							flag = CellDataFormatFlag.Currency;
-							var carg = (CurrencyDataFormatter.CurrencyFormatArgs)ReadNumberFormatArgs(
-								pattern.Remove(i, j + 1 - i), new CurrencyDataFormatter.CurrencyFormatArgs());
+							var carg = new CurrencyDataFormatter.CurrencyFormatArgs();
+							ReadNumberFormatArgs(pattern.Remove(i, j + 1 - i), carg);
 							if (i == 0)
 								carg.PrefixSymbol = pattern.Substring(i + 1, j - i - 1);
 							else
@@ -1604,8 +1604,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 								pattern = patterns[1];
 								i = pattern.IndexOf('"');
 								j = pattern.LastIndexOf('"');
-								var carg1 = (CurrencyDataFormatter.CurrencyFormatArgs)ReadNumberFormatArgs(
-									pattern.Remove(i, j + 1 - i), new CurrencyDataFormatter.CurrencyFormatArgs());
+								var carg1 = new CurrencyDataFormatter.CurrencyFormatArgs();
+								ReadNumberFormatArgs(i != j ? pattern.Remove(i, j + 1 - i) : pattern, carg1);
 								carg.NegativeStyle = carg1.NegativeStyle;
 							}
 							arg = carg;
