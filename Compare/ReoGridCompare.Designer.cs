@@ -359,6 +359,7 @@ namespace unvell.ReoGrid.Editor
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.statusToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+			this.compareInfoToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.rangeInfoToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.grid1 = new unvell.ReoGrid.ReoGridControl();
 			this.leadHeaderContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -391,7 +392,6 @@ namespace unvell.ReoGrid.Editor
 			this.zoomToolStripDropDownButton = new System.Windows.Forms.ToolStripComboBox();
 			this.fontToolStrip = new System.Windows.Forms.ToolStrip();
 			this.formulaBar = new unvell.ReoGrid.Editor.FormulaBarControl();
-			this.compareInfoToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStrip1.SuspendLayout();
 			this.columnContextMenuStrip.SuspendLayout();
 			this.rowContextMenuStrip.SuspendLayout();
@@ -2623,6 +2623,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// formulaToolStripMenuItem
 			// 
+			this.formulaToolStripMenuItem.AccessibleName = "Formula";
 			this.formulaToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.autoFunctionToolStripMenuItem,
 			this.toolStripMenuItem37,
@@ -2763,6 +2764,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// recalculateWorksheetToolStripMenuItem
 			// 
+			this.recalculateWorksheetToolStripMenuItem.AccessibleName = "Recalculate";
 			this.recalculateWorksheetToolStripMenuItem.Name = "recalculateWorksheetToolStripMenuItem";
 			this.recalculateWorksheetToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
 			this.recalculateWorksheetToolStripMenuItem.Text = "Recalculate Worksheet";
@@ -2924,9 +2926,16 @@ namespace unvell.ReoGrid.Editor
 			// statusToolStripStatusLabel
 			// 
 			this.statusToolStripStatusLabel.Name = "statusToolStripStatusLabel";
-			this.statusToolStripStatusLabel.Size = new System.Drawing.Size(436, 17);
+			this.statusToolStripStatusLabel.Size = new System.Drawing.Size(467, 17);
 			this.statusToolStripStatusLabel.Spring = true;
 			this.statusToolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// compareInfoToolStripStatusLabel
+			// 
+			this.compareInfoToolStripStatusLabel.AutoSize = false;
+			this.compareInfoToolStripStatusLabel.Name = "compareInfoToolStripStatusLabel";
+			this.compareInfoToolStripStatusLabel.Size = new System.Drawing.Size(260, 17);
+			this.compareInfoToolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// rangeInfoToolStripStatusLabel
 			// 
@@ -3320,13 +3329,6 @@ namespace unvell.ReoGrid.Editor
 			this.formulaBar.Padding = new System.Windows.Forms.Padding(0, 0, 0, 1);
 			this.formulaBar.Size = new System.Drawing.Size(1002, 28);
 			this.formulaBar.TabIndex = 3;
-			// 
-			// compareInfoToolStripStatusLabel
-			// 
-			this.compareInfoToolStripStatusLabel.AutoSize = false;
-			this.compareInfoToolStripStatusLabel.Name = "compareInfoToolStripStatusLabel";
-			this.compareInfoToolStripStatusLabel.Size = new System.Drawing.Size(260, 17);
-			this.compareInfoToolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// ReoGridCompare
 			// 
