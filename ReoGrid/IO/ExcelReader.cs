@@ -1501,26 +1501,30 @@ namespace unvell.ReoGrid.IO.OpenXML
 				pattern = pattern.Substring(5);
 			}
 
-			if (pattern.StartsWith("\""))
+			int i, j;
+			while ((i = pattern.IndexOf('"')) != -1 && (j = pattern.IndexOf('"', i + 1)) != -1)
 			{
-				int index = pattern.IndexOf('"', 1);
-
-				string prefix = pattern.Substring(1, index - 1);
-
-				if (prefix == "▲ ")
+				string enquoted = pattern.Substring(i + 1, j - i - 1);
+				if (i == 0)
 				{
-					// add sankaku symbol
-					arg.NegativeStyle |= NumberDataFormatter.NumberNegativeStyle.Prefix_Sankaku;
+					if (enquoted == "▲ ")
+					{
+						// add sankaku symbol
+						arg.NegativeStyle |= NumberDataFormatter.NumberNegativeStyle.Prefix_Sankaku;
 
-					// remove minus symbol
-					arg.NegativeStyle &= ~NumberDataFormatter.NumberNegativeStyle.Minus;
+						// remove minus symbol
+						arg.NegativeStyle &= ~NumberDataFormatter.NumberNegativeStyle.Minus;
+					}
+					else
+					{
+						arg.CustomNegativePrefix = enquoted;
+					}
 				}
 				else
 				{
-					arg.CustomNegativePrefix = prefix;
+					arg.CustomNegativePostfix = enquoted;
 				}
-
-				pattern = pattern.Substring(index + 1);
+				pattern = pattern.Remove(i, j + 1 - i);
 			}
 
 			if (pattern.StartsWith("(") && pattern.EndsWith(")"))
@@ -1588,29 +1592,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 						object arg = null;
 
 						var pattern = patterns[0];
-						var i = pattern.IndexOf('"');
-						var j = pattern.LastIndexOf('"');
-						if (i != j)
-						{
-							flag = CellDataFormatFlag.Currency;
-							var carg = new CurrencyDataFormatter.CurrencyFormatArgs();
-							ReadNumberFormatArgs(pattern.Remove(i, j + 1 - i), carg);
-							if (i == 0)
-								carg.PrefixSymbol = pattern.Substring(i + 1, j - i - 1);
-							else
-								carg.PostfixSymbol = pattern.Substring(i + 1, j - i - 1);
-							if (patterns.Length > 1)
-							{
-								pattern = patterns[1];
-								i = pattern.IndexOf('"');
-								j = pattern.LastIndexOf('"');
-								var carg1 = new CurrencyDataFormatter.CurrencyFormatArgs();
-								ReadNumberFormatArgs(i != j ? pattern.Remove(i, j + 1 - i) : pattern, carg1);
-								carg.NegativeStyle = carg1.NegativeStyle;
-							}
-							arg = carg;
-						}
-						else if (pattern.EndsWith("%"))
+						if (pattern.EndsWith("%"))
 						{
 							#region Percent
 							flag = CellDataFormatFlag.Percent;
@@ -1637,7 +1619,29 @@ namespace unvell.ReoGrid.IO.OpenXML
 						else
 						{
 							flag = CellDataFormatFlag.Number;
-							arg = ReadNumberFormatArgs(patterns.Length > 1 ? patterns[1] : patterns[0], new NumberDataFormatter.NumberFormatArgs());
+							var narg = new NumberDataFormatter.NumberFormatArgs();
+							ReadNumberFormatArgs(pattern, narg);
+							if (patterns.Length > 1)
+							{
+								var carg = new CurrencyDataFormatter.CurrencyFormatArgs();
+								ReadNumberFormatArgs(patterns[1], carg);
+								if ((narg.CustomNegativePrefix != null || narg.CustomNegativePostfix != null) &&
+									carg.CustomNegativePrefix == narg.CustomNegativePrefix &&
+									carg.CustomNegativePostfix == narg.CustomNegativePostfix)
+								{
+									carg.PrefixSymbol = carg.CustomNegativePrefix;
+									carg.CustomNegativePrefix = null;
+									carg.PostfixSymbol = carg.CustomNegativePostfix;
+									carg.CustomNegativePostfix = null;
+									flag = CellDataFormatFlag.Currency;
+									narg = carg;
+								}
+								else
+								{
+									narg.NegativeStyle = carg.NegativeStyle;
+								}
+							}
+							arg = narg;
 						}
 
 						if (flag != CellDataFormatFlag.General)
