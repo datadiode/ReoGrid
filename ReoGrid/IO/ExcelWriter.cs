@@ -339,7 +339,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 #if LANG_JP
 				case NumberDataFormatter.NumberNegativeStyle.Prefix_Sankaku:
 					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
-					sb.Append("▲");
+					sb.Append("\"▲ \"");
 					sb.Append(digits);
 					if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
 					break;
