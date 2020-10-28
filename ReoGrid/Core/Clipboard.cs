@@ -220,8 +220,7 @@ namespace unvell.ReoGrid
 
 #if WINFORM || WPF
 					DataObject data = new DataObject();
-					data.SetData(ClipBoardDataFormatIdentify,
-						GetPartialGrid(currentCopingRange, PartialGridCopyFlag.All, ExPartialGridCopyFlag.None, true));
+					data.SetData(ClipBoardDataFormatIdentify, GetPartialGrid(currentCopingRange));
 
 					string text = StringifyRange(currentCopingRange);
 					if (!string.IsNullOrEmpty(text)) data.SetText(text);
