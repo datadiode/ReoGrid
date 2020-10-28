@@ -797,10 +797,10 @@ namespace unvell.ReoGrid
 #endif // FORMULA
 #endregion // Formula Formula
 
-											#region Copy Merged info
+								#region Copy Merged info
 
-											// is single cell
-											if (toCell.Rowspan == 1 && toCell.Colspan == 1)
+								// is single cell
+								if (toCell.Rowspan == 1 && toCell.Colspan == 1)
 								{
 									// then copy span info
 									toCell.Rowspan = fromCell.Rowspan;
@@ -830,7 +830,7 @@ namespace unvell.ReoGrid
 								{
 									UpdateCellFont(toCell);
 								}
-#endregion // Copy Merged info
+								#endregion // Copy Merged info
 
 								#region Cell Styles
 								if (((flag & PartialGridCopyFlag.CellStyle) == PartialGridCopyFlag.CellStyle)
