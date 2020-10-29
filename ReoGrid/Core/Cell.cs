@@ -1067,13 +1067,17 @@ namespace unvell.ReoGrid
 #endif // DEBUG
 		}
 
-		public void SetDiffFlag(PlainStyleFlag Flag)
+		public PlainStyleFlag DiffFlag
 		{
-			if (StyleParentKind != StyleParentKind.Own)
+			get => InnerStyle != null ? InnerStyle.Flag & PlainStyleFlag.DiffFlags : 0;
+			set
 			{
-				CreateOwnStyle();
+				if (StyleParentKind != StyleParentKind.Own)
+				{
+					CreateOwnStyle();
+				}
+				InnerStyle.Flag = InnerStyle.Flag & ~PlainStyleFlag.DiffFlags | value;
 			}
-			InnerStyle.Flag = InnerStyle.Flag & ~PlainStyleFlag.DiffFlags | Flag;
 		}
 
 		[NonSerialized]

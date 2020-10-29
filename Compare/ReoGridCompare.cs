@@ -1616,7 +1616,7 @@ namespace unvell.ReoGrid.Editor
 			{
 				if (cell2 != null)
 				{
-					cell2.SetDiffFlag(PlainStyleFlag.DiffInsert);
+					cell2.DiffFlag = PlainStyleFlag.DiffInsert;
 					finding = true;
 				}
 			}
@@ -1624,20 +1624,20 @@ namespace unvell.ReoGrid.Editor
 			{
 				if (cell1 != null)
 				{
-					cell1.SetDiffFlag(PlainStyleFlag.DiffInsert);
+					cell1.DiffFlag = PlainStyleFlag.DiffInsert;
 					finding = true;
 				}
 			}
 			else if (!Equals(cell1.Data, cell2.Data))
 			{
-				cell1.SetDiffFlag(PlainStyleFlag.DiffChange);
-				cell2.SetDiffFlag(PlainStyleFlag.DiffChange);
+				cell1.DiffFlag = PlainStyleFlag.DiffChange;
+				cell2.DiffFlag = PlainStyleFlag.DiffChange;
 				finding = true;
 			}
 			else
 			{
-				cell1.SetDiffFlag(0);
-				cell2.SetDiffFlag(0);
+				cell1.DiffFlag = 0;
+				cell2.DiffFlag = 0;
 			}
 			return finding;
 		}
@@ -2724,12 +2724,27 @@ namespace unvell.ReoGrid.Editor
 			FindPrevDiff(0, -1);
 		}
 
+		private static bool HasDifferences(PartialGrid partialGrid)
+		{
+			for (var i = 0; i < partialGrid.Rows; ++i)
+			{
+				for (var j = 0; j < partialGrid.Columns; ++j)
+				{
+					var cell = partialGrid.Cells[i, j];
+					if (cell != null && cell.DiffFlag != 0)
+						return true;
+				}
+			}
+			return false;
+		}
+
 		private void left2rightToolStripButton_Click(object sender, EventArgs e)
 		{
 			var sheet = grid1.CurrentWorksheet;
 			var currentCopingRange = sheet.SelectionRange;
 			var partialGrid = sheet.GetPartialGrid(currentCopingRange);
-			grid2.DoAction(new SetPartialGridAction(currentCopingRange, partialGrid));
+			if (HasDifferences(partialGrid))
+				grid2.DoAction(new SetPartialGridAction(currentCopingRange, partialGrid));
 		}
 
 		private void right2leftToolStripButton_Click(object sender, EventArgs e)
@@ -2737,7 +2752,8 @@ namespace unvell.ReoGrid.Editor
 			var sheet = grid2.CurrentWorksheet;
 			var currentCopingRange = sheet.SelectionRange;
 			var partialGrid = sheet.GetPartialGrid(currentCopingRange);
-			grid1.DoAction(new SetPartialGridAction(currentCopingRange, partialGrid));
+			if (HasDifferences(partialGrid))
+				grid1.DoAction(new SetPartialGridAction(currentCopingRange, partialGrid));
 		}
 		#endregion // Editing
 
@@ -3066,21 +3082,26 @@ namespace unvell.ReoGrid.Editor
 					saveToolStripButton.Enabled = true;
 				}
 				var roi = RangePosition.EntireRange;
-				var reusableAction = e.Action as WorksheetReusableAction;
-				if (reusableAction != null &&
-					reusableAction as InsertColumnsAction == null &&
-					reusableAction as RemoveColumnsAction == null &&
-					reusableAction as InsertRowsAction == null &&
-					reusableAction as RemoveRowsAction == null)
+				if (arg1 != null && arg2 != null)
 				{
-					roi = reusableAction.Range;
-				}
-				else
-				{
-					var setCellDataAction = e.Action as SetCellDataAction;
-					if (setCellDataAction != null)
+					// With CSV-alike files, assume no formula-driven changes
+					// outside the range directly involved in this action.
+					var reusableAction = e.Action as WorksheetReusableAction;
+					if (reusableAction != null &&
+						reusableAction as InsertColumnsAction == null &&
+						reusableAction as RemoveColumnsAction == null &&
+						reusableAction as InsertRowsAction == null &&
+						reusableAction as RemoveRowsAction == null)
 					{
-						roi = new RangePosition(setCellDataAction.Row, setCellDataAction.Col, 1, 1);
+						roi = reusableAction.Range;
+					}
+					else
+					{
+						var setCellDataAction = e.Action as SetCellDataAction;
+						if (setCellDataAction != null)
+						{
+							roi = new RangePosition(setCellDataAction.Row, setCellDataAction.Col, 1, 1);
+						}
 					}
 				}
 				Rescan(roi);
