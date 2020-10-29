@@ -69,7 +69,7 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Copy cells formula.
 		/// </summary>
-		CellFormula = 0x4,
+		CellFormula = 0x2,
 
 		/// <summary>
 		/// Copy cells data format.
@@ -552,8 +552,7 @@ namespace unvell.ReoGrid
 			if (rows + toRange.Row > this.rows.Count) rows = this.rows.Count - toRange.Row;
 			if (cols + toRange.Col > this.cols.Count) cols = this.cols.Count - toRange.Col;
 
-			if (((flag & PartialGridCopyFlag.CellData) == PartialGridCopyFlag.CellData
-				|| (flag & PartialGridCopyFlag.CellStyle) == PartialGridCopyFlag.CellStyle))
+			if (flag.HasFlag(PartialGridCopyFlag.CellData | PartialGridCopyFlag.CellStyle))
 			{
 				for (int r = 0; r < rows; r++)
 				{
@@ -756,7 +755,7 @@ namespace unvell.ReoGrid
 							if (fromCell != null)
 							{
 								#region Copy Data
-								if ((flag & PartialGridCopyFlag.CellData) == PartialGridCopyFlag.CellData)
+								if (flag.HasFlag(PartialGridCopyFlag.CellData))
 								{
 									CellUtility.CopyCellContent(toCell, fromCell);
 								}
@@ -764,7 +763,7 @@ namespace unvell.ReoGrid
 
 								#region Format Formula
 #if FORMULA
-								if ((flag & PartialGridCopyFlag.CellFormula) == PartialGridCopyFlag.CellFormula)
+								if (flag.HasFlag(PartialGridCopyFlag.CellFormula))
 								{
 									if (fromCell.HasFormula)
 									{
@@ -833,8 +832,7 @@ namespace unvell.ReoGrid
 								#endregion // Copy Merged info
 
 								#region Cell Styles
-								if (((flag & PartialGridCopyFlag.CellStyle) == PartialGridCopyFlag.CellStyle)
-									&& fromCell.InnerStyle != null)
+								if (flag.HasFlag(PartialGridCopyFlag.CellStyle) && fromCell.InnerStyle != null)
 								{
 									if (fromCell.StyleParentKind == StyleParentKind.Own)
 									{
@@ -882,7 +880,7 @@ namespace unvell.ReoGrid
 			}
 
 			// h-borders
-			if ((flag & PartialGridCopyFlag.HBorder) == PartialGridCopyFlag.HBorder)
+			if (flag.HasFlag(PartialGridCopyFlag.HBorder))
 			{
 				if (data.HBorders == null)
 				{
@@ -951,7 +949,7 @@ namespace unvell.ReoGrid
 			}
 
 			// v-borders
-			if ((flag & PartialGridCopyFlag.VBorder) == PartialGridCopyFlag.VBorder)
+			if (flag.HasFlag(PartialGridCopyFlag.VBorder))
 			{
 				if (data.VBorders == null)
 				{
@@ -1054,6 +1052,11 @@ namespace unvell.ReoGrid
 				{
 					SetPartialGrid(new RangePosition(r, c, grid.Rows, grid.Columns), grid);
 				}
+			}
+
+			if (settings.HasFlag(WorksheetSettings.Formula_AutoUpdateReferenceCell))
+			{
+				Recalculate();
 			}
 
 			return range;
