@@ -430,6 +430,10 @@ namespace unvell.ReoGrid
 				}
 			}
 
+			// Substitute null for string.Empty to support comparability
+			if (value.Equals(string.Empty))
+				value = null;
+
 			UpdateCellData(cell, value, dirtyCellStack);
 		}
 
