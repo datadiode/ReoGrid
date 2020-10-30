@@ -431,7 +431,7 @@ namespace unvell.ReoGrid
 			}
 
 			// Substitute null for string.Empty to support comparability
-			if (value.Equals(string.Empty))
+			if (string.Empty.Equals(value))
 				value = null;
 
 			UpdateCellData(cell, value, dirtyCellStack);
