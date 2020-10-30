@@ -332,6 +332,8 @@ namespace unvell.ReoGrid.Formula
 				}
 
 				var sheetName = ((STIdentifierNode)node).Identifier;
+				if (sheetName.StartsWith("'") && sheetName.EndsWith("'"))
+					sheetName = sheetName.Substring(1, sheetName.Length - 2).Replace("''", "'");
 
 				IWorkbook workbook = lexer.Workbook;
 
@@ -523,7 +525,7 @@ namespace unvell.ReoGrid.Formula
 			+ "|(?<range>\\$?[A-Z]+\\$?[0-9]*:\\$?[A-Z]+\\$?[0-9]*)"
 			+ "|(?<cell>\\$?[A-Z]+\\$?[0-9]+)"
 			+ "|(?<token>-)|(?<number>\\-?\\d*\\.?\\d+)"
-			+ "|(?<true>(?i)TRUE)|(?<false>(?i)FALSE)|(?<identifier>\\w+)"
+			+ "|(?<true>(?i)TRUE)|(?<false>(?i)FALSE)|(?<identifier>\\w+|'(?:''|[^'])*')"
 			+ "|(?<token>\\=\\=|\\<\\>|\\<\\=|\\>\\=|\\<\\>|\\=|\\!|[\\=\\.\\,\\+\\-\\*\\/\\%\\<\\>\\(\\)\\&\\^]))",
 			RegexOptions.Compiled);
 
