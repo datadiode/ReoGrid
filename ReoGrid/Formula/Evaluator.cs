@@ -97,6 +97,7 @@ namespace unvell.ReoGrid.Formula
 					return ((STNumberNode)node).Value;
 
 				case STNodeType.RANGE:
+					// TODO: What if the STRangeNode references another worksheet?
 					return ((STRangeNode)node).Range;
 
 				case STNodeType.STRING:
