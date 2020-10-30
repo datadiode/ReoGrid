@@ -2766,6 +2766,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			this.recalculateWorksheetToolStripMenuItem.AccessibleName = "Recalculate";
 			this.recalculateWorksheetToolStripMenuItem.Name = "recalculateWorksheetToolStripMenuItem";
+			this.recalculateWorksheetToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
 			this.recalculateWorksheetToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
 			this.recalculateWorksheetToolStripMenuItem.Text = "Recalculate Worksheet";
 			// 
