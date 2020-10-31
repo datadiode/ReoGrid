@@ -568,6 +568,17 @@ namespace unvell.ReoGrid
 			return this.worksheets.FirstOrDefault(w => string.Compare(w.Name, name, true) == 0);
 		}
 
+		public Worksheet TryGetNamedRange(string name, out NamedRange namedRange)
+		{
+			foreach (var worksheet in Worksheets)
+			{
+				if (worksheet.TryGetNamedRange(name, out namedRange) && namedRange.Scope == NamedRangeScope.Workbook)
+					return worksheet;
+			}
+			namedRange = null;
+			return null;
+		}
+
 		#region Collection of worksheet
 		private WorksheetCollection worksheetCollection;
 
