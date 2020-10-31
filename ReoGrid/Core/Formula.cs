@@ -244,7 +244,8 @@ namespace unvell.ReoGrid
 					worksheet = idNode.Worksheet;
 					if (worksheet == null) worksheet = cell.Worksheet;
 
-					if (worksheet.TryGetNamedRange(idNode.Identifier, out range))
+					if (worksheet.TryGetNamedRange(idNode.Identifier, out range) ||
+						(worksheet = worksheet.workbook.TryGetNamedRange(idNode.Identifier, out range)) != null)
 					{
 						if (checkSelfRefer && range.Contains(cell.Position) && worksheet == cell.Worksheet)
 						{
