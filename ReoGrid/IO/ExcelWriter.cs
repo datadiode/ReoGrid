@@ -57,12 +57,16 @@ namespace unvell.ReoGrid.IO.OpenXML
 						workbook.definedNames = new List<DefinedName>();
 					}
 
+					var sheetName = rgSheet.Name.Replace("'", "''");
+					if (sheetName.Length > rgSheet.Name.Length)
+						sheetName = "'" + sheetName + "'";
+
 					foreach (var range in rgSheet.NamedRanges)
 					{
 						workbook.definedNames.Add(new DefinedName
 						{
 							name = range.Name,
-							address = rgSheet.Name + "!" + range.Position.ToAbsoluteAddress(),
+							address = sheetName + "!" + range.Position.ToAbsoluteAddress(),
 						});
 					}
 				}

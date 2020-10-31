@@ -109,11 +109,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 			if (!string.IsNullOrEmpty(sheetName))
 			{
-				if ((sheetName[0] == '\'' && sheetName[sheetName.Length - 1] == '\'')
-					|| (sheetName[0] == '"' && sheetName[sheetName.Length - 1] == '"'))
-				{
-					sheetName = sheetName.Substring(1, sheetName.Length - 2);
-				}
+				if (sheetName[0] == '\'' && sheetName[sheetName.Length - 1] == '\'')
+					sheetName = sheetName.Substring(1, sheetName.Length - 2).Replace("''", "'");
 			}
 
 			var rgSheet = rgBook.GetWorksheetByName(sheetName);
