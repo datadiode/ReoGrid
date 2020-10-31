@@ -543,12 +543,7 @@ namespace unvell.ReoGrid.Data
 	#region Index4DArray
 
 	[Serializable]
-#if DEBUG
-	public
-#else 
-	internal
-#endif // DEBUG
-		sealed class Index4DArray<T>
+	public sealed class Index4DArray<T>
 	{
 		public const int RowSize = 4096;
 		public const int RowSizeBits = 12;
