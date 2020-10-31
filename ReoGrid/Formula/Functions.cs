@@ -29,6 +29,22 @@ namespace unvell.ReoGrid.Formula
 {
 	internal static class ExcelFunctions
 	{
+		static ReferenceRange RangeFrom(Cell cell, FormulaValue arg)
+		{
+			var range = arg.value as ReferenceRange;
+			if (range == null)
+				throw new FormulaTypeMismatchException(cell);
+			return range;
+		}
+
+		static Worksheet WorksheetFrom(Cell cell, ReferenceRange range)
+		{
+			var worksheet = range.Worksheet != null ? range.Worksheet : cell.Worksheet;
+			if (worksheet == null)
+				throw new FormulaTypeMismatchException(cell);
+			return worksheet;
+		}
+
 		#region Statistics
 
 		#region Sum
@@ -43,20 +59,15 @@ namespace unvell.ReoGrid.Formula
 				switch (arg.type)
 				{
 					case FormulaValueType.Range:
-						if (cell == null || cell.Worksheet == null)
-						{
-							throw new FormulaTypeMismatchException(cell);
-						}
-
-						cell.Worksheet.IterateCells((RangePosition)arg.value, (r, c, inCell) =>
+						ReferenceRange range = RangeFrom(cell, arg);
+						Worksheet worksheet = WorksheetFrom(cell, range);
+						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
 							double data;
-
 							if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
 							{
 								val += data;
 							}
-
 							return true;
 						});
 						break;
@@ -85,25 +96,15 @@ namespace unvell.ReoGrid.Formula
 			double val = 0;
 			double data;
 
-			RangePosition evalRange, sumRange = RangePosition.Empty;
+			ReferenceRange evalRange = RangeFrom(cell, args[0]);
+			Worksheet evalWorksheet = WorksheetFrom(cell, evalRange);
 
-			if (args[0].type == FormulaValueType.Range)
-			{
-				evalRange = (RangePosition)args[0].value;
-			}
-			else
-			{
-				throw new FormulaTypeMismatchException(cell);
-			}
-
+			ReferenceRange sumRange = null;
+			Worksheet sumWorksheet = null;
 			if (args.Length > 2)
 			{
-				if (args[2].type != FormulaValueType.Range)
-				{
-					throw new FormulaTypeMismatchException(cell);
-				}
-
-				sumRange = (RangePosition)(args[2].value);
+				sumRange = RangeFrom(cell, args[2]);
+				sumWorksheet = WorksheetFrom(cell, sumRange);
 			}
 
 			string expStr = (string)args[1].value;
@@ -114,15 +115,15 @@ namespace unvell.ReoGrid.Formula
 			int rows = cell.Worksheet.Rows;
 			int cols = cell.Worksheet.Columns;
 
-			cell.Worksheet.IterateCells(evalRange, (r, c, inCell) =>
+			evalWorksheet.IterateCells(evalRange.Position, (r, c, inCell) =>
 			{
 				leftExp.Value = Evaluator.CreateFormulaValue(inCell);
 				compExp[0] = leftExp;
 
-				var result = (Evaluator.Evaluate(cell, compExp));
+				var result = Evaluator.Evaluate(cell, compExp);
 				if (result.type == FormulaValueType.Boolean && ((bool)result.value))
 				{
-					if (sumRange.IsEmpty)
+					if (sumRange == null)
 					{
 						if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
 						{
@@ -131,12 +132,12 @@ namespace unvell.ReoGrid.Formula
 					}
 					else
 					{
-						int tr = sumRange.Row + r - evalRange.Row;
-						int tc = sumRange.Col + c - evalRange.Col;
+						int tr = sumRange.Position.Row + r - evalRange.Position.Row;
+						int tc = sumRange.Position.Col + c - evalRange.Position.Col;
 
 						if (tr < rows && tc < cols)
 						{
-							var sumCell = cell.Worksheet.GetCell(tr, tc);
+							var sumCell = sumWorksheet.GetCell(tr, tc);
 
 							if (sumCell != null && sumCell.InnerData != null
 								&& CellUtility.TryGetNumberData(sumCell.InnerData, out data))
@@ -169,9 +170,9 @@ namespace unvell.ReoGrid.Formula
 				switch (arg.type)
 				{
 					case FormulaValueType.Range:
-						if (cell == null || cell.Worksheet == null) return null;
-
-						cell.Worksheet.IterateCells((RangePosition)arg.value, (r, c, inCell) =>
+						ReferenceRange range = RangeFrom(cell, arg);
+						Worksheet worksheet = WorksheetFrom(cell, range);
+						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
 							if (includeEmpty)
 							{
@@ -215,16 +216,8 @@ namespace unvell.ReoGrid.Formula
 
 			double count = 0;
 
-			RangePosition evalRange;
-
-			if (args[0].type == FormulaValueType.Range)
-			{
-				evalRange = (RangePosition)args[0].value;
-			}
-			else
-			{
-				throw new FormulaTypeMismatchException(cell);
-			}
+			ReferenceRange evalRange = RangeFrom(cell, args[0]);
+			Worksheet evalWorksheet = WorksheetFrom(cell, evalRange);
 
 			STValueNode leftExp = new STValueNode(null);
 			STNode compExp;
@@ -240,7 +233,7 @@ namespace unvell.ReoGrid.Formula
 				compExp = new STNode(STNodeType.EQUALS, 0, 0, new List<STNode>(2) { leftExp, new STValueNode(args[1]) });
 			}
 
-			cell.Worksheet.IterateCells(evalRange, (r, c, inCell) =>
+			evalWorksheet.IterateCells(evalRange, (r, c, inCell) =>
 			{
 				leftExp.Value = Evaluator.CreateFormulaValue(inCell);
 				compExp[0] = leftExp;
@@ -273,9 +266,9 @@ namespace unvell.ReoGrid.Formula
 				switch (arg.type)
 				{
 					case FormulaValueType.Range:
-						if (cell == null || cell.Worksheet == null) return null;
-
-						cell.Worksheet.IterateCells((RangePosition)arg.value, (r, c, inCell) =>
+						ReferenceRange range = RangeFrom(cell, arg);
+						Worksheet worksheet = WorksheetFrom(cell, range);
+						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
 							if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
 							{
@@ -314,25 +307,15 @@ namespace unvell.ReoGrid.Formula
 			double val = 0, count = 0;
 			double data;
 
-			RangePosition evalRange, sumRange = RangePosition.Empty;
+			ReferenceRange evalRange = RangeFrom(cell, args[0]);
+			Worksheet evalWorksheet = WorksheetFrom(cell, evalRange);
 
-			if (args[0].type == FormulaValueType.Range)
-			{
-				evalRange = (RangePosition)args[0].value;
-			}
-			else
-			{
-				throw new FormulaTypeMismatchException(cell);
-			}
-
+			ReferenceRange sumRange = null;
+			Worksheet sumWorksheet = null;
 			if (args.Length > 2)
 			{
-				if (args[2].type != FormulaValueType.Range)
-				{
-					throw new FormulaTypeMismatchException(cell);
-				}
-
-				sumRange = (RangePosition)(args[2].value);
+				sumRange = RangeFrom(cell, args[2]);
+				sumWorksheet = WorksheetFrom(cell, sumRange);
 			}
 
 			string expStr = (string)args[1].value;
@@ -343,7 +326,7 @@ namespace unvell.ReoGrid.Formula
 			int rows = cell.Worksheet.Rows;
 			int cols = cell.Worksheet.Columns;
 
-			cell.Worksheet.IterateCells(evalRange, (r, c, inCell) =>
+			evalWorksheet.IterateCells(evalRange.Position, (r, c, inCell) =>
 			{
 				leftExp.Value = Evaluator.CreateFormulaValue(inCell);
 				compExp[0] = leftExp;
@@ -351,7 +334,7 @@ namespace unvell.ReoGrid.Formula
 				var result = (Evaluator.Evaluate(cell, compExp));
 				if (result.type == FormulaValueType.Boolean && ((bool)result.value))
 				{
-					if (sumRange.IsEmpty)
+					if (sumRange == null)
 					{
 						if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
 						{
@@ -366,7 +349,7 @@ namespace unvell.ReoGrid.Formula
 
 						if (tr < rows && tc < cols)
 						{
-							var sumCell = cell.Worksheet.GetCell(tr, tc);
+							var sumCell = sumWorksheet.GetCell(tr, tc);
 
 							if (sumCell != null && sumCell.InnerData != null
 								&& CellUtility.TryGetNumberData(sumCell.InnerData, out data))
@@ -399,12 +382,9 @@ namespace unvell.ReoGrid.Formula
 				switch (arg.type)
 				{
 					case FormulaValueType.Range:
-						if (cell == null || cell.Worksheet == null)
-						{
-							throw new FormulaTypeMismatchException(cell);
-						}
-
-						cell.Worksheet.IterateCells((RangePosition)arg.value, (r, c, inCell) =>
+						ReferenceRange range = RangeFrom(cell, arg);
+						Worksheet worksheet = WorksheetFrom(cell, range);
+						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
 							if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
 							{
@@ -418,7 +398,6 @@ namespace unvell.ReoGrid.Formula
 									min = data;
 								}
 							}
-
 							return true;
 						});
 						break;
@@ -456,12 +435,9 @@ namespace unvell.ReoGrid.Formula
 				switch (arg.type)
 				{
 					case FormulaValueType.Range:
-						if (cell == null || cell.Worksheet == null)
-						{
-							throw new FormulaTypeMismatchException(cell);
-						}
-
-						cell.Worksheet.IterateCells((RangePosition)arg.value, (r, c, inCell) =>
+						ReferenceRange range = RangeFrom(cell, arg);
+						Worksheet worksheet = WorksheetFrom(cell, range);
+						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
 							if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
 							{
@@ -475,7 +451,6 @@ namespace unvell.ReoGrid.Formula
 									max = data;
 								}
 							}
-
 							return true;
 						});
 						break;
@@ -507,7 +482,8 @@ namespace unvell.ReoGrid.Formula
 		public static FormulaValue VLookup(Cell cell, FormulaValue[] args)
 		{
 			FormulaValue argTarget = args[0];
-			FormulaValue argRange = args[1];
+			ReferenceRange searchRange = RangeFrom(cell, args[1]);
+			Worksheet searchWorksheet = WorksheetFrom(cell, searchRange);
 			FormulaValue argReturnIndex = args[2];
 			FormulaValue argExactMatch = args.Length > 3 ? args[3] : FormulaValue.Nil;
 			bool exactMatch = false;
@@ -517,8 +493,7 @@ namespace unvell.ReoGrid.Formula
 			string matchValueText = null;
 			bool matchNumber = true;
 
-			if (argRange.type != FormulaValueType.Range
-				|| argReturnIndex.type != FormulaValueType.Number)
+			if (argReturnIndex.type != FormulaValueType.Number)
 			{
 				return null;
 			}
@@ -532,8 +507,6 @@ namespace unvell.ReoGrid.Formula
 
 				exactMatch = (bool)argExactMatch.value;
 			}
-
-			var searchRange = (RangePosition)argRange.value;
 
 			#region Match Value
 			switch (argTarget.type)
@@ -562,7 +535,7 @@ namespace unvell.ReoGrid.Formula
 			{
 				for (int r = searchRange.Row; r <= searchRange.EndRow; r++)
 				{
-					var cel = cell.Worksheet.GetCell(r, searchRange.Col);
+					var cel = searchWorksheet.GetCell(r, searchRange.Col);
 
 					if (cel != null)
 					{
@@ -603,7 +576,7 @@ namespace unvell.ReoGrid.Formula
 			{
 				matchedRowIndex = Data.ArrayHelper.QuickFind(searchRange.Row, searchRange.EndRow, i =>
 					{
-						var cel = cell.Worksheet.GetCell(i, searchRange.Col);
+						var cel = searchWorksheet.GetCell(i, searchRange.Col);
 
 						if (cel == null) return 0;
 
@@ -635,7 +608,7 @@ namespace unvell.ReoGrid.Formula
 					});
 			}
 
-			return Evaluator.CreateFormulaValue(cell.Worksheet.GetCellData(matchedRowIndex, searchRange.Col + selectColumnIndex - 1));
+			return Evaluator.CreateFormulaValue(searchWorksheet.GetCellData(matchedRowIndex, searchRange.Col + selectColumnIndex - 1));
 		}
 		#endregion // VLookup
 

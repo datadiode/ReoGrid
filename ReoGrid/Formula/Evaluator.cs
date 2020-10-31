@@ -97,9 +97,11 @@ namespace unvell.ReoGrid.Formula
 					return ((STNumberNode)node).Value;
 
 				case STNodeType.RANGE:
-					// TODO: What if the STRangeNode references another worksheet?
-					return ((STRangeNode)node).Range;
-
+					{
+						var nodeAs = node as STRangeNode;
+						return new FormulaValue(FormulaValueType.Range, new ReferenceRange(
+							nodeAs.Worksheet != null ? nodeAs.Worksheet : cell.Worksheet, nodeAs.Range));
+					}
 				case STNodeType.STRING:
 					return ((STStringNode)node).Text;
 
@@ -112,18 +114,21 @@ namespace unvell.ReoGrid.Formula
 				case STNodeType.IDENTIFIER:
 					#region Identifier
 					{
-						string name = ((STIdentifierNode)node).Identifier;
+						var nodeAs = node as STIdentifierNode;
+						var name = nodeAs.Identifier;
+						var worksheet = nodeAs.Worksheet != null ? nodeAs.Worksheet : cell.Worksheet;
 						NamedRange range;
 
-						if (cell.Worksheet.TryGetNamedRange(name, out range))
+						if (worksheet.TryGetNamedRange(name, out range) ||
+							(worksheet = worksheet.workbook.TryGetNamedRange(name, out range)) != null)
 						{
 							if (range.Position.IsSingleCell)
 							{
-								return CreateFormulaValue(cell.Worksheet.GetCellData(range.StartPos));
+								return CreateFormulaValue(worksheet.GetCellData(range.StartPos));
 							}
 							else
 							{
-								return range.Position;
+								return new FormulaValue(FormulaValueType.Range, range);
 							}
 						}
 						else if (FormulaExtension.NameReferenceProvider != null)
@@ -1173,11 +1178,6 @@ namespace unvell.ReoGrid.Formula
 		#endregion // Cell
 
 		#region Range
-		public static implicit operator RangePosition(FormulaValue value)
-		{
-			return value.type != FormulaValueType.Range ? RangePosition.Empty : (RangePosition)value.value;
-		}
-
 		public static implicit operator FormulaValue(RangePosition range)
 		{
 			return new FormulaValue(FormulaValueType.Range, range);
