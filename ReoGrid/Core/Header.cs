@@ -2563,7 +2563,7 @@ namespace unvell.ReoGrid
 								action.changedNamedRange = new Dictionary<NamedRange, BackupRangeInfo>();
 							}
 
-							action.changedNamedRange[range] = new BackupRangeInfo(range.Column, range.Cols);
+							action.changedNamedRange[range] = new BackupRangeInfo(range.Col, range.Cols);
 						}
 					},
 					() =>
@@ -2608,7 +2608,7 @@ namespace unvell.ReoGrid
 								action.changedHighlightRanges = new Dictionary<HighlightRange, BackupRangeInfo>();
 							}
 
-							action.changedHighlightRanges[range] = new BackupRangeInfo(range.Column, range.Cols);
+							action.changedHighlightRanges[range] = new BackupRangeInfo(range.Col, range.Cols);
 						}
 					},
 					() =>
