@@ -382,8 +382,7 @@ namespace unvell.ReoGrid
 				Rows = rows,
 			};
 
-			if ((flag & PartialGridCopyFlag.CellData) == PartialGridCopyFlag.CellData
-				|| (flag & PartialGridCopyFlag.CellStyle) == PartialGridCopyFlag.CellStyle)
+			if (flag.HasFlag(PartialGridCopyFlag.CellData | PartialGridCopyFlag.CellStyle))
 			{
 				data.Cells = new CellArray();
 
@@ -436,23 +435,23 @@ namespace unvell.ReoGrid
 				}
 			}
 
-			if ((flag & PartialGridCopyFlag.HBorder) == PartialGridCopyFlag.HBorder)
+			if (flag.HasFlag(PartialGridCopyFlag.HBorder))
 			{
 				data.HBorders = new HBorderArray();
 
 				hBorders.Iterate(range.Row, range.Col, rows + 1, cols, true, (r, c, hBorder) =>
 				{
 					// only copy borders they belong to the cell (unless BorderOutsideOwner is specified)
-					if (((exFlag & ExPartialGridCopyFlag.BorderOutsideOwner) == ExPartialGridCopyFlag.BorderOutsideOwner)
+					if (exFlag.HasFlag(ExPartialGridCopyFlag.BorderOutsideOwner)
 						|| (hBorder != null && hBorder.Pos == HBorderOwnerPosition.None)
 						|| (
 								(r != range.Row
 								|| (hBorder != null
-								&& (hBorder.Pos & HBorderOwnerPosition.Top) == HBorderOwnerPosition.Top))
+								&& hBorder.Pos.HasFlag(HBorderOwnerPosition.Top)))
 							&&
 								(r != range.EndRow + 1
 								|| (hBorder != null
-								&& (hBorder.Pos & HBorderOwnerPosition.Bottom) == HBorderOwnerPosition.Bottom)))
+								&& hBorder.Pos.HasFlag(HBorderOwnerPosition.Bottom))))
 					)
 					{
 						int toCol = c - range.Col;
@@ -464,23 +463,23 @@ namespace unvell.ReoGrid
 				});
 			}
 
-			if ((flag & PartialGridCopyFlag.VBorder) == PartialGridCopyFlag.VBorder)
+			if (flag.HasFlag(PartialGridCopyFlag.VBorder))
 			{
 				data.VBorders = new VBorderArray();
 
 				vBorders.Iterate(range.Row, range.Col, rows, cols + 1, true, (r, c, vBorder) =>
 				{
 					// only copy borders they belong to the cell (unless BorderOutsideOwner is specified)
-					if (((exFlag & ExPartialGridCopyFlag.BorderOutsideOwner) == ExPartialGridCopyFlag.BorderOutsideOwner)
+					if (exFlag.HasFlag(ExPartialGridCopyFlag.BorderOutsideOwner)
 						|| (vBorder != null && vBorder.Pos == VBorderOwnerPosition.None)
 						|| (
 								(c != range.Col
 								|| (vBorder != null
-								&& (vBorder.Pos & VBorderOwnerPosition.Left) == VBorderOwnerPosition.Left))
+								&& vBorder.Pos.HasFlag(VBorderOwnerPosition.Left)))
 							&&
 								(c != range.EndCol + 1
 								|| (vBorder != null
-								&& (vBorder.Pos & VBorderOwnerPosition.Right) == VBorderOwnerPosition.Right)))
+								&& vBorder.Pos.HasFlag(VBorderOwnerPosition.Right))))
 					)
 					{
 						int toRow = r - range.Row;
