@@ -497,6 +497,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// copyToolStripButton
 			// 
+			this.copyToolStripButton.AccessibleName = "Copy";
 			this.copyToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.copyToolStripButton.Image = global::unvell.ReoGrid.Editor.Properties.Resources.CopyHS;
 			this.copyToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -507,6 +508,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// cutToolStripButton
 			// 
+			this.cutToolStripButton.AccessibleName = "Cut";
 			this.cutToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.cutToolStripButton.Image = global::unvell.ReoGrid.Editor.Properties.Resources.CutHS;
 			this.cutToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -517,6 +519,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// pasteToolStripButton
 			// 
+			this.pasteToolStripButton.AccessibleName = "Paste";
 			this.pasteToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.pasteToolStripButton.Image = global::unvell.ReoGrid.Editor.Properties.Resources.PasteHS;
 			this.pasteToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
