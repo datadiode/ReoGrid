@@ -2710,14 +2710,17 @@ namespace unvell.ReoGrid.Editor
 			FindPrevDiff(0, -1);
 		}
 
-		private static bool HasDifferences(PartialGrid partialGrid)
+		private bool HasDifferences(RangePosition range)
 		{
-			for (var i = 0; i < partialGrid.Rows; ++i)
+			var sheet1 = grid1.CurrentWorksheet;
+			var sheet2 = grid2.CurrentWorksheet;
+			for (var i = 0; i < range.Rows; ++i)
 			{
-				for (var j = 0; j < partialGrid.Columns; ++j)
+				for (var j = 0; j < range.Cols; ++j)
 				{
-					var cell = partialGrid.Cells[i, j];
-					if (cell != null && cell.DiffFlag != 0)
+					var cell1 = sheet1.GetCell(range.Row + i, range.Col + j);
+					var cell2 = sheet2.GetCell(range.Row + i, range.Col + j);
+					if (cell1?.DiffFlag != 0 || cell2?.DiffFlag != 0)
 						return true;
 				}
 			}
@@ -2728,18 +2731,22 @@ namespace unvell.ReoGrid.Editor
 		{
 			var sheet = grid1.CurrentWorksheet;
 			var currentCopingRange = sheet.SelectionRange;
-			var partialGrid = sheet.GetPartialGrid(currentCopingRange);
-			if (HasDifferences(partialGrid))
+			if (HasDifferences(currentCopingRange))
+			{
+				var partialGrid = sheet.GetPartialGrid(currentCopingRange);
 				grid2.DoAction(new SetPartialGridAction(currentCopingRange, partialGrid));
+			}
 		}
 
 		private void right2leftToolStripButton_Click(object sender, EventArgs e)
 		{
 			var sheet = grid2.CurrentWorksheet;
 			var currentCopingRange = sheet.SelectionRange;
-			var partialGrid = sheet.GetPartialGrid(currentCopingRange);
-			if (HasDifferences(partialGrid))
+			if (HasDifferences(currentCopingRange))
+			{
+				var partialGrid = sheet.GetPartialGrid(currentCopingRange);
 				grid1.DoAction(new SetPartialGridAction(currentCopingRange, partialGrid));
+			}
 		}
 		#endregion // Editing
 
