@@ -934,23 +934,20 @@ namespace unvell.ReoGrid.Views
 				FillPatternColor = style.FillPatternColor;
 				FillPatternStyle = style.FillPatternStyle;
 			}
+			else if (cell.DiffFlag.HasFlag(DiffFlag.DiffChange))
+			{
+				BackColor = sheet.controlAdapter.ControlStyle.DiffColorChange;
+			}
+			else if (cell.DiffFlag.HasFlag(DiffFlag.DiffInsert))
+			{
+				BackColor = sheet.controlAdapter.ControlStyle.DiffColorInsert;
+			}
 			else
 			{
 				WorksheetRangeStyle style = cell.InnerStyle;
-				if ((style.Flag & PlainStyleFlag.DiffChange) != 0)
-				{
-					BackColor = sheet.controlAdapter.ControlStyle.DiffColorChange;
-				}
-				else if ((style.Flag & PlainStyleFlag.DiffInsert) != 0)
-				{
-					BackColor = sheet.controlAdapter.ControlStyle.DiffColorInsert;
-				}
-				else
-				{
-					BackColor = style.BackColor;
-					FillPatternColor = style.FillPatternColor;
-					FillPatternStyle = style.FillPatternStyle;
-				}
+				BackColor = style.BackColor;
+				FillPatternColor = style.FillPatternColor;
+				FillPatternStyle = style.FillPatternStyle;
 			}
 			if (BackColor.A > 0)
 			{

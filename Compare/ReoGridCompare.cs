@@ -52,6 +52,7 @@ using Point = System.Drawing.Point;
 using System.Collections;
 using unvell.Common.Win32Lib;
 using System.Threading;
+using unvell.ReoGrid.Core;
 
 namespace unvell.ReoGrid.Editor
 {
@@ -1616,7 +1617,7 @@ namespace unvell.ReoGrid.Editor
 			{
 				if (cell2 != null)
 				{
-					cell2.DiffFlag = PlainStyleFlag.DiffInsert;
+					cell2.DiffFlag = DiffFlag.DiffInsert;
 					finding = true;
 				}
 			}
@@ -1624,14 +1625,14 @@ namespace unvell.ReoGrid.Editor
 			{
 				if (cell1 != null)
 				{
-					cell1.DiffFlag = PlainStyleFlag.DiffInsert;
+					cell1.DiffFlag = DiffFlag.DiffInsert;
 					finding = true;
 				}
 			}
 			else if (!Equals(cell1.Data, cell2.Data))
 			{
-				cell1.DiffFlag = PlainStyleFlag.DiffChange;
-				cell2.DiffFlag = PlainStyleFlag.DiffChange;
+				cell1.DiffFlag = DiffFlag.DiffChange;
+				cell2.DiffFlag = DiffFlag.DiffChange;
 				finding = true;
 			}
 			else
@@ -3086,22 +3087,17 @@ namespace unvell.ReoGrid.Editor
 				{
 					// With CSV-alike files, assume no formula-driven changes
 					// outside the range directly involved in this action.
-					var reusableAction = e.Action as WorksheetReusableAction;
-					if (reusableAction != null &&
+					if (e.Action is SetCellDataAction setCellDataAction)
+					{
+						roi = new RangePosition(setCellDataAction.Row, setCellDataAction.Col, 1, 1);
+					}
+					else if (e.Action is WorksheetReusableAction reusableAction &&
 						reusableAction as InsertColumnsAction == null &&
 						reusableAction as RemoveColumnsAction == null &&
 						reusableAction as InsertRowsAction == null &&
 						reusableAction as RemoveRowsAction == null)
 					{
 						roi = reusableAction.Range;
-					}
-					else
-					{
-						var setCellDataAction = e.Action as SetCellDataAction;
-						if (setCellDataAction != null)
-						{
-							roi = new RangePosition(setCellDataAction.Row, setCellDataAction.Col, 1, 1);
-						}
 					}
 				}
 				Rescan(roi);

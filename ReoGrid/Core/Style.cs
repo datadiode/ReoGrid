@@ -67,6 +67,16 @@ namespace unvell.ReoGrid.Core
 		ScaleChanged,
 		TextColorChanged,
 	}
+
+	public enum DiffFlag : byte
+	{
+		/// <summary>
+		/// Diff flags
+		/// </summary>
+		DiffInsert = 0x1,
+		DiffChange = 0x2,
+		DiffFlags = 0x3,
+	};
 }
 
 namespace unvell.ReoGrid
@@ -1271,13 +1281,6 @@ namespace unvell.ReoGrid
 		/// Rotation angle for cell text
 		/// </summary>
 		RotationAngle = 0x1000000,
-
-		/// <summary>
-		/// Diff flags
-		/// </summary>
-		DiffInsert = 0x2000000,
-		DiffChange = 0x4000000,
-		DiffFlags = 0x6000000,
 
 		/// <summary>
 		/// [Union flag] All flags of font style

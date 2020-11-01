@@ -1049,6 +1049,8 @@ namespace unvell.ReoGrid
 
 		internal StyleParentKind StyleParentKind { get; set; }
 
+		public DiffFlag DiffFlag { get; set; }
+
 #if DEBUG
 		private static int _count;
 #endif // DEBUG
@@ -1065,19 +1067,6 @@ namespace unvell.ReoGrid
 				unvell.Common.Logger.Log("style", "new style created, count: " + _count);
 			}
 #endif // DEBUG
-		}
-
-		public PlainStyleFlag DiffFlag
-		{
-			get => InnerStyle != null ? InnerStyle.Flag & PlainStyleFlag.DiffFlags : 0;
-			set
-			{
-				if (StyleParentKind != StyleParentKind.Own)
-				{
-					CreateOwnStyle();
-				}
-				InnerStyle.Flag = InnerStyle.Flag & ~PlainStyleFlag.DiffFlags | value;
-			}
 		}
 
 		[NonSerialized]
@@ -1327,6 +1316,7 @@ namespace unvell.ReoGrid.Utility
 			toCell.MergeStartPos = fromCell.MergeStartPos;
 			toCell.MergeEndPos = fromCell.MergeEndPos;
 			toCell.Bounds = fromCell.Bounds;
+			toCell.DiffFlag = fromCell.DiffFlag;
 
 			// content
 			CopyCellContent(toCell, fromCell);
