@@ -2777,6 +2777,7 @@ namespace unvell.ReoGrid.Editor
 			this.languageToolStripMenuItem,
 			this.toolStripMenuItem13,
 			this.debugToolStripMenuItem});
+			this.toolsToolStripMenuItem.AccessibleName = "Tools";
 			this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
 			this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
 			this.toolsToolStripMenuItem.Text = "&Tools";
@@ -2796,6 +2797,7 @@ namespace unvell.ReoGrid.Editor
 			this.japanesejpJPToolStripMenuItem,
 			this.simplifiedChinesezhCNToolStripMenuItem,
 			this.germandeDEToolStripMenuItem});
+			this.languageToolStripMenuItem.AccessibleName = "Language";
 			this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
 			this.languageToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.languageToolStripMenuItem.Text = "&Language";

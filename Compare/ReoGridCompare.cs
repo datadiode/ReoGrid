@@ -9,7 +9,7 @@
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
  * PURPOSE.
  *
- * This software released under LGPLv3 license.
+ * ReoGrid and ReoGridEditor is released under MIT license.
  *
  * Copyright (c) 2012-2016 Jing <lujing at unvell.com>
  * Copyright (c) 2012-2016 unvell.com, all rights reserved.
@@ -2522,10 +2522,12 @@ namespace unvell.ReoGrid.Editor
 		}
 #endif // DEBUG
 
-		protected override void OnShown(EventArgs e)
+		protected override void OnShown(EventArgs eventArgs)
 		{
 			if (FormBorderStyle == FormBorderStyle.None)
 			{
+				languageToolStripMenuItem.DropDownItems.Clear();
+				languageToolStripMenuItem.Click += (s, e) => SetupUILanguage();
 				menuStrip1.Visible = false;
 				toolStrip1.Visible = false;
 				WindowState = FormWindowState.Maximized;
@@ -2536,7 +2538,7 @@ namespace unvell.ReoGrid.Editor
 				header2.Selection = FilePathBar.SeletionType.AutoDetect;
 			if (header1.Modified)
 				header1.Selection = FilePathBar.SeletionType.AutoDetect;
-			base.OnShown(e);
+			base.OnShown(eventArgs);
 		}
 
 		protected override void OnMove(EventArgs e)
