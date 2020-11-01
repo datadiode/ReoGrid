@@ -1612,33 +1612,16 @@ namespace unvell.ReoGrid.Editor
 
 		private bool RescanCells(Cell cell1, Cell cell2)
 		{
-			var finding = false;
-			if (cell1 == null)
+			var finding = !Equals(cell1?.Data, cell2?.Data);
+			if (cell1 != null)
 			{
-				if (cell2 != null)
-				{
-					cell2.DiffFlag = DiffFlag.DiffInsert;
-					finding = true;
-				}
+				cell1.DiffFlag = !finding || cell1.Data == null ? 0 :
+					cell2?.Data == null ? DiffFlag.DiffInsert : DiffFlag.DiffChange;
 			}
-			else if (cell2 == null)
+			if (cell2 != null)
 			{
-				if (cell1 != null)
-				{
-					cell1.DiffFlag = DiffFlag.DiffInsert;
-					finding = true;
-				}
-			}
-			else if (!Equals(cell1.Data, cell2.Data))
-			{
-				cell1.DiffFlag = DiffFlag.DiffChange;
-				cell2.DiffFlag = DiffFlag.DiffChange;
-				finding = true;
-			}
-			else
-			{
-				cell1.DiffFlag = 0;
-				cell2.DiffFlag = 0;
+				cell2.DiffFlag = !finding || cell2.Data == null ? 0 :
+					cell1?.Data == null ? DiffFlag.DiffInsert : DiffFlag.DiffChange;
 			}
 			return finding;
 		}
