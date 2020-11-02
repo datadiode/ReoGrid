@@ -382,7 +382,7 @@ namespace unvell.ReoGrid
 				Rows = rows,
 			};
 
-			if (flag.HasFlag(PartialGridCopyFlag.CellData | PartialGridCopyFlag.CellStyle))
+			if ((flag & (PartialGridCopyFlag.CellData | PartialGridCopyFlag.CellStyle)) != 0)
 			{
 				data.Cells = new CellArray();
 
@@ -546,7 +546,7 @@ namespace unvell.ReoGrid
 			if (rows + toRange.Row > this.rows.Count) rows = this.rows.Count - toRange.Row;
 			if (cols + toRange.Col > this.cols.Count) cols = this.cols.Count - toRange.Col;
 
-			if (flag.HasFlag(PartialGridCopyFlag.CellData | PartialGridCopyFlag.CellStyle))
+			if ((flag & (PartialGridCopyFlag.CellData | PartialGridCopyFlag.CellStyle)) != 0)
 			{
 				for (int r = 0; r < rows; r++)
 				{
