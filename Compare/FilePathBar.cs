@@ -297,8 +297,8 @@ namespace unvell.ReoGrid.Editor
 				// Unless focused, mirror Active as ReadOnly for get_accState()
 				if (!Focused)
 					ReadOnly = active;
-				BackColor = active ? SystemColors.ActiveCaption : SystemColors.InactiveCaption;
-				ForeColor = active ? SystemColors.ActiveCaptionText : SystemColors.InactiveCaptionText;
+				BackColor = active ? SystemColors.GradientActiveCaption : SystemColors.ButtonFace;
+				ForeColor = active ? SystemColors.ActiveCaptionText : SystemColors.ControlText;
 			}
 		}
 
