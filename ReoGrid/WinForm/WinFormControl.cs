@@ -1160,6 +1160,20 @@ namespace unvell.ReoGrid
 				}
 			}
 
+			protected override void OnGotFocus(EventArgs e)
+			{
+				base.OnGotFocus(e);
+				if (!Visible)
+					owner.Focus();
+			}
+
+			protected override void OnLostFocus(EventArgs e)
+			{
+				if (Visible)
+					owner.currentWorksheet.EndEdit(EndEditReason.NormalFinish);
+				base.OnLostFocus(e);
+			}
+
 			protected override bool IsInputKey(Keys keyData)
 			{
 				switch (keyData)
