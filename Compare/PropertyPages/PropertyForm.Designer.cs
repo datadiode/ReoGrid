@@ -241,6 +241,7 @@ namespace unvell.ReoGrid.PropertyPages
 			this.Name = "PropertyForm";
 			this.Padding = new System.Windows.Forms.Padding(6, 7, 6, 7);
 			this.ShowInTaskbar = false;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Format Cells";
 			this.tabControl1.ResumeLayout(false);
 			this.tabFormat.ResumeLayout(false);

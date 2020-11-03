@@ -91,20 +91,6 @@ namespace unvell.ReoGrid.PropertyPages
 			}
 		}
 
-		protected override void OnLoad(EventArgs e)
-		{
-			base.OnLoad(e);
-
-			Point p = new Point();
-			unvell.Common.Win32Lib.Win32.GetCursorPos(ref p);
-
-			this.Left = p.X - (Width / 2);
-			this.Top = p.Y - (Height / 2);
-
-			if (this.Left < 0) this.Left = 0;
-			if (this.Top < 0) this.Top = 0;
-		}
-
 		public void SetGrid(ReoGridControl grid)
 		{
 			var sheet = this.grid.CurrentWorksheet;

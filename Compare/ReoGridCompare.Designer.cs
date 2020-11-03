@@ -2431,6 +2431,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// cellsToolStripMenuItem
 			// 
+			this.cellsToolStripMenuItem.AccessibleName = "Cells";
 			this.cellsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.mergeCellsToolStripMenuItem,
 			this.unmergeCellsToolStripMenuItem,
@@ -2477,6 +2478,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// formatCellsToolStripMenuItem
 			// 
+			this.formatCellsToolStripMenuItem.AccessibleName = "Format";
 			this.formatCellsToolStripMenuItem.Image = global::unvell.ReoGrid.Editor.Properties.Resources.PropertiesHS;
 			this.formatCellsToolStripMenuItem.Name = "formatCellsToolStripMenuItem";
 			this.formatCellsToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
@@ -2775,12 +2777,12 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// toolsToolStripMenuItem
 			// 
+			this.toolsToolStripMenuItem.AccessibleName = "Tools";
 			this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.controlStyleToolStripMenuItem,
 			this.languageToolStripMenuItem,
 			this.toolStripMenuItem13,
 			this.debugToolStripMenuItem});
-			this.toolsToolStripMenuItem.AccessibleName = "Tools";
 			this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
 			this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
 			this.toolsToolStripMenuItem.Text = "&Tools";
@@ -2795,12 +2797,12 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// languageToolStripMenuItem
 			// 
+			this.languageToolStripMenuItem.AccessibleName = "Language";
 			this.languageToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.englishenUSToolStripMenuItem,
 			this.japanesejpJPToolStripMenuItem,
 			this.simplifiedChinesezhCNToolStripMenuItem,
 			this.germandeDEToolStripMenuItem});
-			this.languageToolStripMenuItem.AccessibleName = "Language";
 			this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
 			this.languageToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
 			this.languageToolStripMenuItem.Text = "&Language";

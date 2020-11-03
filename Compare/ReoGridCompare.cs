@@ -2771,6 +2771,7 @@ namespace unvell.ReoGrid.Editor
 			using (PropertyForm form = new PropertyForm(GridControl))
 			{
 				form.ShowDialog(this);
+				GridControl.Focus();
 			}
 		}
 
