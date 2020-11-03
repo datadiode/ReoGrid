@@ -1179,6 +1179,8 @@ namespace unvell.ReoGrid
 				{
 					if (m.WParam == (IntPtr)Win32.VKey.VK_TAB && !owner.AcceptsTab)
 						return;
+					if (Toolkit.IsKeyDown(Win32.VKey.VK_MENU))
+						return;
 					m.Result = (IntPtr)(Win32.DLGC.DLGC_WANTMESSAGE | Win32.DLGC.DLGC_HASSETSEL);
 					return;
 				}
@@ -1269,6 +1271,8 @@ namespace unvell.ReoGrid
 			if (m.Msg == (int)Win32.WMessages.WM_GETDLGCODE)
 			{
 				if (m.WParam == (IntPtr)Win32.VKey.VK_TAB && !AcceptsTab)
+					return;
+				if (Toolkit.IsKeyDown(Win32.VKey.VK_MENU))
 					return;
 				m.Result = (IntPtr)Win32.DLGC.DLGC_WANTMESSAGE;
 				return;
