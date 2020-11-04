@@ -3267,6 +3267,7 @@ namespace unvell.ReoGrid.Editor
 			// 
 			// zoomToolStripDropDownButton
 			// 
+			this.zoomToolStripDropDownButton.AccessibleName = "Zoom";
 			this.zoomToolStripDropDownButton.AutoSize = false;
 			this.zoomToolStripDropDownButton.Items.AddRange(new object[] {
 			"10%",
