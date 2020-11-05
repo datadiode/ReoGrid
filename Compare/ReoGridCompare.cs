@@ -873,7 +873,8 @@ namespace unvell.ReoGrid.Editor
 			if (grid1.GetWorksheetIndex(worksheet) != -1 && grid1.Visible ||
 				grid2.GetWorksheetIndex(worksheet) != -1 && grid2.Visible)
 			{
-				zoomToolStripDropDownButton.Text = worksheet.ScaleFactor * 100 + "%";
+				float scale = (float)Math.Round(worksheet.ScaleFactor, 1);
+				zoomToolStripDropDownButton.Text = string.Format("{0:F0}%", scale * 100);
 			}
 		}
 
@@ -1057,14 +1058,13 @@ namespace unvell.ReoGrid.Editor
 
 			if (zoomToolStripDropDownButton.Text.Length > 0)
 			{
-				int value = 0;
-				if (int.TryParse(zoomToolStripDropDownButton.Text.Substring(0, zoomToolStripDropDownButton.Text.Length - 1), out value))
+				float scale = 0;
+				if (float.TryParse(zoomToolStripDropDownButton.Text.Replace("%", "E-2"), out scale))
 				{
-					float scale = value / 100f;
-					scale = (float)Math.Round(scale, 1);
-
+					zoomToolStripDropDownButton.TextChanged -= zoomToolStripDropDownButton_TextChanged;
 					grid1.CurrentWorksheet.SetScale(scale);
 					grid2.CurrentWorksheet.SetScale(scale);
+					zoomToolStripDropDownButton.TextChanged += zoomToolStripDropDownButton_TextChanged;
 				}
 			}
 		}
