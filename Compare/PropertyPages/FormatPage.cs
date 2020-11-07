@@ -98,7 +98,7 @@ namespace unvell.ReoGrid.PropertyPages
 			};
 
 			var currentCulture = Thread.CurrentThread.CurrentCulture;
-		
+
 			datetimeFormatList.Items.AddRange(new object[] {
 				// culture patterns
 				new DatetimeFormatListItem(true, currentCulture.DateTimeFormat.ShortDatePattern),
@@ -172,7 +172,7 @@ namespace unvell.ReoGrid.PropertyPages
 					currencyFormatArgs.PostfixSymbol = null;
 				}
 
-        if (currencyNegativeStyleList.Items.Count > 0) currencyNegativeStyleList.SelectedIndex = 0;
+				if (currencyNegativeStyleList.Items.Count > 0) currencyNegativeStyleList.SelectedIndex = 0;
 
 				UpdateSample();
 			};
@@ -329,13 +329,13 @@ namespace unvell.ReoGrid.PropertyPages
 						var symbolInfo = ((CurrencySymbolListItem)currencySymbolList.SelectedItem);
 						var culture = symbolInfo.Culture;
 
-						currencyFormatArgs.CultureEnglishName = culture.EnglishName;
+						currencyFormatArgs.CultureEnglishName = culture.IetfLanguageTag;
 
 						switch (culture.NumberFormat.CurrencyPositivePattern)
 						{
 							case 0: currencyFormatArgs.PrefixSymbol = culture.NumberFormat.CurrencySymbol; break;
 							case 1: currencyFormatArgs.PostfixSymbol = culture.NumberFormat.CurrencySymbol; break;
-							case 2: currencyFormatArgs.PrefixSymbol = " " + culture.NumberFormat.CurrencySymbol; break;
+							case 2: currencyFormatArgs.PrefixSymbol = culture.NumberFormat.CurrencySymbol + " "; break;
 							case 3: currencyFormatArgs.PostfixSymbol = " " + culture.NumberFormat.CurrencySymbol; break;
 						}
 
@@ -445,7 +445,7 @@ namespace unvell.ReoGrid.PropertyPages
 
 						foreach (var currencyCultureItem in currencySymbolList.Items)
 						{
-							if (string.Compare(((CurrencySymbolListItem)currencyCultureItem).Culture.EnglishName, cultureName, true) == 0)
+							if (string.Compare(((CurrencySymbolListItem)currencyCultureItem).Culture.IetfLanguageTag, cultureName, true) == 0)
 							{
 								currencySymbolList.SelectedItem = currencyCultureItem;
 								break;

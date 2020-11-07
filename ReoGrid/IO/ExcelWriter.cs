@@ -283,12 +283,30 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 			if (!string.IsNullOrEmpty(prefix))
 			{
-				prefix = "\"" + prefix + "\"";
+				if (arg is CurrencyDataFormatter.CurrencyFormatArgs carg)
+				{
+					var symbol = prefix.Trim();
+					var padding = prefix.Length - symbol.Length;
+					if (!string.IsNullOrEmpty(carg.CultureEnglishName))
+						symbol += "-" + carg.LCID.ToString("X");
+					prefix = "[$" + symbol + "]".PadRight(1 + padding);
+				}
+				else
+					prefix = "\"" + prefix + "\"";
 			}
 
 			if (!string.IsNullOrEmpty(postfix))
 			{
-				postfix = "\"" + postfix + "\"";
+				if (arg is CurrencyDataFormatter.CurrencyFormatArgs carg)
+				{
+					var symbol = postfix.Trim();
+					var padding = postfix.Length - symbol.Length;
+					if (!string.IsNullOrEmpty(carg.CultureEnglishName))
+						symbol += "-" + carg.LCID.ToString("X");
+					postfix = "[$".PadLeft(2 + padding) + symbol + "]";
+				}
+				else
+					postfix = "\"" + postfix + "\"";
 			}
 
 			StringBuilder sb = new StringBuilder();

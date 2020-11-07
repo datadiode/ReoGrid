@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using unvell.ReoGrid.Core;
@@ -181,6 +182,11 @@ namespace unvell.ReoGrid.DataFormat
 			/// Culture name in English. (e.g. en-US)
 			/// </summary>
 			public string CultureEnglishName { get; set; }
+
+			/// <summary>
+			/// Locale ID
+			/// </summary>
+			public int LCID => CultureInfo.GetCultureInfo(CultureEnglishName).LCID;
 
 			/// <summary>
 			/// Check whether or not two objects are same.

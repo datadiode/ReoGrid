@@ -40,6 +40,7 @@ using unvell.ReoGrid.Utility;
 using unvell.ReoGrid.IO.OpenXML.Schema;
 using unvell.ReoGrid.Graphics;
 using unvell.ReoGrid.Drawing;
+using System.Globalization;
 
 namespace unvell.ReoGrid.IO.OpenXML
 {
@@ -1486,6 +1487,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 #region Data Format
 
+		private static Regex currencyFormatRegex = new Regex(@"([^\\\s]*)\\?(\s*)\[\$([^(\-|\])]+)-?([^\]]*)\]\\?(\s*)([^\\\s]*)", RegexOptions.Compiled);
+
 		private static NumberDataFormatter.INumberFormatArgs ReadNumberFormatArgs(string pattern, NumberDataFormatter.INumberFormatArgs arg)
 		{
 			if (pattern.StartsWith("[Red]", StringComparison.CurrentCultureIgnoreCase))
@@ -1586,10 +1589,63 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 					if (patterns != null && patterns.Length > 0)
 					{
-						object arg = null;
-
 						var pattern = patterns[0];
-						if (pattern.EndsWith("%"))
+						Match currencyMatch = currencyFormatRegex.Match(pattern);
+						object arg = null;
+						// #,##0.00 [$-419E] #,##0.00
+						if (currencyMatch.Success)
+						{
+							#region Currency
+							flag = CellDataFormatFlag.Currency;
+							var carg = new CurrencyDataFormatter.CurrencyFormatArgs();
+
+							if (currencyMatch.Groups[1].Length > 0)
+							{
+								if (currencyMatch.Groups[3].Success)
+								{
+									carg.PostfixSymbol = currencyMatch.Groups[3].Value;
+								}
+
+								if (currencyMatch.Groups[4].Length > 0)
+								{
+									int culture = 0;
+									if (int.TryParse(currencyMatch.Groups[4].Value, NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out culture))
+										carg.CultureEnglishName = (new CultureInfo(culture)).IetfLanguageTag;
+								}
+
+								if (currencyMatch.Groups[2].Length > 0)
+								{
+									carg.PostfixSymbol = currencyMatch.Groups[2].Value + carg.PostfixSymbol;
+								}
+
+								ReadNumberFormatArgs(currencyMatch.Groups[1].Value, carg);
+							}
+							else if (currencyMatch.Groups[6].Length > 0)
+							{
+								if (currencyMatch.Groups[3].Success)
+								{
+									carg.PrefixSymbol = currencyMatch.Groups[3].Value;
+								}
+
+								if (currencyMatch.Groups[4].Length > 0)
+								{
+									int culture = 0;
+									if (int.TryParse(currencyMatch.Groups[4].Value, NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out culture))
+										carg.CultureEnglishName = (new CultureInfo(culture)).IetfLanguageTag;
+								}
+
+								if (currencyMatch.Groups[5].Length > 0)
+								{
+									carg.PrefixSymbol += currencyMatch.Groups[5].Value;
+								}
+
+								ReadNumberFormatArgs(currencyMatch.Groups[6].Value, carg);
+							}
+
+							arg = carg;
+							#endregion // Currency
+						}
+						else if (pattern.EndsWith("%"))
 						{
 							#region Percent
 							flag = CellDataFormatFlag.Percent;
@@ -1616,29 +1672,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 						else
 						{
 							flag = CellDataFormatFlag.Number;
-							var narg = new NumberDataFormatter.NumberFormatArgs();
-							ReadNumberFormatArgs(pattern, narg);
-							if (patterns.Length > 1)
-							{
-								var carg = new CurrencyDataFormatter.CurrencyFormatArgs();
-								ReadNumberFormatArgs(patterns[1], carg);
-								if ((narg.CustomNegativePrefix != null || narg.CustomNegativePostfix != null) &&
-									carg.CustomNegativePrefix == narg.CustomNegativePrefix &&
-									carg.CustomNegativePostfix == narg.CustomNegativePostfix)
-								{
-									carg.PrefixSymbol = carg.CustomNegativePrefix;
-									carg.CustomNegativePrefix = null;
-									carg.PostfixSymbol = carg.CustomNegativePostfix;
-									carg.CustomNegativePostfix = null;
-									flag = CellDataFormatFlag.Currency;
-									narg = carg;
-								}
-								else
-								{
-									narg.NegativeStyle = carg.NegativeStyle;
-								}
-							}
-							arg = narg;
+							arg = ReadNumberFormatArgs(patterns[patterns.Length > 1 ? 1 : 0], new NumberDataFormatter.NumberFormatArgs());
 						}
 
 						if (flag != CellDataFormatFlag.General)
