@@ -376,23 +376,15 @@ namespace unvell.ReoGrid
 													{
 														int tr = r + rr * partialGrid.Rows;
 														int tc = c + cc * partialGrid.Columns;
-
 														var existedCell = cells[tr, tc];
-
 														if (existedCell != null)
 														{
-															if (
-																// cell is a part of merged cell
-																(existedCell.Rowspan == 0 && existedCell.Colspan == 0)
-																// cell is merged cell
-																|| existedCell.IsMergedCell)
+															var replaceCell = partialGrid.Cells[r - startRow, c - startCol];
+															if (replaceCell == null ||
+																existedCell.Rowspan != replaceCell.Rowspan ||
+																existedCell.Colspan != replaceCell.Colspan)
 															{
 																throw new RangeIntersectionException(selectionRange);
-															}
-															// cell is readonly
-															else if (existedCell.IsReadOnly)
-															{
-																throw new CellDataReadonlyException(cell.InternalPos);
 															}
 														}
 													}
