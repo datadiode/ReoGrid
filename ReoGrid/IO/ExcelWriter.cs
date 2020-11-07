@@ -331,8 +331,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 				case NumberDataFormatter.NumberNegativeStyle.Red:
 				case NumberDataFormatter.NumberNegativeStyle.RedMinus:
-					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
 					sb.Append("[Red]");
+					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
 					if ((arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.Minus) == NumberDataFormatter.NumberNegativeStyle.Minus) sb.Append("-");
 					sb.Append(digits);
 					if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
@@ -350,8 +350,9 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 				case NumberDataFormatter.NumberNegativeStyle.RedBrackets:
 				case NumberDataFormatter.NumberNegativeStyle.RedBracketsMinus:
+					sb.Append("[Red]");
 					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
-					sb.Append("[Red](");
+					sb.Append('(');
 					if ((arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.Minus) == NumberDataFormatter.NumberNegativeStyle.Minus) sb.Append("-");
 					sb.Append(digits);
 					sb.Append(')');

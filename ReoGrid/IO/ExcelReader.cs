@@ -1589,7 +1589,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 					if (patterns != null && patterns.Length > 0)
 					{
-						var pattern = patterns[0];
+						var pattern = patterns[patterns.Length > 1 ? 1 : 0];
 						Match currencyMatch = currencyFormatRegex.Match(pattern);
 						object arg = null;
 						// #,##0.00 [$-419E] #,##0.00
@@ -1599,7 +1599,28 @@ namespace unvell.ReoGrid.IO.OpenXML
 							flag = CellDataFormatFlag.Currency;
 							var carg = new CurrencyDataFormatter.CurrencyFormatArgs();
 
-							if (currencyMatch.Groups[1].Length > 0)
+							if (currencyMatch.Groups[6].Length > 0)
+							{
+								if (currencyMatch.Groups[3].Success)
+								{
+									carg.PrefixSymbol = currencyMatch.Groups[3].Value;
+								}
+
+								if (currencyMatch.Groups[4].Length > 0)
+								{
+									int culture = 0;
+									if (int.TryParse(currencyMatch.Groups[4].Value, NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out culture))
+										carg.CultureEnglishName = (new CultureInfo(culture)).IetfLanguageTag;
+								}
+
+								if (currencyMatch.Groups[5].Length > 0)
+								{
+									carg.PrefixSymbol += currencyMatch.Groups[5].Value;
+								}
+
+								ReadNumberFormatArgs(currencyMatch.Groups[1].Value + currencyMatch.Groups[6].Value, carg);
+							}
+							else if (currencyMatch.Groups[1].Length > 0)
 							{
 								if (currencyMatch.Groups[3].Success)
 								{
@@ -1619,27 +1640,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 								}
 
 								ReadNumberFormatArgs(currencyMatch.Groups[1].Value, carg);
-							}
-							else if (currencyMatch.Groups[6].Length > 0)
-							{
-								if (currencyMatch.Groups[3].Success)
-								{
-									carg.PrefixSymbol = currencyMatch.Groups[3].Value;
-								}
-
-								if (currencyMatch.Groups[4].Length > 0)
-								{
-									int culture = 0;
-									if (int.TryParse(currencyMatch.Groups[4].Value, NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out culture))
-										carg.CultureEnglishName = (new CultureInfo(culture)).IetfLanguageTag;
-								}
-
-								if (currencyMatch.Groups[5].Length > 0)
-								{
-									carg.PrefixSymbol += currencyMatch.Groups[5].Value;
-								}
-
-								ReadNumberFormatArgs(currencyMatch.Groups[6].Value, carg);
 							}
 
 							arg = carg;
@@ -1672,7 +1672,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 						else
 						{
 							flag = CellDataFormatFlag.Number;
-							arg = ReadNumberFormatArgs(patterns[patterns.Length > 1 ? 1 : 0], new NumberDataFormatter.NumberFormatArgs());
+							arg = ReadNumberFormatArgs(pattern, new NumberDataFormatter.NumberFormatArgs());
 						}
 
 						if (flag != CellDataFormatFlag.General)
