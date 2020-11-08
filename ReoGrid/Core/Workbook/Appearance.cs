@@ -87,27 +87,13 @@ namespace unvell.ReoGrid
 
 #pragma warning restore 1591
 	}
-		
-	/// <summary>
-	/// ReoGrid Control Appearance Colors
-	/// </summary>
-	[Obsolete("use ControlAppearanceStyle instead")]
-	public sealed class ReoGridControlStyle : ControlAppearanceStyle
-	{
-	}
 
 	/// <summary>
 	/// ReoGrid Control Appearance Colors
 	/// </summary>
 	public class ControlAppearanceStyle
 	{
-		private Dictionary<ControlAppearanceColors, SolidColor> colors = new Dictionary<ControlAppearanceColors, SolidColor>(100);
-
-		internal Dictionary<ControlAppearanceColors, SolidColor> Colors
-		{
-			get { return colors; }
-			set { colors = value; }
-		}
+		internal Dictionary<ControlAppearanceColors, SolidColor> Colors = null;
 
 		/// <summary>
 		/// Get color for appearance item
@@ -117,7 +103,7 @@ namespace unvell.ReoGrid
 		/// <returns>true if color is found by specified key</returns>
 		public bool GetColor(ControlAppearanceColors colorKey, out SolidColor color)
 		{
-			return colors.TryGetValue(colorKey, out color);
+			return Colors.TryGetValue(colorKey, out color);
 		}
 
 		/// <summary>
@@ -127,7 +113,7 @@ namespace unvell.ReoGrid
 		/// <param name="color">Color to be set</param>
 		public void SetColor(ControlAppearanceColors colorKey, SolidColor color)
 		{
-			colors[colorKey] = color;
+			Colors[colorKey] = color;
 		}
 
 		/// <summary>
@@ -140,7 +126,7 @@ namespace unvell.ReoGrid
 			get
 			{
 				SolidColor color;
-				if (this.colors.TryGetValue(colorKey, out color))
+				if (Colors.TryGetValue(colorKey, out color))
 					return color;
 				else
 					return SolidColor.Black;
@@ -156,21 +142,19 @@ namespace unvell.ReoGrid
 		/// <returns>True if key was found and color could be returned; otherwise return false</returns>
 		public bool TryGetColor(ControlAppearanceColors key, out SolidColor color)
 		{
-			return this.colors.TryGetValue(key, out color);
+			return Colors.TryGetValue(key, out color);
 		}
 
 		/// <summary>
 		/// Get or set selection border weight
 		/// </summary>
-		public float SelectionBorderWidth { get; set; }
+		public float SelectionBorderWidth { get; set; } = 3;
 
 		/// <summary>
 		/// Construct empty control appearance
 		/// </summary>
-		[Obsolete("use ControlAppearanceStyle.CreateDefaultControlStyle() to create instance")]
-		public ControlAppearanceStyle()
+		private ControlAppearanceStyle()
 		{
-			this.SelectionBorderWidth = 3f;
 		}
 
 		/// <summary>
@@ -195,96 +179,97 @@ namespace unvell.ReoGrid
 			var backgroundColor = ColorUtility.ChangeColorBrightness(mainTheme, 0.5f);
 
 			SolidColor leadHead = mainTheme;
-			colors[ControlAppearanceColors.LeadHeadNormal] = leadHead;
-			colors[ControlAppearanceColors.LeadHeadSelected] = darkMainTheme;
-			colors[ControlAppearanceColors.LeadHeadIndicatorStart] = lightLightLightSalientTheme;
-			colors[ControlAppearanceColors.LeadHeadIndicatorEnd] = lightLightSalientTheme;
 
-			colors[ControlAppearanceColors.ColHeadSplitter] = mainTheme;
-			colors[ControlAppearanceColors.ColHeadNormalStart] = lightLightLightMainTheme;
-			colors[ControlAppearanceColors.ColHeadNormalEnd] = mainTheme;
-			colors[ControlAppearanceColors.ColHeadSelectedStart] = lightLightLightSalientTheme;
-			colors[ControlAppearanceColors.ColHeadSelectedEnd] = salientTheme;
-			colors[ControlAppearanceColors.ColHeadFullSelectedStart] = lightLightLightSalientTheme;
-			colors[ControlAppearanceColors.ColHeadFullSelectedEnd] = lightLightSalientTheme;
-			colors[ControlAppearanceColors.ColHeadText] = darkDarkMainTheme;
+			Colors = new Dictionary<ControlAppearanceColors, SolidColor>(100);
 
-			colors[ControlAppearanceColors.RowHeadSplitter] = mainTheme;
-			colors[ControlAppearanceColors.RowHeadNormal] = lightLightMainTheme;
-			colors[ControlAppearanceColors.RowHeadHover] = ColorUtility.DarkColor(leadHead);
-			colors[ControlAppearanceColors.RowHeadSelected] = lightSalientTheme;
-			colors[ControlAppearanceColors.RowHeadFullSelected] = lightLightSalientTheme;
-			colors[ControlAppearanceColors.RowHeadText] = darkDarkMainTheme;
+			Colors[ControlAppearanceColors.LeadHeadNormal] = leadHead;
+			Colors[ControlAppearanceColors.LeadHeadSelected] = darkMainTheme;
+			Colors[ControlAppearanceColors.LeadHeadIndicatorStart] = lightLightLightSalientTheme;
+			Colors[ControlAppearanceColors.LeadHeadIndicatorEnd] = lightLightSalientTheme;
+
+			Colors[ControlAppearanceColors.ColHeadSplitter] = mainTheme;
+			Colors[ControlAppearanceColors.ColHeadNormalStart] = lightLightLightMainTheme;
+			Colors[ControlAppearanceColors.ColHeadNormalEnd] = mainTheme;
+			Colors[ControlAppearanceColors.ColHeadSelectedStart] = lightLightLightSalientTheme;
+			Colors[ControlAppearanceColors.ColHeadSelectedEnd] = salientTheme;
+			Colors[ControlAppearanceColors.ColHeadFullSelectedStart] = lightLightLightSalientTheme;
+			Colors[ControlAppearanceColors.ColHeadFullSelectedEnd] = lightLightSalientTheme;
+			Colors[ControlAppearanceColors.ColHeadText] = darkDarkMainTheme;
+
+			Colors[ControlAppearanceColors.RowHeadSplitter] = mainTheme;
+			Colors[ControlAppearanceColors.RowHeadNormal] = lightLightMainTheme;
+			Colors[ControlAppearanceColors.RowHeadHover] = ColorUtility.DarkColor(leadHead);
+			Colors[ControlAppearanceColors.RowHeadSelected] = lightSalientTheme;
+			Colors[ControlAppearanceColors.RowHeadFullSelected] = lightLightSalientTheme;
+			Colors[ControlAppearanceColors.RowHeadText] = darkDarkMainTheme;
 
 			if (useSystemHighlight)
 			{
-				colors[ControlAppearanceColors.SelectionFill] = new SolidColor(30, StaticResources.SystemColor_Highlight);
-				colors[ControlAppearanceColors.SelectionBorder] = new SolidColor(180, StaticResources.SystemColor_Highlight);
+				Colors[ControlAppearanceColors.SelectionFill] = new SolidColor(30, StaticResources.SystemColor_Highlight);
+				Colors[ControlAppearanceColors.SelectionBorder] = new SolidColor(180, StaticResources.SystemColor_Highlight);
 			}
 			else
 			{
-				colors[ControlAppearanceColors.SelectionFill] = ColorUtility.FromAlphaColor(30, darkSalientTheme);
-				colors[ControlAppearanceColors.SelectionBorder] = ColorUtility.FromAlphaColor(180, lightSalientTheme);
+				Colors[ControlAppearanceColors.SelectionFill] = ColorUtility.FromAlphaColor(30, darkSalientTheme);
+				Colors[ControlAppearanceColors.SelectionBorder] = ColorUtility.FromAlphaColor(180, lightSalientTheme);
 			}
 
-			colors[ControlAppearanceColors.GridBackground] = backgroundColor;
-			colors[ControlAppearanceColors.GridLine] = ColorUtility.ChangeColorBrightness(mainTheme, 0.4f);
-			colors[ControlAppearanceColors.GridText] = StaticResources.SystemColor_WindowText;
+			Colors[ControlAppearanceColors.GridBackground] = backgroundColor;
+			Colors[ControlAppearanceColors.GridLine] = ColorUtility.ChangeColorBrightness(mainTheme, 0.4f);
+			Colors[ControlAppearanceColors.GridText] = StaticResources.SystemColor_WindowText;
 
-			colors[ControlAppearanceColors.OutlineButtonBorder] = mainTheme;
-			colors[ControlAppearanceColors.OutlinePanelBackground] = lightLightMainTheme;
-			colors[ControlAppearanceColors.OutlinePanelBorder] = mainTheme;
-			colors[ControlAppearanceColors.OutlineButtonText] = darkSalientTheme;
+			Colors[ControlAppearanceColors.OutlineButtonBorder] = mainTheme;
+			Colors[ControlAppearanceColors.OutlinePanelBackground] = lightLightMainTheme;
+			Colors[ControlAppearanceColors.OutlinePanelBorder] = mainTheme;
+			Colors[ControlAppearanceColors.OutlineButtonText] = darkSalientTheme;
 
-			colors[ControlAppearanceColors.SheetTabBackground] = lightLightMainTheme;
-			colors[ControlAppearanceColors.SheetTabText] = StaticResources.SystemColor_WindowText;
-			colors[ControlAppearanceColors.SheetTabBorder] = mainTheme;
-			colors[ControlAppearanceColors.SheetTabSelected] = backgroundColor;
-
-			this.SelectionBorderWidth = 3;
+			Colors[ControlAppearanceColors.SheetTabBackground] = lightLightMainTheme;
+			Colors[ControlAppearanceColors.SheetTabText] = StaticResources.SystemColor_WindowText;
+			Colors[ControlAppearanceColors.SheetTabBorder] = mainTheme;
+			Colors[ControlAppearanceColors.SheetTabSelected] = backgroundColor;
 		}
 
-		public SolidColor DiffColorChange { get => colors[ControlAppearanceColors.RowHeadSelected]; }
-		public SolidColor DiffColorInsert { get => colors[ControlAppearanceColors.RowHeadFullSelected]; }
+		public SolidColor DiffColorChange { get => Colors[ControlAppearanceColors.RowHeadSelected]; }
+		public SolidColor DiffColorInsert { get => Colors[ControlAppearanceColors.RowHeadFullSelected]; }
 
 		internal SolidColor GetColHeadStartColor(bool isHover, bool isSelected, bool isFullSelected, bool isInvalid)
 		{
 			if (isFullSelected)
-				return colors[ControlAppearanceColors.ColHeadFullSelectedStart];
+				return Colors[ControlAppearanceColors.ColHeadFullSelectedStart];
 			else if (isSelected)
-				return colors[ControlAppearanceColors.ColHeadSelectedStart];
+				return Colors[ControlAppearanceColors.ColHeadSelectedStart];
 			else if (isHover)
-				return colors[ControlAppearanceColors.ColHeadHoverStart];
+				return Colors[ControlAppearanceColors.ColHeadHoverStart];
 			else if (isInvalid)
-				return colors[ControlAppearanceColors.ColHeadInvalidStart];
+				return Colors[ControlAppearanceColors.ColHeadInvalidStart];
 			else
-				return colors[ControlAppearanceColors.ColHeadNormalStart];
+				return Colors[ControlAppearanceColors.ColHeadNormalStart];
 		}
 		internal SolidColor GetColHeadEndColor(bool isHover, bool isSelected, bool isFullSelected, bool isInvalid)
 		{
 			if (isFullSelected)
-				return colors[ControlAppearanceColors.ColHeadFullSelectedEnd];
+				return Colors[ControlAppearanceColors.ColHeadFullSelectedEnd];
 			else if (isSelected)
-				return colors[ControlAppearanceColors.ColHeadSelectedEnd];
+				return Colors[ControlAppearanceColors.ColHeadSelectedEnd];
 			else if (isHover)
-				return colors[ControlAppearanceColors.ColHeadHoverEnd];
+				return Colors[ControlAppearanceColors.ColHeadHoverEnd];
 			else if (isInvalid)
-				return colors[ControlAppearanceColors.ColHeadInvalidEnd];
+				return Colors[ControlAppearanceColors.ColHeadInvalidEnd];
 			else
-				return colors[ControlAppearanceColors.ColHeadNormalEnd];
+				return Colors[ControlAppearanceColors.ColHeadNormalEnd];
 		}
 		internal SolidColor GetRowHeadEndColor(bool isHover, bool isSelected, bool isFullSelected, bool isInvalid)
 		{
 			if (isFullSelected)
-				return colors[ControlAppearanceColors.RowHeadFullSelected];
+				return Colors[ControlAppearanceColors.RowHeadFullSelected];
 			else if (isSelected)
-				return colors[ControlAppearanceColors.RowHeadSelected];
+				return Colors[ControlAppearanceColors.RowHeadSelected];
 			else if (isHover)
-				return colors[ControlAppearanceColors.RowHeadHover];
+				return Colors[ControlAppearanceColors.RowHeadHover];
 			else if (isInvalid)
-				return colors[ControlAppearanceColors.RowHeadInvalid];
+				return Colors[ControlAppearanceColors.RowHeadInvalid];
 			else
-				return colors[ControlAppearanceColors.RowHeadNormal];
+				return Colors[ControlAppearanceColors.RowHeadNormal];
 		}
 
 		/// <summary>
@@ -295,47 +280,44 @@ namespace unvell.ReoGrid
 		{
 			return new ControlAppearanceStyle
 			{
-				colors = new Dictionary<ControlAppearanceColors, SolidColor>
-					{
-						{ControlAppearanceColors.LeadHeadNormal, SolidColor.Lavender},
-						{ControlAppearanceColors.LeadHeadSelected, SolidColor.Lavender},
-						{ControlAppearanceColors.LeadHeadIndicatorStart, SolidColor.Gainsboro},
-						{ControlAppearanceColors.LeadHeadIndicatorEnd, SolidColor.Silver},
-						{ControlAppearanceColors.ColHeadSplitter, SolidColor.LightSteelBlue},
-						{ControlAppearanceColors.ColHeadNormalStart, SolidColor.White},
-						{ControlAppearanceColors.ColHeadNormalEnd, SolidColor.Lavender},
-						{ControlAppearanceColors.ColHeadHoverStart, SolidColor.LightGoldenrodYellow},
-						{ControlAppearanceColors.ColHeadHoverEnd, SolidColor.Goldenrod},
-						{ControlAppearanceColors.ColHeadSelectedStart, SolidColor.LightGoldenrodYellow},
-						{ControlAppearanceColors.ColHeadSelectedEnd, SolidColor.Goldenrod},
-						{ControlAppearanceColors.ColHeadFullSelectedStart, SolidColor.WhiteSmoke},
-						{ControlAppearanceColors.ColHeadFullSelectedEnd, SolidColor.LemonChiffon},
-						{ControlAppearanceColors.ColHeadText, SolidColor.DarkBlue},
-						{ControlAppearanceColors.RowHeadSplitter, SolidColor.LightSteelBlue},
-						{ControlAppearanceColors.RowHeadNormal, SolidColor.AliceBlue},
-						{ControlAppearanceColors.RowHeadHover, SolidColor.LightSteelBlue},
-						{ControlAppearanceColors.RowHeadSelected, SolidColor.PaleGoldenrod},
-						{ControlAppearanceColors.RowHeadFullSelected, SolidColor.LemonChiffon},
-						{ControlAppearanceColors.RowHeadText, SolidColor.DarkBlue},
-						{ControlAppearanceColors.GridText, SolidColor.Black},
-						{ControlAppearanceColors.GridBackground, SolidColor.White},
-						{ControlAppearanceColors.GridLine, SolidColor.FromArgb(255, 208, 215, 229)},
-						{ControlAppearanceColors.SelectionBorder, ColorUtility.FromAlphaColor(180, StaticResources.SystemColor_Highlight)},
-						{ControlAppearanceColors.SelectionFill, ColorUtility.FromAlphaColor(30, StaticResources.SystemColor_Highlight)},
-						{ControlAppearanceColors.OutlineButtonBorder, SolidColor.Black},
-						{ControlAppearanceColors.OutlinePanelBackground, StaticResources.SystemColor_Control},
-						{ControlAppearanceColors.OutlinePanelBorder, SolidColor.Silver},
-						{ControlAppearanceColors.OutlineButtonText, StaticResources.SystemColor_WindowText},
-						{ControlAppearanceColors.SheetTabText, StaticResources.SystemColor_WindowText },
-						{ControlAppearanceColors.SheetTabBorder, StaticResources.SystemColor_Highlight },
-						{ControlAppearanceColors.SheetTabBackground, SolidColor.White },
-						{ControlAppearanceColors.SheetTabSelected, StaticResources.SystemColor_Window },
+				Colors = new Dictionary<ControlAppearanceColors, SolidColor>
+				{
+					{ ControlAppearanceColors.LeadHeadNormal, SolidColor.Lavender },
+					{ ControlAppearanceColors.LeadHeadSelected, SolidColor.Lavender },
+					{ ControlAppearanceColors.LeadHeadIndicatorStart, SolidColor.Gainsboro },
+					{ ControlAppearanceColors.LeadHeadIndicatorEnd, SolidColor.Silver },
+					{ ControlAppearanceColors.ColHeadSplitter, SolidColor.LightSteelBlue },
+					{ ControlAppearanceColors.ColHeadNormalStart, SolidColor.White },
+					{ ControlAppearanceColors.ColHeadNormalEnd, SolidColor.Lavender },
+					{ ControlAppearanceColors.ColHeadHoverStart, SolidColor.LightGoldenrodYellow },
+					{ ControlAppearanceColors.ColHeadHoverEnd, SolidColor.Goldenrod },
+					{ ControlAppearanceColors.ColHeadSelectedStart, SolidColor.LightGoldenrodYellow },
+					{ ControlAppearanceColors.ColHeadSelectedEnd, SolidColor.Goldenrod },
+					{ ControlAppearanceColors.ColHeadFullSelectedStart, SolidColor.WhiteSmoke },
+					{ ControlAppearanceColors.ColHeadFullSelectedEnd, SolidColor.LemonChiffon },
+					{ ControlAppearanceColors.ColHeadText, SolidColor.DarkBlue },
+					{ ControlAppearanceColors.RowHeadSplitter, SolidColor.LightSteelBlue },
+					{ ControlAppearanceColors.RowHeadNormal, SolidColor.AliceBlue },
+					{ ControlAppearanceColors.RowHeadHover, SolidColor.LightSteelBlue },
+					{ ControlAppearanceColors.RowHeadSelected, SolidColor.PaleGoldenrod },
+					{ ControlAppearanceColors.RowHeadFullSelected, SolidColor.LemonChiffon },
+					{ ControlAppearanceColors.RowHeadText, SolidColor.DarkBlue },
+					{ ControlAppearanceColors.GridText, SolidColor.Black },
+					{ ControlAppearanceColors.GridBackground, SolidColor.White },
+					{ ControlAppearanceColors.GridLine, SolidColor.FromArgb(255, 208, 215, 229) },
+					{ ControlAppearanceColors.SelectionBorder, ColorUtility.FromAlphaColor(180, StaticResources.SystemColor_Highlight) },
+					{ ControlAppearanceColors.SelectionFill, ColorUtility.FromAlphaColor(30, StaticResources.SystemColor_Highlight) },
+					{ ControlAppearanceColors.OutlineButtonBorder, SolidColor.Black },
+					{ ControlAppearanceColors.OutlinePanelBackground, StaticResources.SystemColor_Control },
+					{ ControlAppearanceColors.OutlinePanelBorder, SolidColor.Silver },
+					{ ControlAppearanceColors.OutlineButtonText, StaticResources.SystemColor_WindowText },
+					{ ControlAppearanceColors.SheetTabText, StaticResources.SystemColor_WindowText },
+					{ ControlAppearanceColors.SheetTabBorder, StaticResources.SystemColor_Highlight },
+					{ ControlAppearanceColors.SheetTabBackground, SolidColor.White },
+					{ ControlAppearanceColors.SheetTabSelected, StaticResources.SystemColor_Window },
 				},
-
-				SelectionBorderWidth = 3,
 			};
 		}
 	}
 	#endregion // Appearance
-
 }
