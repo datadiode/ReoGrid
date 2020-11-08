@@ -2223,19 +2223,11 @@ namespace unvell.ReoGrid.Editor
 		#region Style
 		private void backColorPickerToolStripButton_ColorPicked(object sender, EventArgs e)
 		{
-			//Color c = backColorPickerToolStripButton.SolidColor;
-			//if (c.IsEmpty)
-			//{
-			//  workbook.DoAction(new SGRemoveRangeStyleAction(workbook.SelectionRange, PlainStyleFlag.FillColor));
-			//}
-			//else
-			//{
 			this.grid.DoAction(new SetRangeStyleAction(this.CurrentWorksheet.SelectionRange, new WorksheetRangeStyle()
 			{
 				Flag = PlainStyleFlag.BackColor,
 				BackColor = backColorPickerToolStripButton.SolidColor,
 			}));
-			//}
 		}
 
 		private void textColorPickToolStripItem_ColorPicked(object sender, EventArgs e)
