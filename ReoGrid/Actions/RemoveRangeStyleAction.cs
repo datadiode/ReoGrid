@@ -23,12 +23,6 @@ namespace unvell.ReoGrid.Actions
 	public class RemoveRangeStyleAction : WorksheetReusableAction
 	{
 		private PlainStyleFlag flag;
-
-		/// <summary>
-		/// Style flag indicates what type of style to be handled.
-		/// </summary>
-		public PlainStyleFlag Flag { get { return flag; } set { flag = value; } }
-
 		private PartialGrid backupData;
 
 		/// <summary>
@@ -47,7 +41,7 @@ namespace unvell.ReoGrid.Actions
 		/// </summary>
 		public override void Do()
 		{
-			backupData = Worksheet.GetPartialGrid(Range);
+			backupData = Worksheet.GetPartialGrid(Range, PartialGridCopyFlag.CellStyle);
 			Worksheet.RemoveRangeStyles(Range, flag);
 		}
 

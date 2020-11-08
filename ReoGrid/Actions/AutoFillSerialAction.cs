@@ -50,7 +50,7 @@ namespace unvell.ReoGrid.Actions
 		public override void Do()
 		{
 			// Get a backup of target range that will be overwritten
-			backupedGrid = Worksheet.GetPartialGrid(TargetRange, PartialGridCopyFlag.CellData, ExPartialGridCopyFlag.None);
+			backupedGrid = Worksheet.GetPartialGrid(TargetRange, PartialGridCopyFlag.CellData);
 
 			try
 			{
@@ -68,7 +68,7 @@ namespace unvell.ReoGrid.Actions
 			try
 			{
 				// Restore the range filled by this action
-				Worksheet.SetPartialGrid(TargetRange, backupedGrid);
+				Worksheet.SetPartialGrid(TargetRange, backupedGrid, PartialGridCopyFlag.CellData);
 				Worksheet.SelectionRange = SourceRange;
 			}
 			catch (Exception ex)

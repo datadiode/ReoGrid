@@ -22,15 +22,17 @@ namespace unvell.ReoGrid.Actions
 	/// </summary>
 	public class RemoveRangeDataAction : WorksheetReusableAction
 	{
-		private object[,] backupData;
+		private PartialGridCopyFlag flag;
+		private PartialGrid backupData;
 
 		/// <summary>
 		/// Create action to remove data from specified range.
 		/// </summary>
 		/// <param name="range">data from cells in this range will be removed.</param>
-		public RemoveRangeDataAction(RangePosition range)
+		public RemoveRangeDataAction(RangePosition range, PartialGridCopyFlag flag = PartialGridCopyFlag.All)
 			: base(range)
 		{
+			this.flag = flag;
 		}
 
 		/// <summary>
@@ -40,7 +42,7 @@ namespace unvell.ReoGrid.Actions
 		/// <returns>New action instance copied from this action.</returns>
 		public override WorksheetReusableAction Clone(RangePosition range)
 		{
-			return new RemoveRangeDataAction(range);
+			return new RemoveRangeDataAction(range, flag);
 		}
 
 		/// <summary>
@@ -48,8 +50,13 @@ namespace unvell.ReoGrid.Actions
 		/// </summary>
 		public override void Do()
 		{
-			this.backupData = Worksheet.GetRangeData(base.Range);
-			this.Worksheet.DeleteRangeData(this.Range, true);
+			backupData = Worksheet.GetPartialGrid(Range, flag, ExPartialGridCopyFlag.BorderOutsideOwner);
+			Worksheet.ClearRangeContent(Range,
+				((flag & PartialGridCopyFlag.CellContent) != 0 ? CellElementFlag.Content : 0) |
+				((flag & PartialGridCopyFlag.CellStyle) != 0 ? CellElementFlag.Style : 0) |
+				((flag & PartialGridCopyFlag.BorderAll) != 0 ? CellElementFlag.Border : 0));
+			if (flag == PartialGridCopyFlag.All)
+				Worksheet.UnmergeRange(Range);
 		}
 
 		/// <summary>
@@ -57,7 +64,7 @@ namespace unvell.ReoGrid.Actions
 		/// </summary>
 		public override void Undo()
 		{
-			this.Worksheet.SetRangeData(this.Range, this.backupData);
+			Worksheet.SetPartialGridRepeatly(Range, backupData, flag);
 		}
 
 		/// <summary>

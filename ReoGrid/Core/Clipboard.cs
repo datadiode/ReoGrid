@@ -353,67 +353,8 @@ namespace unvell.ReoGrid
 							return false;
 						}
 
-						// check any intersected merge-range in partial grid 
-						// 
-						bool cancelPerformPaste = false;
-
-						if (partialGrid.Cells != null)
-						{
-							try
-							{
-								#region Check repeated intersected ranges
-								for (int rr = 0; rr < rowRepeat; rr++)
-								{
-									for (int cc = 0; cc < colRepeat; cc++)
-									{
-										partialGrid.Cells.Iterate((row, col, cell) =>
-										{
-											if (cell.IsMergedCell)
-											{
-												for (int r = startRow; r < cell.MergeEndPos.Row - cell.InternalRow + startRow + 1; r++)
-												{
-													for (int c = startCol; c < cell.MergeEndPos.Col - cell.InternalCol + startCol + 1; c++)
-													{
-														int tr = r + rr * partialGrid.Rows;
-														int tc = c + cc * partialGrid.Columns;
-														var existedCell = cells[tr, tc];
-														if (existedCell != null)
-														{
-															var replaceCell = partialGrid.Cells[r - startRow, c - startCol];
-															if (replaceCell == null ||
-																existedCell.Rowspan != replaceCell.Rowspan ||
-																existedCell.Colspan != replaceCell.Colspan)
-															{
-																throw new RangeIntersectionException(selectionRange);
-															}
-														}
-													}
-												}
-											}
-
-											return Math.Min(cell.Colspan, (short)1);
-										});
-									}
-								}
-								#endregion // Check repeated intersected ranges
-							}
-							catch (Exception ex)
-							{
-								cancelPerformPaste = true;
-
-								// raise event to notify user-code there is error happened during paste operation
-								if (OnPasteError != null)
-								{
-									OnPasteError(this, new RangeOperationErrorEventArgs(selectionRange, ex));
-								}
-							}
-						}
-
-						if (!cancelPerformPaste)
-						{
-							DoAction(new SetPartialGridAction(new RangePosition(
-								startRow, startCol, rows, cols), partialGrid));
-						}
+						DoAction(new SetPartialGridAction(new RangePosition(
+							startRow, startCol, rows, cols), partialGrid));
 
 						#endregion // Partial Grid Pasting
 					}
@@ -529,14 +470,9 @@ namespace unvell.ReoGrid
 
 				if (!HasSettings(WorksheetSettings.Edit_Readonly))
 				{
-					var actionSupportedControl = this.controlAdapter.ControlInstance as IActionControl;
-					if (actionSupportedControl != null)
+					if (controlAdapter.ControlInstance is IActionControl actionSupportedControl)
 					{
-						var action = new WorksheetReusableActionGroup(currentCopingRange);
-						action.Actions.Add(new RemoveRangeDataAction(currentCopingRange));
-						action.Actions.Add(new RemoveRangeStyleAction(currentCopingRange, PlainStyleFlag.All));
-						action.Actions.Add(new RemoveRangeBorderAction(currentCopingRange, BorderPositions.All));
-						actionSupportedControl.DoAction(this, action);
+						actionSupportedControl.DoAction(this, new RemoveRangeDataAction(currentCopingRange));
 					}
 				}
 

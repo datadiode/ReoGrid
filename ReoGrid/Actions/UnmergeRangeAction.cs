@@ -46,7 +46,7 @@ namespace unvell.ReoGrid.Actions
 		public override void Do()
 		{
 			// todo
-			backupData = Worksheet.GetPartialGrid(Range, PartialGridCopyFlag.All, ExPartialGridCopyFlag.None);
+			backupData = Worksheet.GetPartialGrid(Range, PartialGridCopyFlag.All);
 			Worksheet.UnmergeRange(Range);
 		}
 

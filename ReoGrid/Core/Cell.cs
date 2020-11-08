@@ -1260,6 +1260,11 @@ namespace unvell.ReoGrid
 		All = Data | Formula | DataFormat | Style | Border | Body,
 
 		/// <summary>
+		/// Cell content
+		/// </summary>
+		Content = Data | Formula | DataFormat,
+
+		/// <summary>
 		/// Cell value
 		/// </summary>
 		Data = 0x1,

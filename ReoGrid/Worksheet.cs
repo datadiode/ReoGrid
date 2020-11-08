@@ -1940,12 +1940,11 @@ namespace unvell.ReoGrid
 						break;
 
 					case KeyCode.Delete:
-						if (this.controlAdapter != null && !HasSettings(WorksheetSettings.Edit_Readonly))
+						if (controlAdapter != null && !HasSettings(WorksheetSettings.Edit_Readonly))
 						{
-							var actionSupportedControl = this.controlAdapter.ControlInstance as IActionControl;
-							if (actionSupportedControl != null)
+							if (controlAdapter.ControlInstance is IActionControl actionSupportedControl)
 							{
-								actionSupportedControl.DoAction(this, new RemoveRangeDataAction(this.selectionRange));
+								actionSupportedControl.DoAction(this, new RemoveRangeDataAction(selectionRange));
 							}
 						}
 						break;

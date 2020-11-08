@@ -87,7 +87,7 @@ namespace unvell.ReoGrid.Actions
 		/// </summary>
 		public override void Do()
 		{
-			backupData = Worksheet.GetPartialGrid(Range);
+			backupData = Worksheet.GetPartialGrid(Range, PartialGridCopyFlag.CellStyle);
 
 			affectedRange = this.Worksheet.FixRange(this.Range);
 

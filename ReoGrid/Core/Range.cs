@@ -138,119 +138,6 @@ namespace unvell.ReoGrid
 		}
 
 		/// <summary>
-		/// Remove all cell's data from specified range.
-		/// </summary>
-		/// <param name="addressOrName">Address or name to locate range on worksheet.</param>
-		public void DeleteRangeData(string addressOrName)
-		{
-			NamedRange refRange;
-
-			if (RangePosition.IsValidAddress(addressOrName))
-			{
-				this.DeleteRangeData(new RangePosition(addressOrName), true);
-			}
-			else if (this.registeredNamedRanges.TryGetValue(addressOrName, out refRange))
-			{
-				this.DeleteRangeData(refRange, true);
-			}
-			else
-			{
-				throw new InvalidAddressException(addressOrName);
-			}
-		}
-
-		/// <summary>
-		/// Remove all cell's data from specified range.
-		/// </summary>
-		/// <param name="range">Range to remove data array.</param>
-		public void DeleteRangeData(RangePosition range)
-		{
-			this.DeleteRangeData(range, false);
-		}
-
-		/// <summary>
-		/// Remove all cell's data from specified range.
-		/// </summary>
-		/// <param name="range">Range to remove data array</param>
-		/// <param name="checkReadonly">if this flag is set to true, the value from 
-		/// readonly cells will not be deleted</param>
-		public void DeleteRangeData(RangePosition range, bool checkReadonly = false)
-		{
-			var fixedRange = FixRange(range);
-
-			int maxcol = range.Col;
-
-#if FORMULA
-			List<Cell> formulaDirtyCells = new List<Cell>();
-#endif // FORMULA
-
-			IterateCells(fixedRange, (row, col, cell) =>
-			{
-				if (maxcol < col) maxcol = col;
-
-				if (!checkReadonly || !cell.IsReadOnly)
-				{
-					cell.InnerData = null;
-					cell.InnerDisplay = string.Empty;
-
-					cell.TextBounds = new Rectangle();
-					cell.RenderColor = SolidColor.Transparent;
-					cell.RenderScaleFactor = this.renderScaleFactor;
-
-					cell.InnerFormula = null;
-#if FORMULA
-					cell.FormulaTree = null;
-					this.ClearCellReferenceList(cell);
-
-					if (formulaDirtyCells.Contains(cell))
-					{
-						formulaDirtyCells.Remove(cell);
-					}
-
-#endif // FORMULA
-
-					cell.FontDirty = false;
-#if WINFORM
-					cell.RenderFont = null;
-#endif // WINFORM
-				}
-
-				// TODO: auto adjust row height
-
-#if FORMULA
-				foreach (var referecedRange in this.formulaRanges)
-				{
-					if (referecedRange.Value.Any(r => r.Contains(cell.InternalPos))
-						&& !formulaDirtyCells.Contains(referecedRange.Key))
-					{
-						formulaDirtyCells.Add(referecedRange.Key);
-					}
-				}
-#endif // FORMULA
-
-				return true;
-			});
-
-#if FORMULA
-			foreach (var dirtyCell in formulaDirtyCells)
-			{
-				RecalcCell(dirtyCell);
-			}
-#endif // FORMULA
-
-			// only update the changed columns (up to maxcol)
-			for (int i = fixedRange.Col; i <= maxcol; i++)
-			{
-				var header = this.cols[i];
-				if (header.Body != null) header.Body.OnDataChange(fixedRange.Row, fixedRange.EndRow);
-			}
-
-			this.RaiseRangeDataChangedEvent(fixedRange);
-
-			this.RequestInvalidate();
-		}
-
-		/// <summary>
 		/// Set cell's data to fill specified range.
 		/// </summary>
 		/// <param name="addressOrName">Address or name to locate range on worksheet.</param>
@@ -866,8 +753,8 @@ namespace unvell.ReoGrid
 			// move range
 			if (moveRange)
 			{
-				UnmergeRange(fromRange);
 				ClearRangeContent(fromRange, CellElementFlag.All);
+				UnmergeRange(fromRange);
 			}
 
 			SetPartialGrid(toRange, pgrid);

@@ -74,8 +74,7 @@ namespace unvell.ReoGrid.Actions
 		/// </summary>
 		public override void Undo()
 		{
-			Worksheet.SetPartialGrid(Range, backupData, PartialGridCopyFlag.BorderAll,
-				ExPartialGridCopyFlag.BorderOutsideOwner);
+			Worksheet.SetPartialGrid(Range, backupData, PartialGridCopyFlag.BorderAll);
 		}
 
 		/// <summary>
