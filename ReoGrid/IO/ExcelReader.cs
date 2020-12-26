@@ -1655,18 +1655,12 @@ namespace unvell.ReoGrid.IO.OpenXML
 							arg = ReadNumberFormatArgs(pattern, new NumberDataFormatter.NumberFormatArgs());
 							#endregion // Percent
 						}
-						else if (pattern.Any(c => c == 'm' || c == 'h' || c == 's' || c == 'y' || c == 'd'))
+						else if (patterns[0].Any(c => c == 'm' || c == 'h' || c == 's' || c == 'y' || c == 'd'))
 						{
-							pattern = pattern.Replace("yyyy/mm", "yyyy/MM").Replace("mm/yy", "MM/yy")
-											 .Replace("mm/d", "MM/d").Replace("m/d", "M/d")
-											 .Replace("d/mm", "d/MM").Replace("d/m", "d/M")
-											 .Replace("aaa", "ddd");
-
 							flag = CellDataFormatFlag.DateTime;
-
 							arg = new DateTimeDataFormatter.DateTimeFormatArgs
 							{
-								Format = pattern,
+								Format = patterns[0].Replace('m', 'M'),
 							};
 						}
 						else
@@ -2402,7 +2396,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 				if (dataRangeVal.type == Formula.FormulaValueType.Range)
 				{
-					var range = (RangePosition)dataRangeVal.value;
+					var range = (ReferenceRange)dataRangeVal.value;
 
 					if (serial is PieChartSerial)
 					{
@@ -2414,7 +2408,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 					}
 					else
 					{
-						dataSource.AddSerial(rgSheet, labelAddress, range);
+						dataSource.AddSerial(rgSheet, labelAddress, range.Position);
 					}
 				}
 			}
