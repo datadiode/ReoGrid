@@ -743,16 +743,24 @@ namespace unvell.ReoGrid.IO.OpenXML
 						}
 					}
 
+					double value;
 					switch (rgCell.DataFormat)
 					{
 						case CellDataFormatFlag.DateTime:
-							rgCell.Data = DataFormatterManager.Instance.DataFormatters[CellDataFormatFlag.DateTime].FormatCell(rgCell);
+							if (double.TryParse(rgCell.InnerData as string, System.Globalization.NumberStyles.Number,
+								ExcelWriter.EnglishCulture, out value))
+							{
+								rgCell.Data = DateTime.FromOADate(value);
+							}
+							else
+							{
+								rgCell.Data = DataFormatterManager.Instance.DataFormatters[CellDataFormatFlag.DateTime].FormatCell(rgCell);
+							}
 							break;
 						case CellDataFormatFlag.General:
 						case CellDataFormatFlag.Number:
 						case CellDataFormatFlag.Percent:
 						case CellDataFormatFlag.Currency:
-							double value;
 							if (double.TryParse(rgCell.InnerData as string, System.Globalization.NumberStyles.Number,
 								ExcelWriter.EnglishCulture, out value))
 							{
