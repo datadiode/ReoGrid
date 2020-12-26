@@ -3034,7 +3034,6 @@ namespace unvell.ReoGrid.Editor
 			// header1
 			// 
 			this.header1.AccessibleName = "Header";
-			this.header1.BackColor = System.Drawing.SystemColors.ActiveCaption;
 			this.header1.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.header1.Dock = System.Windows.Forms.DockStyle.Top;
 			this.header1.Location = new System.Drawing.Point(0, 0);
@@ -3048,7 +3047,6 @@ namespace unvell.ReoGrid.Editor
 			// header2
 			// 
 			this.header2.AccessibleName = "Header";
-			this.header2.BackColor = System.Drawing.SystemColors.InactiveCaption;
 			this.header2.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.header2.Dock = System.Windows.Forms.DockStyle.Top;
 			this.header2.Location = new System.Drawing.Point(0, 0);
