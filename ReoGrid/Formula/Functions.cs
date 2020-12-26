@@ -778,34 +778,35 @@ namespace unvell.ReoGrid.Formula
 			{
 				throw new FormulaParameterMismatchException(cell);
 			}
-
-			var args = new FormulaValue[3] { null, null, null };
-
-			args[0] = Evaluator.Evaluate(cell, funNode.Children[0]);
-
-			if (args[0].type != FormulaValueType.Boolean)
+			FormulaValue val = Evaluator.Evaluate(cell, funNode.Children[0]);
+			int index = 1;
+			if (val.type == FormulaValueType.Boolean)
 			{
-				throw new FormulaTypeMismatchException(cell);
-			}
-
-			if ((bool)args[0].value == true)
-			{
-				if (funNode.Children.Count > 1)
+				if ((bool)val.value == false)
 				{
-					args[1] = Evaluator.Evaluate(cell, funNode.Children[1]);
+					index = 2;
 				}
-
-				return args[1];
+			}
+			else if (val.type == FormulaValueType.Number)
+			{
+				if ((double)val.value == 0)
+				{
+					index = 2;
+				}
 			}
 			else
 			{
-				if (funNode.Children.Count > 2)
-				{
-					args[2] = Evaluator.Evaluate(cell, funNode.Children[2]);
-				}
-
-				return args[2];
+				throw new FormulaTypeMismatchException(cell);
 			}
+			if (index < funNode.Children.Count)
+			{
+				val = Evaluator.Evaluate(cell, funNode.Children[index]);
+			}
+			else
+			{
+				val = null;
+			}
+			return val;
 		}
 		#endregion // IF
 
