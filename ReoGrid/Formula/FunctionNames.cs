@@ -61,6 +61,8 @@ namespace unvell.ReoGrid.Formula
 
 		public const string ABS_EN = "ABS";
 		public const string ABS_RU = "ABS";
+		public const string INT_EN = "INT";
+		public const string INT_RU = "INT";
 		public const string ROUND_EN = "ROUND";
 		public const string ROUND_RU = "ОКРУГЛ";
 		public const string CEILING_EN = "CEILING";
@@ -96,6 +98,8 @@ namespace unvell.ReoGrid.Formula
 		public const string NOW_RU = "ТДАТА";
 		public const string TODAY_EN = "TODAY";
 		public const string TODAY_RU = "СЕГОДНЯ";
+		public const string DATE_EN = "DATE";
+		public const string DATE_RU = "DATE";
 		public const string TIME_EN = "TIME";
 		public const string TIME_RU = "ВРЕМЯ";
 		public const string YEAR_EN = "YEAR";

@@ -170,13 +170,15 @@ namespace unvell.ReoGrid.Formula
 						FormulaValue v1 = CheckAndGetDefaultValue(cell, Evaluate(cell, node[0]));
 						FormulaValue v2 = CheckAndGetDefaultValue(cell, Evaluate(cell, node[1]));
 
-						if (v1.type != FormulaValueType.Number || v2.type != FormulaValueType.Number)
+						if (v1.type == FormulaValueType.Number && v2.type == FormulaValueType.Number)
 						{
-							throw new FormulaTypeMismatchException(cell);
-							//return FormulaValue.Nil;
+							return (double)v1.value - (double)v2.value;
 						}
-
-						return (double)v1.value - (double)v2.value;
+						if (v1.type == FormulaValueType.DateTime && v2.type == FormulaValueType.DateTime)
+						{
+							return ((DateTime)v1.value - (DateTime)v2.value).TotalDays;
+						}
+						throw new FormulaTypeMismatchException(cell);
 					}
 				#endregion // Sub
 
@@ -570,6 +572,10 @@ namespace unvell.ReoGrid.Formula
 				//case BuiltinFunctionNames.ABS_RU:
 					return Math.Abs(GetFunctionNumberArg(cell, funNode.Children));
 
+				case BuiltinFunctionNames.INT_EN:
+				//case BuiltinFunctionNames.INT_RU:
+					return Math.Floor(GetFunctionNumberArg(cell, funNode.Children));
+
 				case BuiltinFunctionNames.ROUND_EN:
 				case BuiltinFunctionNames.ROUND_RU:
 					return ExcelFunctions.Round(cell, GetFunctionArgs(cell, funNode.Children, 1, 2));
@@ -706,7 +712,34 @@ namespace unvell.ReoGrid.Formula
 						};
 					}
 					return DateTime.Now;
-					#endregion // TODAY
+				#endregion // TODAY
+
+				case BuiltinFunctionNames.DATE_EN:
+				//case BuiltinFunctionNames.DATE_RU:
+					#region TIME
+					args = GetFunctionArgs(cell, funNode.Children, 3);
+
+					if (args[0].type != FormulaValueType.Number
+						|| args[1].type != FormulaValueType.Number
+						|| args[2].type != FormulaValueType.Number)
+					{
+						throw new FormulaParameterMismatchException(cell);
+					}
+
+					dt = new DateTime((int)(double)args[0].value, (int)(double)args[1].value, (int)(double)args[2].value);
+
+					if (cell.DataFormat == DataFormat.CellDataFormatFlag.General)
+					{
+						cell.DataFormat = DataFormat.CellDataFormatFlag.DateTime;
+						cell.DataFormatArgs = new DataFormat.DateTimeDataFormatter.DateTimeFormatArgs
+						{
+							Format = "yyyy/MM/dd",
+							CultureName = "en-US",
+						};
+					}
+
+					return dt;
+				#endregion // TIME
 
 				case BuiltinFunctionNames.TIME_EN:
 				case BuiltinFunctionNames.TIME_RU:
@@ -752,32 +785,68 @@ namespace unvell.ReoGrid.Formula
 
 				case BuiltinFunctionNames.HOUR_EN:
 				case BuiltinFunctionNames.HOUR_RU:
-					dt = (DateTime)GetFunctionArg(cell, funNode.Children, FormulaValueType.DateTime);
-					return dt.Hour;
+					args = GetFunctionArgs(cell, funNode.Children, 1);
+					if (args[0].type == FormulaValueType.DateTime)
+					{
+						return ((DateTime)args[0].value).Hour;
+					}
+					if (args[0].type == FormulaValueType.Number)
+					{
+						return TimeSpan.FromDays((double)args[0].value).Hours;
+					}
+					throw new FormulaTypeMismatchException(cell);
 
 				case BuiltinFunctionNames.MINUTE_EN:
 				case BuiltinFunctionNames.MINUTE_RU:
-					dt = (DateTime)GetFunctionArg(cell, funNode.Children, FormulaValueType.DateTime);
-					return dt.Minute;
+					args = GetFunctionArgs(cell, funNode.Children, 1);
+					if (args[0].type == FormulaValueType.DateTime)
+					{
+						return ((DateTime)args[0].value).Minute;
+					}
+					if (args[0].type == FormulaValueType.Number)
+					{
+						return TimeSpan.FromDays((double)args[0].value).Minutes;
+					}
+					throw new FormulaTypeMismatchException(cell);
 
 				case BuiltinFunctionNames.SECOND_EN:
 				case BuiltinFunctionNames.SECOND_RU:
-					dt = (DateTime)GetFunctionArg(cell, funNode.Children, FormulaValueType.DateTime);
-					return dt.Second;
+					args = GetFunctionArgs(cell, funNode.Children, 1);
+					if (args[0].type == FormulaValueType.DateTime)
+					{
+						return ((DateTime)args[0].value).Second;
+					}
+					if (args[0].type == FormulaValueType.Number)
+					{
+						return TimeSpan.FromDays((double)args[0].value).Seconds;
+					}
+					throw new FormulaTypeMismatchException(cell);
 
 				case BuiltinFunctionNames.MILLISECOND_EN:
 				case BuiltinFunctionNames.MILLISECOND_RU:
-					dt = (DateTime)GetFunctionArg(cell, funNode.Children, FormulaValueType.DateTime);
-					return dt.Millisecond;
+					args = GetFunctionArgs(cell, funNode.Children, 1);
+					if (args[0].type == FormulaValueType.DateTime)
+					{
+						return ((DateTime)args[0].value).Millisecond;
+					}
+					if (args[0].type == FormulaValueType.Number)
+					{
+						return TimeSpan.FromDays((double)args[0].value).Milliseconds;
+					}
+					throw new FormulaTypeMismatchException(cell);
 
 				case BuiltinFunctionNames.DAYS_EN:
 				case BuiltinFunctionNames.DAYS_RU:
 					args = GetFunctionArgs(cell, funNode.Children, 2);
-					if (args[0].type != FormulaValueType.DateTime || args[1].type != FormulaValueType.DateTime)
+					if (args[0].type == FormulaValueType.DateTime && args[1].type == FormulaValueType.DateTime)
 					{
-						throw new FormulaParameterMismatchException(cell);
+						return ((DateTime)args[0].value - (DateTime)args[1].value).TotalDays;
 					}
-					return ((DateTime)args[0].value - (DateTime)args[1].value).TotalDays;
+					if (args[0].type == FormulaValueType.Number && args[1].type == FormulaValueType.Number)
+					{
+						return TimeSpan.FromDays((double)args[0].value - (double)args[1].value).TotalDays;
+					}
+					throw new FormulaParameterMismatchException(cell);
 
 				#endregion // Datetime
 
