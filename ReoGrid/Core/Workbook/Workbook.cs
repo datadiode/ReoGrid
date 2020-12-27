@@ -565,7 +565,14 @@ namespace unvell.ReoGrid
 		/// <returns>Instance of worksheet that is found by specified name; otherwise return null</returns>
 		public Worksheet GetWorksheetByName(string name)
 		{
-			return this.worksheets.FirstOrDefault(w => string.Compare(w.Name, name, true) == 0);
+			var worksheet = worksheets.FirstOrDefault(w => string.Compare(w.Name, name, true) == 0);
+			// If the name refers to an external link, add an empty worksheet to satisfy references
+			if (worksheet == null && name.StartsWith("[") && name.Contains("]"))
+			{
+				worksheet = CreateWorksheet(name);
+				AddWorksheet(worksheet);
+			}
+			return worksheet;
 		}
 
 		public Worksheet TryGetNamedRange(string name, out NamedRange namedRange)
