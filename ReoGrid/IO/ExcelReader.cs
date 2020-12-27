@@ -167,7 +167,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 		{
 			RGWorksheet rgSheet = rgWorkbook.GetWorksheetByName(sheetIndex.name);
 
-			var sheet = doc.LoadRelationResourceById<Schema.Worksheet>(doc.Workbook, sheetIndex.resId);
+			var sheet = doc.LoadRelationResource<Schema.Worksheet>(doc.Workbook,
+				_r => _r.id == sheetIndex.resId && _r.type == OpenXMLRelationTypes.worksheets_sheet_);
+			if (sheet == null)
+				return; // Could be a chartsheet which ReoGrid does not support
 
 			const float fixedCharWidth = 7.0f; //ResourcePoolManager.Instance.GetFont("Arial", 10f, System.Drawing.FontStyle.Regular).SizeInPoints;
 
@@ -2929,9 +2932,9 @@ namespace unvell.ReoGrid.IO.OpenXML
 			return this.LoadObjectFromPath<T>(entryFile._path, relation.target);
 		}
 
-		internal T LoadRelationResourceByType<T>(OpenXMLFile entryFile, string typeNamespace) where T : class
+		internal T LoadRelationResource<T>(OpenXMLFile entryFile, Func<Relationship, bool> predicate) where T : class
 		{
-			var relation = this.Workbook._relationFile.relations.FirstOrDefault(r => r.type == typeNamespace);
+			var relation = entryFile._relationFile.relations.FirstOrDefault(predicate);
 			return relation == null ? null : this.LoadObjectFromPath<T>(entryFile._path, relation.target);
 		}
 
@@ -3008,7 +3011,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 			{
 				if (this.themesheet == null && this.zipArchive != null)
 				{
-					this.themesheet = this.LoadRelationResourceByType<Theme>(this.Workbook, OpenXMLRelationTypes.theme____________);
+					this.themesheet = this.LoadRelationResource<Theme>(
+						this.Workbook, _r => _r.type == OpenXMLRelationTypes.theme____________);
 				}
 
 				return this.themesheet;
