@@ -211,7 +211,7 @@ namespace unvell.ReoGrid.Drawing
 			this.DefaultHorizontalAlignment = ReoGridHorAlign.Left;
 			this.DefaultParagraphSpacing = 1.5f;
 
-			this.Overflow = false;
+			this.Overflow = true;
 		}
 
 #if WINFORM
@@ -267,6 +267,11 @@ namespace unvell.ReoGrid.Drawing
 		{
 			var lastPara = this.GetOrCreateLastParagraph();
 			lastPara.AddText(text, fontName, fontSize, fontStyles, textColor, backColor);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is RichText other ? Enumerable.SequenceEqual(paragraphs, other.paragraphs) : false;
 		}
 
 		/// <summary>
@@ -502,10 +507,6 @@ namespace unvell.ReoGrid.Drawing
 
 		#region Update
 
-#if DEBUG
-		public long lastUpdateMS;
-#endif // DEBUG
-
 		internal void UpdateText()
 		{
 #if DEBUG
@@ -547,21 +548,16 @@ namespace unvell.ReoGrid.Drawing
 
 #if DEBUG
 			sw.Stop();
-			this.lastUpdateMS = sw.ElapsedMilliseconds;
-			if (this.lastUpdateMS > 10)
+			if (sw.ElapsedMilliseconds > 10)
 			{
-				Logger.Log("richtext", "update all text takes " + this.lastUpdateMS + " ms.");
+				Logger.Log("richtext", "update all text takes " + sw.ElapsedMilliseconds + " ms.");
 			}
 #endif // DEBUG
 		}
 
-		private string textBuffer = string.Empty;
 		#endregion // Update
 
 		#region ToString
-		internal bool sbDirty = true;
-
-		private StringBuilder sb = null;
 
 		/// <summary>
 		/// Convert rich format text to plain text.
@@ -569,35 +565,19 @@ namespace unvell.ReoGrid.Drawing
 		/// <returns>Plain text converted from this rich format text.</returns>
 		public override string ToString()
 		{
-			if (this.sbDirty)
+			var sb = new StringBuilder(256);
+			foreach (var p in this.paragraphs)
 			{
-				if (this.sb == null)
+				if (sb.Length > 0)
 				{
-					this.sb = new StringBuilder(256);
+					sb.Append(Environment.NewLine);
 				}
-				else
+				foreach (var r in p.Runs)
 				{
-					this.sb.Remove(0, this.sb.Length);
+					sb.Append(r.Text);
 				}
-
-				foreach (var p in this.paragraphs)
-				{
-					if (sb.Length > 0)
-					{
-						sb.Append(Environment.NewLine);
-					}
-
-					foreach (var r in p.Runs)
-					{
-						sb.Append(r.Text);
-					}
-				}
-
-				this.textBuffer = sb.ToString();
-				this.sbDirty = false;
 			}
-
-			return this.textBuffer;
+			return sb.ToString();
 		}
 
 		/// <summary>
@@ -630,6 +610,11 @@ namespace unvell.ReoGrid.Drawing.Text
 		public RGFloat ParagraphStartSpacing { get; set; }
 
 		public RGFloat ParagraphEndSpacing { get; set; }
+
+		public override bool Equals(object obj)
+		{
+			return obj is Paragraph other ? Enumerable.SequenceEqual(runs, other.runs) : false;
+		}
 
 		#endregion // Attributes
 
@@ -685,10 +670,7 @@ namespace unvell.ReoGrid.Drawing.Text
 			SolidColor? textColor = null, SolidColor? backColor = null)
 		{
 			Run lastRun = this.GetOrCreateLastRun(fontName, fontSize, fontStyles, textColor, backColor);
-
 			lastRun.Text += text;
-
-			this.rt.sbDirty = true;
 		}
 
 		internal Run GetOrCreateLastRun(string fontName = null, RGFloat? fontSize = null, FontStyles? fontStyles = null,
@@ -1064,6 +1046,17 @@ namespace unvell.ReoGrid.Drawing.Text
 		internal List<double> TextSizes { get; private set; }
 		internal List<ushort> GlyphIndexes { get; private set; }
 #endif // WPF
+
+		public override bool Equals(object obj)
+		{
+			return obj is Run other ?
+				object.Equals(FontName, other.FontName) &&
+				object.Equals(FontSize, other.FontSize) &&
+				object.Equals(FontStyles, other.FontStyles) &&
+				object.Equals(TextColor, other.TextColor) &&
+				object.Equals(BackColor, other.BackColor) &&
+				object.Equals(text, other.text) : false;
+		}
 
 		#region Font Info
 		private BoxFontInfo fontInfo = null;
