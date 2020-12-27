@@ -131,13 +131,13 @@ namespace unvell.ReoGrid
 						index = this.workbook.worksheets.Count - 1;
 					}
 
+					this.currentWorksheet = this.workbook.worksheets[index];
 					this.sheetTab.SelectedIndex = index;
-					this.currentWorksheet = this.workbook.worksheets[this.sheetTab.SelectedIndex];
 				}
 				else
 				{
-					this.sheetTab.SelectedIndex = -1;
 					this.currentWorksheet = null;
+					this.sheetTab.SelectedIndex = -1;
 				}
 
 				this.WorksheetRemoved?.Invoke(this, e);
