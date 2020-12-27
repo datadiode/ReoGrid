@@ -53,6 +53,7 @@ using System.Collections;
 using unvell.Common.Win32Lib;
 using System.Threading;
 using unvell.ReoGrid.Core;
+using Microsoft.Win32;
 
 namespace unvell.ReoGrid.Editor
 {
@@ -1585,7 +1586,38 @@ namespace unvell.ReoGrid.Editor
 						arg = grid.Load(header.Text, IO.FileFormat.CSV, Encoding.Default, csvPipeDelimited);
 						break;
 					case FilePathBar.SeletionType.AutoDetect:
-						arg = grid.Load(header.Text, IO.FileFormat._Auto, Encoding.Default);
+						if (Path.GetExtension(header.Text).Equals(".xls", StringComparison.CurrentCultureIgnoreCase))
+						{
+							if (Registry.GetValue("HKEY_CLASSES_ROOT\\.xls", "", null) is string classname)
+							{
+								if (Registry.GetValue("HKEY_CLASSES_ROOT\\" + classname + "\\shell\\Convert to .xlsx\\Command", "", null) is string command)
+								{
+									var parts = command.Split('"');
+									var name = Guid.NewGuid().ToString() + ".*";
+									var temp = Path.GetTempPath();
+									var path = Path.Combine(temp, name);
+									var psi = new ProcessStartInfo(parts[1], "\"" + header.Text + "\" -o \"" + path + "\"")
+									{
+										CreateNoWindow = true,
+										UseShellExecute = false,
+									};
+									var process = Process.Start(psi);
+									process.WaitForExit();
+									process.Close();
+									foreach (var file in Directory.GetFiles(temp, name))
+									{
+										path = file;
+									}
+									arg = grid.Load(path, IO.FileFormat.Excel2007, Encoding.Default);
+									File.Delete(path);
+									header.Text += "x";
+								}
+							}
+						}
+						else
+						{
+							arg = grid.Load(header.Text, IO.FileFormat._Auto, Encoding.Default);
+						}
 						break;
 				}
 			}
