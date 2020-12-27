@@ -253,6 +253,7 @@ namespace unvell.ReoGrid.Formula
 
 		private static STNode ReadFunctionCall(ExcelFormulaLexer lexer)
 		{
+			do; while (lexer.SkipToken("+"));
 			var id = ReadSheetName(lexer);
 			if (id == null) return null;
 
@@ -524,9 +525,9 @@ namespace unvell.ReoGrid.Formula
 			"\\s*((?<string>\"(?:\"\"|[^\"])*\")|(?<union_ranges>[A-Z]+[0-9]+:[A-Z]+[0-9]+(\\s[A-Z]+[0-9]+:[A-Z]+[0-9]+)+)"
 			+ "|(?<range>\\$?[A-Z]+\\$?[0-9]*:\\$?[A-Z]+\\$?[0-9]*)"
 			+ "|(?<cell>\\$?[A-Z]+\\$?[0-9]+)"
-			+ "|(?<token>-)|(?<number>\\-?\\d*\\.?\\d+)"
+			+ "|(?<token>[\\-\\+])|(?<number>\\-?\\d*\\.?\\d+)"
 			+ "|(?<true>(?i)TRUE)|(?<false>(?i)FALSE)|(?<identifier>\\w+|'(?:''|[^'])*')"
-			+ "|(?<token>\\=\\=|\\<\\>|\\<\\=|\\>\\=|\\<\\>|\\=|\\!|[\\=\\.\\,\\+\\-\\*\\/\\%\\<\\>\\(\\)\\&\\^]))",
+			+ "|(?<token>\\=\\=|\\<\\>|\\<\\=|\\>\\=|\\<\\>|[\\=\\!\\.\\,\\+\\-\\*\\/\\%\\<\\>\\(\\)\\&\\^]))",
 			RegexOptions.Compiled);
 
 		public string Input { get; set; }
