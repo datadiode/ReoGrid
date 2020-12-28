@@ -154,7 +154,10 @@ namespace unvell.ReoGrid.IO
 	{
 		public bool IsValidFormat(string file)
 		{
-			return Path.GetExtension(file).Equals(".xlsx", StringComparison.CurrentCultureIgnoreCase);
+			const string patterns = ".xlsx.xlsm.xltx.xltm";
+			string ext = Path.GetExtension(file);
+			int dot = patterns.IndexOf(ext, StringComparison.InvariantCultureIgnoreCase);
+			return dot != -1 && patterns[(dot + ext.Length) % patterns.Length] == '.';
 		}
 
 		public object Load(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
