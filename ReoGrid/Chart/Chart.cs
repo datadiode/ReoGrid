@@ -983,6 +983,9 @@ namespace unvell.ReoGrid.Chart
 		{
 			base.UpdateLayout();
 
+			this.ResetDrawPoints();
+			this.UpdateDrawPoints();
+
 			//if (this.PlotViewContainer != null)
 			//{
 			//	var bodyBounds = this.PlotViewContainer.Bounds;
