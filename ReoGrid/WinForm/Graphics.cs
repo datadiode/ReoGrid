@@ -346,6 +346,8 @@ namespace unvell.ReoGrid.WinForm
 			{
 				lock (this.sf)
 				{
+					sf.FormatFlags |= StringFormatFlags.NoWrap;
+
 					switch (halign)
 					{
 						default: sf.Alignment = StringAlignment.Near; break;
@@ -702,11 +704,11 @@ namespace unvell.ReoGrid.WinForm
 				#region Set sf wrap
 				if (cell.InnerStyle.TextWrapMode == TextWrapMode.NoWrap)
 				{
-					sf.FormatFlags |= System.Drawing.StringFormatFlags.NoWrap;
+					sf.FormatFlags |= StringFormatFlags.NoWrap;
 				}
 				else
 				{
-					sf.FormatFlags &= ~System.Drawing.StringFormatFlags.NoWrap;
+					sf.FormatFlags &= ~StringFormatFlags.NoWrap;
 				}
 				#endregion // Set sf wrap
 
@@ -829,7 +831,7 @@ namespace unvell.ReoGrid.WinForm
 				{
 					// no word break
 					fieldWidth = 9999999; // TODO: avoid magic number
-					sf.FormatFlags |= System.Drawing.StringFormatFlags.NoWrap;
+					sf.FormatFlags |= StringFormatFlags.NoWrap;
 				}
 				else
 				{
@@ -858,7 +860,7 @@ namespace unvell.ReoGrid.WinForm
 
 					// word break
 					fieldWidth = (int)Math.Round(cellWidth * scale);
-					sf.FormatFlags &= ~System.Drawing.StringFormatFlags.NoWrap;
+					sf.FormatFlags &= ~StringFormatFlags.NoWrap;
 				}
 
 				if (cell.FontDirty)
