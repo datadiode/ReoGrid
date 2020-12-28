@@ -993,6 +993,16 @@ namespace unvell.ReoGrid.Editor
 		#endregion // Debug Validations
 #endif // RG_DEBUG
 
+		private static bool IsFileType(string file, string patterns)
+		{
+			string ext = Path.GetExtension(file);
+			int dot = patterns.IndexOf(ext, StringComparison.InvariantCultureIgnoreCase);
+			return dot != -1 && patterns[(dot + ext.Length) % patterns.Length] == '.';
+		}
+	
+		private static bool IsFileTypeExcel2003(string file) => IsFileType(file, ".xls.xlt");
+		private static bool IsFileTypeExcel2007(string file) => IsFileType(file, ".xlsx.xlsm.xltx.xltm");
+
 		public ReoGridControl GridControl { get { return formulaBar.GridControl; } }
 
 		public Worksheet CurrentWorksheet { get { return GridControl.CurrentWorksheet; } }
@@ -1512,7 +1522,7 @@ namespace unvell.ReoGrid.Editor
 		{
 			var dirty = true;
 			FileFormat fm = FileFormat._Auto;
-			if (path.EndsWith(".xlsx", StringComparison.CurrentCultureIgnoreCase))
+			if (IsFileTypeExcel2007(path))
 			{
 				fm = FileFormat.Excel2007;
 			}
@@ -1586,7 +1596,8 @@ namespace unvell.ReoGrid.Editor
 						arg = grid.Load(header.Text, IO.FileFormat.CSV, Encoding.Default, csvPipeDelimited);
 						break;
 					case FilePathBar.SeletionType.AutoDetect:
-						if (Path.GetExtension(header.Text).Equals(".xls", StringComparison.CurrentCultureIgnoreCase))
+						var loadFrom = header.Text;
+						if (IsFileTypeExcel2003(loadFrom))
 						{
 							if (Registry.GetValue("HKEY_CLASSES_ROOT\\.xls", "", null) is string classname)
 							{
@@ -1596,7 +1607,7 @@ namespace unvell.ReoGrid.Editor
 									var name = Guid.NewGuid().ToString() + ".*";
 									var temp = Path.GetTempPath();
 									var path = Path.Combine(temp, name);
-									var psi = new ProcessStartInfo(parts[1], "\"" + header.Text + "\" -o \"" + path + "\"")
+									var psi = new ProcessStartInfo(parts[1], "\"" + loadFrom + "\" -o \"" + path + "\"")
 									{
 										CreateNoWindow = true,
 										UseShellExecute = false,
@@ -1610,13 +1621,13 @@ namespace unvell.ReoGrid.Editor
 									}
 									arg = grid.Load(path, IO.FileFormat.Excel2007, Encoding.Default);
 									File.Delete(path);
-									header.Text += "x";
+									header.Text = Path.GetFileNameWithoutExtension(loadFrom) + Path.GetExtension(path);
 								}
 							}
 						}
 						else
 						{
-							arg = grid.Load(header.Text, IO.FileFormat._Auto, Encoding.Default);
+							arg = grid.Load(loadFrom, IO.FileFormat._Auto, Encoding.Default);
 						}
 						break;
 				}
