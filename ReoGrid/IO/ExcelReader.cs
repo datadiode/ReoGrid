@@ -755,9 +755,13 @@ namespace unvell.ReoGrid.IO.OpenXML
 							{
 								rgCell.Data = DateTime.FromOADate(value);
 							}
+							else if (DataFormatterManager.Instance.DataFormatters[CellDataFormatFlag.DateTime].FormatCell(rgCell) is string text)
+							{
+								rgCell.Data = text;
+							}
 							else
 							{
-								rgCell.Data = DataFormatterManager.Instance.DataFormatters[CellDataFormatFlag.DateTime].FormatCell(rgCell);
+								DataFormatterManager.Instance.FormatCell(rgCell);
 							}
 							break;
 						case CellDataFormatFlag.General:
@@ -2345,17 +2349,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 #endregion // Area Chart Plot Area
 			}
 
-			bool showLegend = false;
-
-			if (chart.legend != null)
+			if (rgChart != null)
 			{
-				if (chart.legend.legendPos != null)
-				{
-					showLegend = true;
-				}
+				rgChart.ShowLegend = chart.legend != null && chart.legend.legendPos != null;
 			}
-
-			rgChart.ShowLegend = showLegend;
 
 			return rgChart;
 		}
@@ -2370,17 +2367,14 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 			var label = serial.ChartLabel;
 
-			if (label != null
-				&& label.strRef != null)
+			if (label != null && label.strRef != null)
 			{
-				if (label.strRef.formula != null
-					&& !string.IsNullOrEmpty(label.strRef.formula))
+				if (label.strRef.formula != null && !string.IsNullOrEmpty(label.strRef.formula))
 				{
-					var serialNameVal = Formula.Evaluator.Evaluate(rgSheet.workbook, label.strRef.formula);
-
-					if (serialNameVal.type == Formula.FormulaValueType.Cell)
+					var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, label.strRef.formula);
+					if (serialNameVal.Type == Formula.STNodeType.CELL)
 					{
-						labelAddress = (CellPosition)serialNameVal.value;
+						labelAddress = ((Formula.STCellNode)serialNameVal).Position;
 					}
 				}
 
@@ -2414,12 +2408,13 @@ namespace unvell.ReoGrid.IO.OpenXML
 						// transfer to multiple serials
 						for (int r = range.Row; r <= range.EndRow; r++)
 						{
-							dataSource.AddSerial(rgSheet, labelAddress, new RangePosition(r, range.Col, 1, 1));
+							var pos = new RangePosition(r, range.Col, 1, 1);
+							dataSource.AddSerial(rgSheet, labelAddress, new ReferenceRange(range.Worksheet, pos));
 						}
 					}
 					else
 					{
-						dataSource.AddSerial(rgSheet, labelAddress, range.Position);
+						dataSource.AddSerial(rgSheet, labelAddress, range);
 					}
 				}
 			}

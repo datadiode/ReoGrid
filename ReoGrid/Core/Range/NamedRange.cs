@@ -197,12 +197,12 @@ namespace unvell.ReoGrid
 		/// <param name="addressOrName">Address or range name used to find range on worksheet.</param>
 		/// <param name="range">Range that was found by specified address or name on worksheet.</param>
 		/// <returns>True if range was found; Otherwise return false.</returns>
-		public bool TryGetRangeByAddressOrName(string addressOrName, out RangePosition range)
+		public ReferenceRange TryGetRangeByAddressOrName(string addressOrName)
 		{
+			ReferenceRange range = null;
 			if (RangePosition.IsValidAddress(addressOrName))
 			{
-				range = new RangePosition(addressOrName);
-				return true;
+				range = new ReferenceRange(this, addressOrName);
 			}
 			else if (NamedRange.IsValidName(addressOrName))
 			{
@@ -210,13 +210,10 @@ namespace unvell.ReoGrid
 
 				if (this.registeredNamedRanges.TryGetValue(addressOrName, out namedRange))
 				{
-					range = (RangePosition)namedRange;
-					return true;
+					range = new ReferenceRange(namedRange.Worksheet, namedRange.Position);
 				}
 			}
-
-			range = RangePosition.Empty;
-			return false;
+			return range;
 		}
 
 		/// <summary>
