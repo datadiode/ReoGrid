@@ -149,16 +149,10 @@ namespace unvell.ReoGrid.Formula
 					{
 						if (node.Children.Count < 2) return FormulaValue.Nil;
 
-						FormulaValue v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
-						FormulaValue v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
+						var v1 = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[1]));
 
-						if (v1.type != FormulaValueType.Number || v2.type != FormulaValueType.Number)
-						{
-							throw new FormulaTypeMismatchException(cell);
-							//return FormulaValue.Nil;
-						}
-
-						return (double)v1.value + (double)v2.value;
+						return v1 + v2;
 					}
 				#endregion // Add
 
@@ -167,18 +161,10 @@ namespace unvell.ReoGrid.Formula
 					{
 						if (node.Children.Count < 2) return FormulaValue.Nil;
 
-						FormulaValue v1 = CheckAndGetDefaultValue(cell, Evaluate(cell, node[0]));
-						FormulaValue v2 = CheckAndGetDefaultValue(cell, Evaluate(cell, node[1]));
+						var v1 = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[1]));
 
-						if (v1.type == FormulaValueType.Number && v2.type == FormulaValueType.Number)
-						{
-							return (double)v1.value - (double)v2.value;
-						}
-						if (v1.type == FormulaValueType.DateTime && v2.type == FormulaValueType.DateTime)
-						{
-							return ((DateTime)v1.value - (DateTime)v2.value).TotalDays;
-						}
-						throw new FormulaTypeMismatchException(cell);
+						return v1 - v2;
 					}
 				#endregion // Sub
 
@@ -294,6 +280,9 @@ namespace unvell.ReoGrid.Formula
 							case FormulaValueType.Number:
 								return (double)v1.value == (double)v2.value;
 
+							case FormulaValueType.DateTime:
+								return (DateTime)v1.value == (DateTime)v2.value;
+
 							case FormulaValueType.String:
 								return (string)v1.value == (string)v2.value;
 
@@ -319,6 +308,9 @@ namespace unvell.ReoGrid.Formula
 							case FormulaValueType.Number:
 								return (double)v1.value != (double)v2.value;
 
+							case FormulaValueType.DateTime:
+								return (DateTime)v1.value != (DateTime)v2.value;
+
 							case FormulaValueType.String:
 								return (string)v1.value != (string)v2.value;
 
@@ -343,6 +335,13 @@ namespace unvell.ReoGrid.Formula
 							return (node.Type == STNodeType.GREAT_EQUALS)
 								? (double)v1.value >= (double)v2.value
 								: (double)v1.value > (double)v2.value;
+						}
+
+						if (v1.type == FormulaValueType.DateTime && v2.type == FormulaValueType.DateTime)
+						{
+							return (node.Type == STNodeType.GREAT_EQUALS)
+								? (DateTime)v1.value >= (DateTime)v2.value
+								: (DateTime)v1.value > (DateTime)v2.value;
 						}
 
 						if (v1.type == FormulaValueType.String || v2.type == FormulaValueType.String)
@@ -378,6 +377,13 @@ namespace unvell.ReoGrid.Formula
 							return (node.Type == STNodeType.LESS_EQUALS)
 								? (double)v1.value <= (double)v2.value
 								: (double)v1.value < (double)v2.value;
+						}
+
+						if (v1.type == FormulaValueType.DateTime && v2.type == FormulaValueType.DateTime)
+						{
+							return (node.Type == STNodeType.LESS_EQUALS)
+								? (DateTime)v1.value <= (DateTime)v2.value
+								: (DateTime)v1.value < (DateTime)v2.value;
 						}
 
 						if (v1.type == FormulaValueType.String || v2.type == FormulaValueType.String)
@@ -427,6 +433,19 @@ namespace unvell.ReoGrid.Formula
 			}
 			else
 				return val;
+		}
+
+		internal static double CheckAndGetDefaultValueDouble(Cell cell, FormulaValue val)
+		{
+			val = CheckAndGetDefaultValue(cell, val);
+			switch (val.type)
+			{
+				case FormulaValueType.Number:
+					return (double)val.value;
+				case FormulaValueType.DateTime:
+					return ((DateTime)val.value).ToOADate();
+			}
+			throw new FormulaTypeMismatchException(cell);
 		}
 
 		internal static FormulaValue CreateFormulaValue(Cell cell)
@@ -579,6 +598,14 @@ namespace unvell.ReoGrid.Formula
 				case BuiltinFunctionNames.ROUND_EN:
 				case BuiltinFunctionNames.ROUND_RU:
 					return ExcelFunctions.Round(cell, GetFunctionArgs(cell, funNode.Children, 1, 2));
+
+				case BuiltinFunctionNames.ROUNDUP_EN:
+				//case BuiltinFunctionNames.ROUNDUP_RU:
+					return ExcelFunctions.RoundUp(cell, GetFunctionArgs(cell, funNode.Children, 1, 2));
+
+				case BuiltinFunctionNames.ROUNDDOWN_EN:
+					//case BuiltinFunctionNames.ROUNDUP_RU:
+					return ExcelFunctions.RoundDown(cell, GetFunctionArgs(cell, funNode.Children, 1, 2));
 
 				case BuiltinFunctionNames.CEILING_EN:
 				case BuiltinFunctionNames.CEILING_RU:

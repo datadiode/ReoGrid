@@ -618,10 +618,7 @@ namespace unvell.ReoGrid.Formula
 
 		public static FormulaValue Round(Cell cell, FormulaValue[] args)
 		{
-			if (args[0].type != FormulaValueType.Number)
-			{
-				throw new FormulaTypeMismatchException(cell);
-			}
+			double input = Evaluator.CheckAndGetDefaultValueDouble(cell, args[0]);
 
 			int digits = 0;
 
@@ -635,17 +632,50 @@ namespace unvell.ReoGrid.Formula
 				digits = (int)(double)args[1].value;
 			}
 
-			return Math.Round((double)args[0].value, digits);
+			return Math.Round(input, digits);
+		}
+
+		public static FormulaValue RoundUp(Cell cell, FormulaValue[] args)
+		{
+			double input = Evaluator.CheckAndGetDefaultValueDouble(cell, args[0]);
+
+			double scale = 1;
+
+			if (args.Length > 1)
+			{
+				if (args[1].type != FormulaValueType.Number)
+				{
+					throw new FormulaTypeMismatchException(cell);
+				}
+
+				scale = Math.Pow(10, (int)(double)args[1].value);
+			}
+
+			return Math.Ceiling(input * scale) / scale;
+		}
+
+		public static FormulaValue RoundDown(Cell cell, FormulaValue[] args)
+		{
+			double input = Evaluator.CheckAndGetDefaultValueDouble(cell, args[0]);
+
+			double scale = 1;
+
+			if (args.Length > 1)
+			{
+				if (args[1].type != FormulaValueType.Number)
+				{
+					throw new FormulaTypeMismatchException(cell);
+				}
+
+				scale = Math.Pow(10, (int)(double)args[1].value);
+			}
+
+			return Math.Floor(input * scale) / scale;
 		}
 
 		public static FormulaValue Ceiling(Cell cell, FormulaValue[] args)
 		{
-			if (args[0].type != FormulaValueType.Number)
-			{
-				throw new FormulaTypeMismatchException(cell);
-			}
-
-			double input = (double)args[0].value;
+			double input = Evaluator.CheckAndGetDefaultValueDouble(cell, args[0]);
 
 			if (args.Length < 2)
 			{
@@ -675,12 +705,7 @@ namespace unvell.ReoGrid.Formula
 
 		public static FormulaValue Floor(Cell cell, FormulaValue[] args)
 		{
-			if (args[0].type != FormulaValueType.Number)
-			{
-				throw new FormulaTypeMismatchException(cell);
-			}
-
-			double input = (double)args[0].value;
+			double input = Evaluator.CheckAndGetDefaultValueDouble(cell, args[0]);
 
 			if (args.Length < 2)
 			{
@@ -794,6 +819,13 @@ namespace unvell.ReoGrid.Formula
 					index = 2;
 				}
 			}
+			else if (val.type == FormulaValueType.DateTime)
+			{
+				if (((DateTime)val.value).ToOADate() == 0)
+				{
+					index = 2;
+				}
+			}
 			else
 			{
 				throw new FormulaTypeMismatchException(cell);
@@ -827,6 +859,13 @@ namespace unvell.ReoGrid.Formula
 				else if (val.type == FormulaValueType.Number)
 				{
 					if ((double)val.value == 0)
+					{
+						return false;
+					}
+				}
+				else if (val.type == FormulaValueType.DateTime)
+				{
+					if (((DateTime)val.value).ToOADate() == 0)
 					{
 						return false;
 					}
@@ -867,6 +906,13 @@ namespace unvell.ReoGrid.Formula
 						return true;
 					}
 				}
+				else if (val.type == FormulaValueType.DateTime)
+				{
+					if (((DateTime)val.value).ToOADate() != 0)
+					{
+						return true;
+					}
+				}
 				else
 				{
 					throw new FormulaTypeMismatchException(cell);
@@ -880,14 +926,24 @@ namespace unvell.ReoGrid.Formula
 		#region NOT
 		public static FormulaValue Not(Cell cell, STNode arg0)
 		{
-			FormulaValue value = Evaluator.Evaluate(cell, arg0);
+			FormulaValue val = Evaluator.Evaluate(cell, arg0);
 
-			if (value.type != FormulaValueType.Boolean)
+			if (val.type == FormulaValueType.Boolean)
+			{
+				return (bool)val.value == false;
+			}
+			else if (val.type == FormulaValueType.Number)
+			{
+				return (double)val.value == 0;
+			}
+			else if (val.type == FormulaValueType.DateTime)
+			{
+				return ((DateTime)val.value).ToOADate() == 0;
+			}
+			else
 			{
 				throw new FormulaTypeMismatchException(cell);
 			}
-
-			return !(bool)(value.value);
 		}
 		#endregion // NOT
 

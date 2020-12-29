@@ -65,6 +65,10 @@ namespace unvell.ReoGrid.Formula
 		public const string INT_RU = "INT";
 		public const string ROUND_EN = "ROUND";
 		public const string ROUND_RU = "ОКРУГЛ";
+		public const string ROUNDUP_EN = "ROUNDUP";
+		public const string ROUNDUP_RU = "ROUNDUP";
+		public const string ROUNDDOWN_EN = "ROUNDDOWN";
+		public const string ROUNDDOWN_RU = "ROUNDDOWN";
 		public const string CEILING_EN = "CEILING";
 		public const string CEILING_RU = "ОКРВВЕРХ";
 		public const string FLOOR_EN = "FLOOR";
