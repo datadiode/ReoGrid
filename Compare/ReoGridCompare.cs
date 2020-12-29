@@ -1621,7 +1621,7 @@ namespace unvell.ReoGrid.Editor
 									}
 									arg = grid.Load(path, IO.FileFormat.Excel2007, Encoding.Default);
 									File.Delete(path);
-									header.Text = Path.GetFileNameWithoutExtension(loadFrom) + Path.GetExtension(path);
+									header.Text = Path.ChangeExtension(loadFrom, Path.GetExtension(path));
 								}
 							}
 						}
