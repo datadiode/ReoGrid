@@ -164,6 +164,27 @@ namespace unvell.ReoGrid
 				}
 			}
 
+			if (fileFormat == FileFormat.Excel2007)
+			{
+				var ext = Path.GetExtension(path);
+				if (ext.Equals(".xlsx", StringComparison.InvariantCultureIgnoreCase))
+				{
+					arg = IO.OpenXML.Schema.OpenXMLContentTypes.Workbook______;
+				}
+				else if (ext.Equals(".xltx", StringComparison.InvariantCultureIgnoreCase))
+				{
+					arg = IO.OpenXML.Schema.OpenXMLContentTypes.Template______;
+				}
+				if (ext.Equals(".xlsm", StringComparison.InvariantCultureIgnoreCase))
+				{
+					arg = IO.OpenXML.Schema.OpenXMLContentTypes.MacroWorkbook_;
+				}
+				else if (ext.Equals(".xltm", StringComparison.InvariantCultureIgnoreCase))
+				{
+					arg = IO.OpenXML.Schema.OpenXMLContentTypes.MacroTemplate_;
+				}
+			}
+
 			var temp = Path.GetTempFileName();
 			try
 			{

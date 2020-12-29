@@ -168,7 +168,7 @@ namespace unvell.ReoGrid.IO
 
 		public void Save(IWorkbook workbook, Stream stream, Encoding encoding, object arg)
 		{
-			OpenXML.ExcelWriter.WriteStream(workbook, stream);
+			OpenXML.ExcelWriter.WriteStream(workbook, stream, arg as string);
 		}
 	}
 

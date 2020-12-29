@@ -37,10 +37,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 	internal sealed class ExcelWriter
 	{
-		public static void WriteStream(RGWorkbook rgWorkbook, Stream stream)
+		public static void WriteStream(RGWorkbook rgWorkbook, Stream stream, string type = null)
 		{
 			//Document doc = new Document();
-			var doc = Document.CreateOnStream(stream);
+			var doc = Document.CreateOnStream(stream, type);
 
 			WriteDefaultStyles(doc, rgWorkbook);
 
@@ -1463,7 +1463,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 		internal CoreProperties coreProp;
 
-		internal static Document CreateOnStream(Stream stream)
+		internal static Document CreateOnStream(Stream stream, string type)
 		{
 			Document doc = new Document()
 			{
@@ -1483,7 +1483,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				Overrides = new List<ContentTypeOverrideItem>(),
 			};
 
-			doc.CreateWorkbook();
+			doc.CreateWorkbook(type);
 
 			doc.CreateCoreProperties();
 
@@ -1492,7 +1492,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			return doc;
 		}
 
-		internal Schema.Workbook CreateWorkbook()
+		internal Schema.Workbook CreateWorkbook(string type)
 		{
 			this.Workbook = new Schema.Workbook
 			{
@@ -1519,7 +1519,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			this.contentType.Overrides.Add(new ContentTypeOverrideItem
 			{
 				PartName = "/" + this.Workbook._xmlTarget,
-				ContentType = OpenXMLContentTypes.Workbook______,
+				ContentType = type != null ? type : OpenXMLContentTypes.Workbook______,
 			});
 
 			return this.Workbook;

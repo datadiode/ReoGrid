@@ -69,6 +69,9 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 
 		internal const string Theme_________ = "application/vnd.openxmlformats-officedocument.theme+xml";
 		internal const string Workbook______ = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml";
+		internal const string Template______ = "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml";
+		internal const string MacroWorkbook_ = "application/vnd.ms-excel.sheet.macroEnabled.main+xml";
+		internal const string MacroTemplate_ = "application/vnd.ms-excel.template.macroEnabled.main+xml";
 		internal const string Worksheet_____ = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml";
 		internal const string Styles________ = "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml";
 		internal const string SharedStrings_ = "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml";
