@@ -296,115 +296,8 @@ namespace unvell.ReoGrid.Chart
 
 			return this.serials[index];
 		}
-
-		private WorksheetChartDataSerialCollection collection;
-
-		/// <summary>
-		/// Get collection of data serials.
-		/// </summary>
-		public WorksheetChartDataSerialCollection Serials
-		{
-			get
-			{
-				if (this.collection == null)
-				{
-					this.collection = new WorksheetChartDataSerialCollection(this);
-				}
-				return this.collection;
-			}
-		}
 		#endregion // Serials
 	}
-
-	#region WorksheetChartDataSerialCollection
-	/// <summary>
-	/// Represents collection of data serial.
-	/// </summary>
-	public class WorksheetChartDataSerialCollection : IList<WorksheetChartDataSerial>
-	{
-		public WorksheetChartDataSource DataSource { get; private set; }
-
-		private List<WorksheetChartDataSerial> serials;
-
-		internal WorksheetChartDataSerialCollection(WorksheetChartDataSource dataSource)
-		{
-			this.DataSource = dataSource;
-			this.serials = dataSource.serials;
-		}
-
-		public WorksheetChartDataSerial this[int index]
-		{
-			get { return this.serials[index]; }
-			set
-			{
-				this.serials[index] = value;
-				this.DataSource.UpdateCategoryCount(value);
-			}
-		}
-
-		public int Count
-		{
-			get { return this.serials.Count;}
-		}
-
-		public bool IsReadOnly { get { return false; } }
-
-		public void Add(WorksheetChartDataSerial serial)
-		{
-			this.DataSource.Add(serial);
-		}
-
-		public void Clear()
-		{
-			this.serials.Clear();
-			// TODO: update category count
-		}
-
-		public bool Contains(WorksheetChartDataSerial item)
-		{
-			return this.serials.Contains(item);
-		}
-
-		public void CopyTo(WorksheetChartDataSerial[] array, int arrayIndex)
-		{
-			this.serials.CopyTo(array, arrayIndex);
-		}
-
-		public IEnumerator<WorksheetChartDataSerial> GetEnumerator()
-		{
-			return this.serials.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return this.serials.GetEnumerator();
-		}
-
-		public int IndexOf(WorksheetChartDataSerial item)
-		{
-			return this.serials.IndexOf(item);
-		}
-
-		public void Insert(int index, WorksheetChartDataSerial serial)
-		{
-			this.serials.Insert(index, serial);
-
-			this.DataSource.UpdateCategoryCount(serial);
-		}
-
-		public bool Remove(WorksheetChartDataSerial serial)
-		{
-			return this.serials.Remove(serial);
-			// TODO: update category count
-		}
-
-		public void RemoveAt(int index)
-		{
-			this.serials.RemoveAt(index);
-			// TODO: update category count
-		}
-	}
-	#endregion // WorksheetChartDataSerialCollection
 
 	#region WorksheetChartDataSerial
 	/// <summary>
@@ -439,26 +332,22 @@ namespace unvell.ReoGrid.Chart
 		//private string name;
 		public CellPosition LabelAddress { get; set; }
 
-		protected WorksheetChartDataSerial(WorksheetChartDataSource dataSource, Worksheet worksheet, CellPosition labelAddress)
+		/// <param name="dataSource">Data source to read chart data from worksheet.</param>
+		/// <param name="worksheet">Instance of worksheet that contains the data to be read.</param>
+		/// <param name="labelAddress">The address to locate label of serial on worksheet.</param>
+		/// <param name="dataRange">Serial data range to read serial data for chart from worksheet.</param>
+		public WorksheetChartDataSerial(WorksheetChartDataSource dataSource, Worksheet worksheet, CellPosition labelAddress, ReferenceRange dataRange)
 		{
-			if (dataSource == null)
-			{
-				throw new ArgumentNullException("dataSource");
-			}
-
-			if (worksheet == null)
-			{
-				throw new ArgumentNullException("worksheet");
-			}
-
-			this.dataSource = dataSource;
-			this.worksheet = worksheet;
+			this.dataSource = dataSource ?? throw new ArgumentNullException("dataSource");
+			this.worksheet = worksheet ?? throw new ArgumentNullException("worksheet");
 			this.LabelAddress = labelAddress;
+			this.dataRange = dataRange;
 
-			if (this.worksheet != null)
+			var evtSource = dataRange.Worksheet != null ? dataRange.Worksheet : this.worksheet;
+			if (evtSource != null)
 			{
-				this.worksheet.CellDataChanged += worksheet_CellDataChanged;
-				this.worksheet.RangeDataChanged += worksheet_RangeDataChanged;
+				evtSource.CellDataChanged += worksheet_CellDataChanged;
+				evtSource.RangeDataChanged += worksheet_RangeDataChanged;
 			}
 		}
 
@@ -467,60 +356,11 @@ namespace unvell.ReoGrid.Chart
 		/// </summary>
 		~WorksheetChartDataSerial()
 		{
-			if (this.worksheet != null)
+			var evtSource = dataRange.Worksheet != null ? dataRange.Worksheet : this.worksheet;
+			if (evtSource != null)
 			{
-				this.worksheet.CellDataChanged -= worksheet_CellDataChanged;
-				this.worksheet.RangeDataChanged -= worksheet_RangeDataChanged;
-			}
-		}
-
-		/// <param name="dataSource">Data source to read chart data from worksheet.</param>
-		/// <param name="worksheet">Instance of worksheet that contains the data to be read.</param>
-		/// <param name="labelAddress">The address to locate label of serial on worksheet.</param>
-		/// <param name="dataRange">Serial data range to read serial data for chart from worksheet.</param>
-		public WorksheetChartDataSerial(WorksheetChartDataSource dataSource, Worksheet worksheet, CellPosition labelAddress, ReferenceRange dataRange)
-			: this(dataSource, worksheet, labelAddress)
-		{
-			this.dataRange = dataRange;
-		}
-
-		/// <summary>
-		/// Create data serial by specified worksheet instance and data range.
-		/// </summary>
-		/// <param name="dataSource">Data source to read chart data from worksheet.</param>
-		/// <param name="worksheet">Instance of worksheet that contains the data to be read.</param>
-		/// <param name="labelAddress">The address to locate label of serial on worksheet.</param>
-		/// <param name="addressOrName">Serial data specified by address position or range's name.</param>
-		public WorksheetChartDataSerial(WorksheetChartDataSource dataSource, Worksheet worksheet, string labelAddress, string addressOrName)
-			: this(dataSource, worksheet, new CellPosition(labelAddress))
-		{
-			if (RangePosition.IsValidAddress(addressOrName))
-			{
-				this.dataRange = new ReferenceRange(worksheet, addressOrName);
-			}
-			else if (NamedRange.IsValidName(addressOrName))
-			{
-				if (this.worksheet != null)
-				{
-					NamedRange range = null;
-
-					if (worksheet.TryGetNamedRange(addressOrName, out range))
-					{
-						this.dataRange = new ReferenceRange(range.Worksheet, range.Position);
-					}
-					else
-					{
-						throw new InvalidAddressException(addressOrName);
-					}
-				}
-				else
-				{
-					throw new ReferenceObjectNotAssociatedException("Data source must associate to valid worksheet instance.");
-				}
-			}
-			else
-			{
-				throw new InvalidAddressException(addressOrName);
+				evtSource.CellDataChanged -= worksheet_CellDataChanged;
+				evtSource.RangeDataChanged -= worksheet_RangeDataChanged;
 			}
 		}
 
