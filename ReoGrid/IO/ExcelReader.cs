@@ -192,7 +192,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				if (sheetView.zoomScale != null)
 				{
 					double zoom = 100;
-					if (double.TryParse(sheetView.zoomScale, System.Globalization.NumberStyles.Number,
+					if (double.TryParse(sheetView.zoomScale, NumberStyles.Number,
 						ExcelWriter.EnglishCulture, out zoom))
 					{
 						rgSheet.ScaleFactor = (float)(zoom / 100f);
@@ -212,7 +212,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				{
 					double defRowHeight = 4f;
 
-					if (double.TryParse(sheet.sheetFormatProperty.defaultRowHeight, System.Globalization.NumberStyles.Number,
+					if (double.TryParse(sheet.sheetFormatProperty.defaultRowHeight, NumberStyles.Number,
 						ExcelWriter.EnglishCulture, out defRowHeight))
 					{
 						defaultRowHeight = (ushort)Math.Round(defRowHeight * dpi / 72.0);
@@ -224,7 +224,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				{
 					double defColumnWidth = 0;
 
-					if (double.TryParse(sheet.sheetFormatProperty.defaultColumnWidth, System.Globalization.NumberStyles.Number,
+					if (double.TryParse(sheet.sheetFormatProperty.defaultColumnWidth, NumberStyles.Number,
 						ExcelWriter.EnglishCulture, out defColumnWidth))
 					{
 						ushort pixelWidth = (ushort)Math.Truncate(((256 * defColumnWidth + Math.Truncate(128 / fixedCharWidth)) / 256) * fixedCharWidth);
@@ -377,7 +377,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 				if (//row.customHeight == "1"
 						//&& 
-					!string.IsNullOrEmpty(row.height) && double.TryParse(row.height, System.Globalization.NumberStyles.Number,
+					!string.IsNullOrEmpty(row.height) && double.TryParse(row.height, NumberStyles.Number,
 					ExcelWriter.EnglishCulture, out rowHeight))
 				{
 					rowHeader = rgSheet.GetRowHeader(rowIndex);
@@ -750,7 +750,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 					switch (rgCell.DataFormat)
 					{
 						case CellDataFormatFlag.DateTime:
-							if (double.TryParse(rgCell.InnerData as string, System.Globalization.NumberStyles.Number,
+							if (double.TryParse(rgCell.InnerData as string, NumberStyles.Number,
 								ExcelWriter.EnglishCulture, out value))
 							{
 								rgCell.Data = DateTime.FromOADate(value);
@@ -768,7 +768,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 						case CellDataFormatFlag.Number:
 						case CellDataFormatFlag.Percent:
 						case CellDataFormatFlag.Currency:
-							if (double.TryParse(rgCell.InnerData as string, System.Globalization.NumberStyles.Number,
+							if (double.TryParse(rgCell.InnerData as string, NumberStyles.Number,
 								ExcelWriter.EnglishCulture, out value))
 							{
 								rgCell.Data = value;
@@ -1079,7 +1079,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			}
 
 			float v;
-			if (font.size != null && float.TryParse(font.size, System.Globalization.NumberStyles.Float,
+			if (font.size != null && float.TryParse(font.size, NumberStyles.Float,
 				ExcelWriter.EnglishCulture, out v))
 			{
 				styleset.Flag |= PlainStyleFlag.FontSize;
@@ -1305,7 +1305,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			int rgbValue;
 
 			if (!string.IsNullOrEmpty(color.rgb)
-				&& int.TryParse(color.rgb, System.Globalization.NumberStyles.AllowHexSpecifier, null, out rgbValue))
+				&& int.TryParse(color.rgb, NumberStyles.AllowHexSpecifier, null, out rgbValue))
 			{
 				rgColor = SolidColor.FromRGB(rgbValue);
 				return true;
@@ -1342,7 +1342,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 							default: rgColor = SolidColor.Black; break;
 						}
 
-						if (double.TryParse(color.tint, System.Globalization.NumberStyles.Number,
+						if (double.TryParse(color.tint, NumberStyles.Number,
 							ExcelWriter.EnglishCulture, out tint))
 						{
 							HSLColor hlsColor = ColorUtility.RGBToHSL(rgColor);
@@ -1377,7 +1377,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 								&& doc.Stylesheet.colors.indexedColors != null
 								&& colorIndex < doc.Stylesheet.colors.indexedColors.Count
 								&& int.TryParse(doc.Stylesheet.colors.indexedColors[colorIndex].rgb,
-									System.Globalization.NumberStyles.AllowHexSpecifier, null, out rgbValue))
+									NumberStyles.AllowHexSpecifier, null, out rgbValue))
 							{
 								rgColor = SolidColor.FromArgb(rgbValue);
 								return true;
@@ -2483,7 +2483,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 				if (rpr.size != null)
 				{
-					RGFloat.TryParse(rpr.size, out fontSize);
+					RGFloat.TryParse(rpr.size, NumberStyles.Number, ExcelWriter.EnglishCulture, out fontSize);
 				}
 				else if (rpr.sizeAttr != null)
 				{
@@ -3030,7 +3030,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				&& !string.IsNullOrEmpty(compColor.srgbColor.val))
 			{
 				int hex = 0;
-				int.TryParse(compColor.srgbColor.val, System.Globalization.NumberStyles.AllowHexSpecifier, null, out hex);
+				int.TryParse(compColor.srgbColor.val, NumberStyles.AllowHexSpecifier, null, out hex);
 				compColor._solidColor = SolidColor.FromRGB(hex);
 				return compColor._solidColor;
 			}
