@@ -601,7 +601,7 @@ namespace unvell.ReoGrid.Editor.LangRes {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to All Supported Files(*.xlsx;*.xls;*.csv;*.rgf)|*.xlsx;*.xls;*.csv;*.rgf|ReoGrid XML Format(*.rgf)|*.rgf|Excel 2007(*.xlsx)|*.xlsx|Excel 2003(*.xls)|*.xls|CSV File(*.csv)|*.csv|All Files(*.*)|*.*.
+        ///   Looks up a localized string similar to All Supported Files(*.xlsx;*.xlsm;*.xltx;*.xltm;*.xls;*.xlt;*.csv;*.rgf)|*.xlsx;*.xlsm;*.xltx;*.xltm;*.xls;*.xlt;*.csv;*.rgf|ReoGrid XML Format(*.rgf)|*.rgf|Excel 2007(*.xlsx;*.xlsm;*.xltx;*.xltm)|*.xlsx;*.xlsm;*.xltx;*.xltm|Excel 2003(*.xls;*.xlt)|*.xls;*.xlt|CSV File(*.csv)|*.csv|All Files(*.*)|*.*.
         /// </summary>
         internal static string Filter_Load_File {
             get {

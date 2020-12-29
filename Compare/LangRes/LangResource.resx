@@ -175,7 +175,7 @@
     <value>CSV File(*.csv)|*.csv|Text file(*.txt)|*.txt|All files(*.*)|*.*</value>
   </data>
   <data name="Filter_Load_File" xml:space="preserve">
-    <value>All Supported Files(*.xlsx;*.xls;*.csv;*.rgf)|*.xlsx;*.xls;*.csv;*.rgf|ReoGrid XML Format(*.rgf)|*.rgf|Excel 2007(*.xlsx)|*.xlsx|Excel 2003(*.xls)|*.xls|CSV File(*.csv)|*.csv|All Files(*.*)|*.*</value>
+    <value>All Supported Files(*.xlsx;*.xlsm;*.xltx;*.xltm;*.xls;*.xlt;*.csv;*.rgf)|*.xlsx;*.xlsm;*.xltx;*.xltm;*.xls;*.xlt;*.csv;*.rgf|ReoGrid XML Format(*.rgf)|*.rgf|Excel 2007(*.xlsx;*.xlsm;*.xltx;*.xltm)|*.xlsx;*.xlsm;*.xltx;*.xltm|Excel 2003(*.xls;*.xlt)|*.xls;*.xlt|CSV File(*.csv)|*.csv|All Files(*.*)|*.*</value>
   </data>
   <data name="Filter_Save_File" xml:space="preserve">
     <value>Excel 2007(*.xlsx)|*.xlsx|ReoGrid XML Format(*.rgf)|*.rgf|CSV File(*.csv)|*.csv|All Files(*.*)|*.*</value>
