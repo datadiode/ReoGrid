@@ -1553,13 +1553,11 @@ namespace unvell.ReoGrid.IO.OpenXML
 				pattern = pattern.Substring(1, pattern.Length - 2);
 			}
 
-			int len = pattern.Length;
-
-			int decimalSeparatorIndex = pattern.LastIndexOf(ExcelWriter.EnglishCulture.NumberFormat.NumberDecimalSeparator, len - 1);
-
-			if (decimalSeparatorIndex >= 0 && decimalSeparatorIndex < len - 1)
+			int decimalSeparatorIndex = pattern.LastIndexOf(ExcelWriter.EnglishCulture.NumberFormat.NumberDecimalSeparator);
+			int lastDecimalIndex = pattern.LastIndexOf("0");
+			if (decimalSeparatorIndex >= 0 && decimalSeparatorIndex < lastDecimalIndex)
 			{
-				arg.DecimalPlaces = (short)(len - 1 - decimalSeparatorIndex);
+				arg.DecimalPlaces = (short)(lastDecimalIndex - decimalSeparatorIndex);
 			}
 			else
 			{
@@ -2505,6 +2503,11 @@ namespace unvell.ReoGrid.IO.OpenXML
 				else if (rpr.solidFill != null)
 				{
 					foreColor = doc.ConvertFromCompColor(rpr.solidFill);
+				}
+
+				if (rpr.strike != null)
+				{
+					fontStyles |= Drawing.Text.FontStyles.Strikethrough;
 				}
 
 				if (rpr.b != null)

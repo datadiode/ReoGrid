@@ -1535,6 +1535,9 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		[XmlElement("sz")]
 		public ElementValue<string> size;
 
+		[XmlElement("strike")]
+		public ElementValue<string> strike;
+
 		[XmlElement("b")]
 		public ElementValue<string> b;
 
