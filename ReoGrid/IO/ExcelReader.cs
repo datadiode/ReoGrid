@@ -192,7 +192,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				if (sheetView.zoomScale != null)
 				{
 					double zoom = 100;
-					if (double.TryParse(sheetView.zoomScale, NumberStyles.Number,
+					if (double.TryParse(sheetView.zoomScale, ExcelWriter.Number,
 						ExcelWriter.EnglishCulture, out zoom))
 					{
 						rgSheet.ScaleFactor = (float)(zoom / 100f);
@@ -212,7 +212,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				{
 					double defRowHeight = 4f;
 
-					if (double.TryParse(sheet.sheetFormatProperty.defaultRowHeight, NumberStyles.Number,
+					if (double.TryParse(sheet.sheetFormatProperty.defaultRowHeight, ExcelWriter.Number,
 						ExcelWriter.EnglishCulture, out defRowHeight))
 					{
 						defaultRowHeight = (ushort)Math.Round(defRowHeight * dpi / 72.0);
@@ -224,7 +224,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				{
 					double defColumnWidth = 0;
 
-					if (double.TryParse(sheet.sheetFormatProperty.defaultColumnWidth, NumberStyles.Number,
+					if (double.TryParse(sheet.sheetFormatProperty.defaultColumnWidth, ExcelWriter.Number,
 						ExcelWriter.EnglishCulture, out defColumnWidth))
 					{
 						ushort pixelWidth = (ushort)Math.Truncate(((256 * defColumnWidth + Math.Truncate(128 / fixedCharWidth)) / 256) * fixedCharWidth);
@@ -377,7 +377,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 				if (//row.customHeight == "1"
 						//&& 
-					!string.IsNullOrEmpty(row.height) && double.TryParse(row.height, NumberStyles.Number,
+					!string.IsNullOrEmpty(row.height) && double.TryParse(row.height, ExcelWriter.Number,
 					ExcelWriter.EnglishCulture, out rowHeight))
 				{
 					rowHeader = rgSheet.GetRowHeader(rowIndex);
@@ -750,7 +750,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 					switch (rgCell.DataFormat)
 					{
 						case CellDataFormatFlag.DateTime:
-							if (double.TryParse(rgCell.InnerData as string, NumberStyles.Number,
+							if (double.TryParse(rgCell.InnerData as string, ExcelWriter.Number,
 								ExcelWriter.EnglishCulture, out value))
 							{
 								rgCell.Data = DateTime.FromOADate(value);
@@ -768,7 +768,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 						case CellDataFormatFlag.Number:
 						case CellDataFormatFlag.Percent:
 						case CellDataFormatFlag.Currency:
-							if (double.TryParse(rgCell.InnerData as string, NumberStyles.Number,
+							if (double.TryParse(rgCell.InnerData as string, ExcelWriter.Number,
 								ExcelWriter.EnglishCulture, out value))
 							{
 								rgCell.Data = value;
@@ -1199,10 +1199,9 @@ namespace unvell.ReoGrid.IO.OpenXML
 				// vertical alignment
 				if (!string.IsNullOrEmpty(style.alignment.horizontal))
 				{
-					ReoGridHorAlign halign = ReoGridHorAlign.Left;
+					ReoGridHorAlign halign = ReoGridHorAlign.General;
 					switch (style.alignment.horizontal)
 					{
-						default:
 						case "left":
 							halign = ReoGridHorAlign.Left;
 							break;
@@ -1342,7 +1341,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 							default: rgColor = SolidColor.Black; break;
 						}
 
-						if (double.TryParse(color.tint, NumberStyles.Number,
+						if (double.TryParse(color.tint, ExcelWriter.Number,
 							ExcelWriter.EnglishCulture, out tint))
 						{
 							HSLColor hlsColor = ColorUtility.RGBToHSL(rgColor);
@@ -1553,6 +1552,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				pattern = pattern.Substring(1, pattern.Length - 2);
 			}
 
+			pattern = pattern.Replace("_0", "");
 			int decimalSeparatorIndex = pattern.LastIndexOf(ExcelWriter.EnglishCulture.NumberFormat.NumberDecimalSeparator);
 			int lastDecimalIndex = pattern.LastIndexOf("0");
 			if (decimalSeparatorIndex >= 0 && decimalSeparatorIndex < lastDecimalIndex)
@@ -2481,7 +2481,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 				if (rpr.size != null)
 				{
-					RGFloat.TryParse(rpr.size, NumberStyles.Number, ExcelWriter.EnglishCulture, out fontSize);
+					RGFloat.TryParse(rpr.size, ExcelWriter.Number, ExcelWriter.EnglishCulture, out fontSize);
 				}
 				else if (rpr.sizeAttr != null)
 				{
