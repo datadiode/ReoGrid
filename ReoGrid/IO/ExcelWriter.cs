@@ -1015,6 +1015,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 		#region Worksheet
 		internal static readonly System.Globalization.CultureInfo EnglishCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+		internal const System.Globalization.NumberStyles Number = System.Globalization.NumberStyles.Number | System.Globalization.NumberStyles.AllowExponent;
 
 		private static void WriteWorksheet(Document doc, RGWorksheet rgSheet)
 		{
