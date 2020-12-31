@@ -736,7 +736,7 @@ namespace unvell.ReoGrid.Editor
 				this.CurrentWorksheet.SetSettings(WorksheetSettings.Formula_AutoUpdateReferenceCell,
 				!this.suspendReferenceUpdatingToolStripMenuItem.Checked);
 
-			this.recalculateWorksheetToolStripMenuItem.Click += (s, e) => this.CurrentWorksheet.Recalculate();
+			this.recalculateWorksheetToolStripMenuItem.Click += (s, e) => this.GridControl.Recalculate();
 
 #if RG_DEBUG
 

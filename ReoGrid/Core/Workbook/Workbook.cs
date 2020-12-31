@@ -63,6 +63,20 @@ namespace unvell.ReoGrid
 
 		internal IControlAdapter controlAdapter;
 
+		private bool recalculating = false;
+
+		public void Recalculate()
+		{
+			if (recalculating)
+				return;
+			recalculating = true;
+			foreach (var worksheet in worksheets)
+				worksheet.Uncalculate();
+			foreach (var worksheet in worksheets)
+				worksheet.Recalculate();
+			recalculating = false;
+		}
+
 		public ReoGridControl ControlInstance { get { return (ReoGridControl)this.controlAdapter.ControlInstance; } }
 
 		#region Readonly
@@ -312,6 +326,7 @@ namespace unvell.ReoGrid
 			try
 			{
 				ret = provider.Load(this, stream, encoding, arg);
+				Recalculate();
 			}
 			finally
 			{

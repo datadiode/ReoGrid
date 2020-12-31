@@ -198,8 +198,6 @@ namespace unvell.ReoGrid.Formula
 			var rs = new ReplacableString(cell.InnerFormula);
 			STNode node = cell.FormulaTree;
 
-			Stack<List<Cell>> dirtyCells = new Stack<List<Cell>>();
-
 			for (int r = toRange.Row; r <= toRange.EndRow; r++)
 			{
 				for (int c = toRange.Col; c <= toRange.EndCol;)
@@ -212,7 +210,7 @@ namespace unvell.ReoGrid.Formula
 						continue;
 					}
 
-					FormulaRefactor.CopyFormula(fromPosition, node, toCell, rs, dirtyCells);
+					FormulaRefactor.CopyFormula(fromPosition, node, toCell, rs);
 					
 					c += cell.Colspan;
 				}
@@ -220,7 +218,7 @@ namespace unvell.ReoGrid.Formula
 		}
 
 		internal static void CopyFormula(CellPosition fromPosition, STNode fromNode, Cell toCell, 
-			ReplacableString rs, Stack<List<Cell>> dirtyCells)
+			ReplacableString rs)
 		{
 			var sheet = toCell.Worksheet;
 
@@ -334,7 +332,7 @@ namespace unvell.ReoGrid.Formula
 
 			if (toCell.formulaStatus == FormulaStatus.Normal)
 			{
-				sheet.RecalcCell(toCell, dirtyCells);
+				sheet.RecalcCell(toCell);
 			}
 			#endregion // Update To New Cell
 

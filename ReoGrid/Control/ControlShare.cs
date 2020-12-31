@@ -277,6 +277,8 @@ namespace unvell.ReoGrid
 
 		private Workbook workbook;
 
+		public void Recalculate() => workbook.Recalculate();
+
 		#region Save & Load
 		/// <summary>
 		/// Save workbook into file

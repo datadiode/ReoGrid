@@ -272,8 +272,7 @@ namespace unvell.ReoGrid
 		/// </summary>
 		/// <param name="cell">cell to be updated</param>
 		/// <param name="data">data to be updated</param>
-		/// <param name="dirtyCellStack">A stack to save cells that are marked as dirty cell, the dirty cell will be updated delay</param>
-		internal void UpdateCellData(Cell cell, object data, Stack<List<Cell>> dirtyCellStack = null)
+		internal void UpdateCellData(Cell cell, object data)
 		{
 			if (cell.body != null)
 			{
@@ -307,18 +306,17 @@ namespace unvell.ReoGrid
 			//}
 #endif
 
-			AfterCellDataUpdate(cell, dirtyCellStack);
+			AfterCellDataUpdate(cell);
 		}
 
 		internal bool viewDirty = false;
 
-		private void AfterCellDataUpdate(Cell cell, Stack<List<Cell>> dirtyCellStack = null)
+		private void AfterCellDataUpdate(Cell cell)
 		{
 #if FORMULA
-			if ((this.settings & WorksheetSettings.Formula_AutoUpdateReferenceCell)
-				== WorksheetSettings.Formula_AutoUpdateReferenceCell)
+			if ((settings & WorksheetSettings.Formula_AutoUpdateReferenceCell) != 0)
 			{
-				UpdateReferencedFormulaCells(cell, dirtyCellStack);
+				UpdateReferencedFormulaCells(cell);
 			}
 #endif // FORMULA
 
@@ -544,27 +542,6 @@ namespace unvell.ReoGrid
 		public T GetCellData<T>(int row, int col)
 		{
 			return CellUtility.ConvertData<T>(this.GetCellData(row, col));
-		}
-
-		/// <summary>
-		/// Try get number data from cell at specified position. If the data is string, 
-		/// this method will try to convert the string into number value.
-		/// </summary>
-		/// <param name="row">Number of row of the cell to get data.</param>
-		/// <param name="col">Number of column of the cell to get data.</param>
-		/// <param name="val">Number data returned and converted from cell.</param>
-		/// <returns>True if data can be get and converted; Otherwise return false.</returns>
-		public bool TryGetNumberData(int row, int col, out double val)
-		{
-			var cell = this.cells[row, col];
-
-			if (cell == null)
-			{
-				val = 0;
-				return false;
-			}
-
-			return CellUtility.TryGetNumberData(cell.Data, out val);
 		}
 
 		/// <summary>
@@ -1400,11 +1377,16 @@ namespace unvell.ReoGrid.Utility
 		/// <summary>
 		/// Try get double value from specified cell.
 		/// </summary>
+		/// <param name="worksheet">Instance of worksheet.</param>
 		/// <param name="cell">Instance of cell.</param>
 		/// <param name="value">The output value converted from data.</param>
 		/// <returns>True if convert is succesful.</returns>
-		public static bool TryGetNumberData(Cell cell, out double value)
+		public static bool TryGetNumberData(Worksheet worksheet, Cell cell, out double value)
 		{
+			if (cell.InnerData == null)
+			{
+				worksheet.RecalcCell(cell);
+			}
 			return TryGetNumberData(cell.InnerData, out value);
 		}
 

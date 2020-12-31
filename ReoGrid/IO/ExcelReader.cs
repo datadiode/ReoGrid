@@ -64,6 +64,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			foreach (var sheet in document.Workbook.sheets)
 			{
 				var rgSheet = rgWorkbook.CreateWorksheet(sheet.name);
+				rgSheet.SuspendFormulaReferenceUpdates();
 				rgWorkbook.AddWorksheet(rgSheet);
 			}
 
@@ -81,7 +82,9 @@ namespace unvell.ReoGrid.IO.OpenXML
 			// load all worksheets
 			foreach (var sheet in document.Workbook.sheets)
 			{
-				LoadWorksheet(rgWorkbook, document, sheet);
+				RGWorksheet rgSheet = rgWorkbook.GetWorksheetByName(sheet.name);
+				LoadWorksheet(rgSheet, document, sheet);
+				rgSheet.ResumeFormulaReferenceUpdates();
 			}
 
 #if DEBUG
@@ -163,10 +166,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 		#endregion // Named range
 
 		#region Worksheet
-		private static void LoadWorksheet(RGWorkbook rgWorkbook, Document doc, WorkbookSheet sheetIndex)
+		private static void LoadWorksheet(RGWorksheet rgSheet, Document doc, WorkbookSheet sheetIndex)
 		{
-			RGWorksheet rgSheet = rgWorkbook.GetWorksheetByName(sheetIndex.name);
-
 			var sheet = doc.LoadRelationResource<Schema.Worksheet>(doc.Workbook,
 				_r => _r.id == sheetIndex.resId && _r.type == OpenXMLRelationTypes.worksheets_sheet_);
 			if (sheet == null)

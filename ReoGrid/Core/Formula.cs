@@ -141,7 +141,6 @@ namespace unvell.ReoGrid
 				catch (CircularReferenceException crex)
 				{
 					cell.FormulaTree = null;
-					cell.InnerFormula = null;
 
 					cell.formulaStatus = FormulaStatus.CircularReference;
 					this.NotifyExceptionHappen(crex);
@@ -348,52 +347,10 @@ namespace unvell.ReoGrid
 		#region RecalcCell
 
 		/// <summary>
-		/// Recalculate specified cell formula.
-		/// </summary>
-		/// <param name="pos">Address on worksheet to locate the cell.</param>
-		public void RecalcCell(string address)
-		{
-			RangePosition range;
-
-			if (CellPosition.IsValidAddress(address))
-			{
-				this.RecalcCell(new CellPosition(address));
-			}
-			else if (this.TryGetNamedRangePosition(address, out range))
-			{
-				this.RecalcCell(range.StartPos);
-			}
-			else
-				throw new InvalidAddressException(address);
-		}
-
-		/// <summary>
-		/// Recalculate specified cell formula.
-		/// </summary>
-		/// <param name="pos">Position of cell to be recalculated.</param>
-		public void RecalcCell(CellPosition pos)
-		{
-			RecalcCell(pos.Row, pos.Col);
-		}
-
-		/// <summary>
-		/// Recalculate specified cell formula.
-		/// </summary>
-		/// <param name="row">Index of row of cell.</param>
-		/// <param name="col">Index of column of cell.</param>
-		public void RecalcCell(int row, int col)
-		{
-			Cell cell = GetCell(row, col);
-			if (cell == null) return;
-			RecalcCell(cell);
-		}
-
-		/// <summary>
 		/// Recalculate and get the value of formula stored in the specified cell.
 		/// </summary>
 		/// <param name="cell">Instance of cell to be recalculated.</param>
-		/// <param name="dirtyCellStack">Dirty cell stack.</param>
-		internal void RecalcCell(Cell cell, Stack<List<Cell>> dirtyCellStack = null)
+		internal void RecalcCell(Cell cell)
 		{
 			if (!cell.HasFormula)
 			{
@@ -435,7 +392,7 @@ namespace unvell.ReoGrid
 			if (string.Empty.Equals(value))
 				value = null;
 
-			UpdateCellData(cell, value, dirtyCellStack);
+			UpdateCellData(cell, value);
 		}
 
 #endregion // RecalcCell
@@ -460,68 +417,9 @@ namespace unvell.ReoGrid
 
 		private Dictionary<Cell, List<ReferenceRange>> formulaRanges = new Dictionary<Cell, List<ReferenceRange>>();
 
-		private static void UpdateWorksheetReferencedFormulaCells(Worksheet worksheet, Cell fromCell,
-			Stack<List<Cell>> dirtyCellStack = null)
+		internal void UpdateReferencedFormulaCells(Cell fromCell)
 		{
-			List<Cell> dirtyCells = null;
-
-			foreach (var range in worksheet.formulaRanges)
-			{
-				if (range.Value.Any(r => r.Contains(fromCell.InternalPos)))
-				{
-					if ((dirtyCells == null || !dirtyCells.Contains(range.Key))
-						&& (dirtyCellStack == null || dirtyCellStack.All(s => !s.Contains(range.Key))))
-					{
-						if (dirtyCells == null)
-						{
-							dirtyCells = new List<Cell>();
-						}
-
-						dirtyCells.Add(range.Key);
-					}
-				}
-			}
-
-			if (dirtyCells != null && dirtyCells.Count > 0)
-			{
-				try
-				{
-					if (dirtyCellStack == null) dirtyCellStack = new Stack<List<Cell>>();
-
-					dirtyCellStack.Push(dirtyCells);
-
-					foreach (var dirtyCell in dirtyCells)
-					{
-						try
-						{
-							worksheet.RecalcCell(dirtyCell, dirtyCellStack);
-						}
-						catch (Exception ex)
-						{
-							worksheet.NotifyExceptionHappen(ex);
-						}
-					}
-				}
-				finally
-				{
-					dirtyCellStack.Pop();
-				}
-			}
-		}
-
-		internal void UpdateReferencedFormulaCells(Cell cell, Stack<List<Cell>> dirtyCellStack = null)
-		{
-			if (this.workbook == null)
-			{
-				UpdateWorksheetReferencedFormulaCells(this, cell, dirtyCellStack);
-			}
-			else
-			{
-				foreach (var worksheet in this.workbook.worksheets)
-				{
-					UpdateWorksheetReferencedFormulaCells(worksheet, cell, dirtyCellStack);
-				}
-			}
+			workbook.Recalculate();
 		}
 
 		internal void ClearCellReferenceList(Cell cell)
@@ -1009,26 +907,36 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Recalculate entire worksheet.
 		/// </summary>
-		public void Recalculate()
+		internal void Recalculate()
 		{
-			var dirtyCells = new Stack<List<Cell>>();
-
 			var entireRange = new RangePosition(0, 0, this.MaxContentRow + 1, this.MaxContentCol + 1);
 
 			this.IterateCells(entireRange, (row, col, cell) =>
 				{
-					if (cell.HasFormula)
+					if (cell.HasFormula && cell.InnerData == null)
 					{
-						RecalcCell(cell, dirtyCells);
+						RecalcCell(cell);
 					}
 					return true;
 				});
 		}
 
-		///// <summary>
-		///// This event will be invoked when worksheet is recalculated after any cell's value change.
-		///// </summary>
-		//public event EventHandler Recalculated;
+		/// <summary>
+		/// Uncalculate entire worksheet.
+		/// </summary>
+		internal void Uncalculate()
+		{
+			var entireRange = new RangePosition(0, 0, this.MaxContentRow + 1, this.MaxContentCol + 1);
+
+			this.IterateCells(entireRange, (row, col, cell) =>
+			{
+				if (cell.HasFormula)
+				{
+					cell.InnerData = null;
+				}
+				return true;
+			});
+		}
 #endregion // Recalculate
 	}
 

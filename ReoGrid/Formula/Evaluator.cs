@@ -454,6 +454,10 @@ namespace unvell.ReoGrid.Formula
 
 			if (cell != null)
 			{
+				if (cell.InnerData == null)
+				{
+					cell.Worksheet.RecalcCell(cell);
+				}
 				obj = cell.Data;
 			}
 

@@ -754,8 +754,7 @@ namespace unvell.ReoGrid
 										if (fromCell.formulaTree != null)
 										{
 											var rs = new ReplacableString(fromCell.InnerFormula);
-											Stack<List<Cell>> dirtyCells = new Stack<List<Cell>>();
-											FormulaRefactor.CopyFormula(fromCell.Position, fromCell.formulaTree, toCell, rs, dirtyCells);
+											FormulaRefactor.CopyFormula(fromCell.Position, fromCell.formulaTree, toCell, rs);
 										}
 
 										toCell.FontDirty = true;

@@ -680,8 +680,8 @@ namespace unvell.ReoGrid.Editor
 
 			recalculateWorksheetToolStripMenuItem.Click += (s, e) =>
 			{
-				grid1.CurrentWorksheet.Recalculate();
-				grid2.CurrentWorksheet.Recalculate();
+				grid1.Recalculate();
+				grid2.Recalculate();
 				Rescan(RangePosition.EntireRange);
 			};
 

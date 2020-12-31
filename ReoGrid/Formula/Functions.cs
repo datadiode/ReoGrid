@@ -64,7 +64,7 @@ namespace unvell.ReoGrid.Formula
 						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
 							double data;
-							if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
+							if (CellUtility.TryGetNumberData(worksheet, inCell, out data))
 							{
 								val += data;
 							}
@@ -125,7 +125,7 @@ namespace unvell.ReoGrid.Formula
 				{
 					if (sumRange == null)
 					{
-						if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
+						if (CellUtility.TryGetNumberData(evalWorksheet, inCell, out data))
 						{
 							val += data;
 						}
@@ -140,7 +140,7 @@ namespace unvell.ReoGrid.Formula
 							var sumCell = sumWorksheet.GetCell(tr, tc);
 
 							if (sumCell != null && sumCell.InnerData != null
-								&& CellUtility.TryGetNumberData(sumCell.InnerData, out data))
+								&& CellUtility.TryGetNumberData(sumWorksheet, sumCell, out data))
 							{
 								val += data;
 							}
@@ -183,7 +183,7 @@ namespace unvell.ReoGrid.Formula
 							}
 							else
 							{
-								if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
+								if (CellUtility.TryGetNumberData(worksheet, inCell, out data))
 								{
 									count++;
 								}
@@ -270,7 +270,7 @@ namespace unvell.ReoGrid.Formula
 						Worksheet worksheet = WorksheetFrom(cell, range);
 						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
-							if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
+							if (CellUtility.TryGetNumberData(worksheet, inCell, out data))
 							{
 								val += data;
 								count++;
@@ -336,7 +336,7 @@ namespace unvell.ReoGrid.Formula
 				{
 					if (sumRange == null)
 					{
-						if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
+						if (CellUtility.TryGetNumberData(evalWorksheet, inCell, out data))
 						{
 							val += data;
 							count++;
@@ -352,7 +352,7 @@ namespace unvell.ReoGrid.Formula
 							var sumCell = sumWorksheet.GetCell(tr, tc);
 
 							if (sumCell != null && sumCell.InnerData != null
-								&& CellUtility.TryGetNumberData(sumCell.InnerData, out data))
+								&& CellUtility.TryGetNumberData(sumWorksheet, sumCell, out data))
 							{
 								val += data;
 								count++;
@@ -386,7 +386,7 @@ namespace unvell.ReoGrid.Formula
 						Worksheet worksheet = WorksheetFrom(cell, range);
 						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
-							if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
+							if (CellUtility.TryGetNumberData(worksheet, inCell, out data))
 							{
 								if (first)
 								{
@@ -439,7 +439,7 @@ namespace unvell.ReoGrid.Formula
 						Worksheet worksheet = WorksheetFrom(cell, range);
 						worksheet.IterateCells(range.Position, (r, c, inCell) =>
 						{
-							if (CellUtility.TryGetNumberData(inCell.InnerData, out data))
+							if (CellUtility.TryGetNumberData(worksheet, inCell, out data))
 							{
 								if (first)
 								{
@@ -543,7 +543,7 @@ namespace unvell.ReoGrid.Formula
 						{
 							double cellNumVal = 0;
 
-							if (CellUtility.TryGetNumberData(cel.Data, out cellNumVal))
+							if (CellUtility.TryGetNumberData(searchWorksheet, cel, out cellNumVal))
 							{
 								if (matchValueDouble == cellNumVal)
 								{
@@ -584,7 +584,7 @@ namespace unvell.ReoGrid.Formula
 						{
 							double cellNumVal = 0;
 
-							if (CellUtility.TryGetNumberData(cel.Data, out cellNumVal))
+							if (CellUtility.TryGetNumberData(searchWorksheet, cel, out cellNumVal))
 							{
 								if (matchValueDouble < cellNumVal)
 								{
