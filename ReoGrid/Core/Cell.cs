@@ -313,13 +313,6 @@ namespace unvell.ReoGrid
 
 		private void AfterCellDataUpdate(Cell cell)
 		{
-#if FORMULA
-			if ((settings & WorksheetSettings.Formula_AutoUpdateReferenceCell) != 0)
-			{
-				UpdateReferencedFormulaCells(cell);
-			}
-#endif // FORMULA
-
 #if DRAWING
 			if (cell.Data is Drawing.RichText)
 			{

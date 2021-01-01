@@ -830,10 +830,6 @@ namespace unvell.ReoGrid
 
 			int maxcol = range.Col;
 
-#if FORMULA
-			List<Cell> formulaDirtyCells = new List<Cell>();
-#endif // FORMULA
-
 			for (int r = fixedRange.Row; r <= fixedRange.EndRow; r++)
 			{
 				for (int c = fixedRange.Col; c <= fixedRange.EndCol; c++)
@@ -892,17 +888,6 @@ namespace unvell.ReoGrid
 
 								// TODO: auto adjust row height
 
-#if FORMULA
-								foreach (var referecedRange in this.formulaRanges)
-								{
-									if (referecedRange.Value.Any(rr => rr.Contains(cell.InternalPos))
-										&& !formulaDirtyCells.Contains(referecedRange.Key))
-									{
-										formulaDirtyCells.Add(referecedRange.Key);
-									}
-								}
-#endif // FORMULA
-
 								this.RaiseCellDataChangedEvent(cell);
 							}
 						}
@@ -914,13 +899,6 @@ namespace unvell.ReoGrid
 			{
 				this.RemoveRangeStyles(fixedRange, PlainStyleFlag.All);
 			}
-
-#if FORMULA
-			foreach (var dirtyCell in formulaDirtyCells)
-			{
-				RecalcCell(dirtyCell);
-			}
-#endif // FORMULA
 
 			// only update the changed columns (up to maxcol)
 			for (int i = fixedRange.Col; i <= maxcol; i++)

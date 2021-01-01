@@ -1026,13 +1026,6 @@ namespace unvell.ReoGrid
 				}
 			}
 
-			if (settings.HasFlag(WorksheetSettings.Formula_AutoUpdateReferenceCell) &&
-				(flag & (PartialGridCopyFlag.CellData | PartialGridCopyFlag.CellFormula)) != 0)
-				
-			{
-				Recalculate();
-			}
-
 			return range;
 		}
 #endregion // Partial Grid

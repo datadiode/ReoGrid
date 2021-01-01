@@ -399,28 +399,7 @@ namespace unvell.ReoGrid
 
 #region Formula Reference List
 
-		/// <summary>
-		/// Suspend to update formula referenced cells.
-		/// </summary>
-		public void SuspendFormulaReferenceUpdates()
-		{
-			this.settings &= ~WorksheetSettings.Formula_AutoUpdateReferenceCell;
-		}
-
-		/// <summary>
-		/// Resume to update formula referenced cells.
-		/// </summary>
-		public void ResumeFormulaReferenceUpdates()
-		{
-			this.settings |= WorksheetSettings.Formula_AutoUpdateReferenceCell;
-		}
-
 		private Dictionary<Cell, List<ReferenceRange>> formulaRanges = new Dictionary<Cell, List<ReferenceRange>>();
-
-		internal void UpdateReferencedFormulaCells(Cell fromCell)
-		{
-			workbook.Recalculate();
-		}
 
 		internal void ClearCellReferenceList(Cell cell)
 		{

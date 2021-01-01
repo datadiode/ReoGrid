@@ -3128,6 +3128,10 @@ namespace unvell.ReoGrid.Editor
 						roi = reusableAction.Range;
 					}
 				}
+				else
+				{
+					grid.Recalculate();
+				}
 				Rescan(roi);
 			}
 			UpdateMenuAndToolStrips();
