@@ -262,6 +262,25 @@ namespace unvell.ReoGrid.IO.OpenXML
 			}
 			#endregion // Resize
 
+			// stylesheet
+			var styles = doc.LoadEntryFile<Stylesheet>(doc.Workbook._path, "styles.xml");
+			doc.Stylesheet = styles;
+
+			// fonts
+			var fonts = styles.fonts;
+
+			// borders
+			var borders = styles.borders;
+
+			// fills
+			var fills = styles.fills;
+
+			// cell formats
+			var cellFormats = styles.cellFormats;
+
+			int maxHBorderRow = -1, maxHBorderCol = -1;
+			int maxVBorderRow = -1, maxVBorderCol = -1;
+
 			#region Columns
 			// columns
 			if (sheet.cols != null)
@@ -280,7 +299,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 					int startCol = col.min - 1;
 					int count = col.max - col.min + 1;
 
-					if (startCol + count > rgSheet.ColumnCount) count = rgSheet.ColumnCount - startCol;
+					if (rgSheet.ColumnCount < startCol + count)
+						rgSheet.ColumnCount = startCol + count;
 
 					rgSheet.SetColumnsWidth(startCol, count, pixelWidth);
 
@@ -290,25 +310,115 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 						header.IsAutoWidth = !OpenXMLUtility.IsTrue(col.customWidth);
 					}
+
+					WorksheetRangeStyle colStyle = null;
+
+					int styleIndex = -1;
+
+					// column style
+					if (!string.IsNullOrEmpty(col.style) && int.TryParse(col.style, out styleIndex))
+					{
+						var style = cellFormats.list.ElementAtOrDefault(styleIndex) as CellFormat;
+
+						if (style != null)
+						{
+							if (!style._preprocessed)
+							{
+								PreprocessCellStyle(doc, rgSheet, style, fonts, fills);
+							}
+
+							if (style._cachedStyleSet != null)
+							{
+								colStyle = style._cachedStyleSet;
+								for (var colCurrent = col.min; colCurrent <= col.max; ++colCurrent)
+								{
+									var colIndex = colCurrent - 1;
+									rgSheet.RetrieveColumnHeader(colIndex).InnerStyle = new WorksheetRangeStyle(colStyle);
+									if (//style.applyBorder == "1" && 
+										!string.IsNullOrEmpty(style.borderId))
+									{
+										int id = 0;
+										if (int.TryParse(style.borderId, out id)
+											&& id >= 0 && id < borders.Count)
+										{
+											var border = borders[id];
+
+											if (border != null)
+											{
+												if (!border._preprocessed)
+												{
+													PreprocessCellBorders(doc, border);
+												}
+
+												if (border._hasTop)
+												{
+													for (int r = 0; r < rgSheet.Rows; r++)
+													{
+														var hb = rgSheet.GetHBorder(r, colIndex);
+														hb.Pos |= Core.HBorderOwnerPosition.Top;
+														hb.Style = border._top;
+														hb.Span = 1;
+													}
+
+													if (maxHBorderCol < colIndex)
+														maxHBorderCol = colIndex;
+													maxHBorderRow = rgSheet.Rows;
+												}
+
+												if (border._hasBottom)
+												{
+													for (int r = 0; r < rgSheet.Rows; r++)
+													{
+														var hb = rgSheet.GetHBorder(r + 1, colIndex);
+														hb.Pos |= Core.HBorderOwnerPosition.Bottom;
+														hb.Style = border._bottom;
+														hb.Span = 1;
+													}
+
+													if (maxHBorderCol < colIndex)
+														maxHBorderCol = colIndex;
+													maxHBorderRow = rgSheet.Rows + 1;
+												}
+
+												if (border._hasLeft)
+												{
+													for (int r = 0; r < rgSheet.Rows; r++)
+													{
+														var vb = rgSheet.GetVBorder(r, colIndex);
+														vb.Pos |= Core.VBorderOwnerPosition.Left;
+														vb.Style = border._left;
+														vb.Span = 1;
+													}
+
+													if (maxVBorderCol < colIndex)
+														maxVBorderCol = colIndex;
+													maxVBorderRow = rgSheet.Rows;
+												}
+
+												if (border._hasRight)
+												{
+													for (int r = 0; r < rgSheet.Rows; r++)
+													{
+														var vb = rgSheet.GetVBorder(r, colIndex + 1);
+														vb.Pos |= Core.VBorderOwnerPosition.Right;
+														vb.Style = border._right;
+														vb.Span = 1;
+													}
+
+													if (maxVBorderCol < colIndex + 1)
+														maxVBorderCol = colIndex + 1;
+													maxVBorderRow = rgSheet.Rows;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 			#endregion // Columns
-
-			// stylesheet
-			var styles = doc.LoadEntryFile<Stylesheet>(doc.Workbook._path, "styles.xml");
-			doc.Stylesheet = styles;
-
-			// fonts
-			var fonts = styles.fonts;
-
-			// borders
-			var borders = styles.borders;
-
-			// fills
-			var fills = styles.fills;
-
-			// cell formats
-			var cellFormats = styles.cellFormats;
 
 			// data
 			SharedStrings sharedStringTable = doc.ReadSharedStringTable();
@@ -338,9 +448,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 			int rowTop = rgSheet.GetRowHeader(0).Top;
 			int lastRowIndex = -1;
-
-			int maxHBorderRow = -1, maxHBorderCol = -1;
-			int maxVBorderRow = -1, maxVBorderCol = -1;
 
 			#region Rows
 
@@ -477,7 +584,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 											hb.Span = 1;
 										}
 
-										if (maxHBorderRow < rowIndex) maxHBorderRow = rowIndex;
+										if (maxHBorderRow < rowIndex)
+											maxHBorderRow = rowIndex;
 										maxHBorderCol = rgSheet.Columns;
 									}
 
@@ -491,7 +599,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 											hb.Span = 1;
 										}
 
-										if (maxHBorderRow < rowIndex + 1) maxHBorderRow = rowIndex + 1;
+										if (maxHBorderRow < rowIndex + 1)
+											maxHBorderRow = rowIndex + 1;
 										maxHBorderCol = rgSheet.Columns;
 									}
 
@@ -505,7 +614,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 											vb.Span = 1;
 										}
 
-										if (maxVBorderRow < rowIndex) maxVBorderRow = rowIndex;
+										if (maxVBorderRow < rowIndex)
+											maxVBorderRow = rowIndex;
 										maxVBorderCol = rgSheet.Columns;
 									}
 
@@ -519,7 +629,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 											vb.Span = 1;
 										}
 
-										if (maxVBorderRow < rowIndex) maxVBorderRow = rowIndex;
+										if (maxVBorderRow < rowIndex)
+											maxVBorderRow = rowIndex;
 										maxVBorderCol = rgSheet.Columns + 1;
 									}
 								}
@@ -636,8 +747,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 										hb.Style = border._top;
 										hb.Span = 1;
 
-										if (maxHBorderRow < pos.Row) maxHBorderRow = pos.Row;
-										if (maxHBorderCol < pos.Col) maxHBorderCol = pos.Col;
+										if (maxHBorderRow < pos.Row)
+											maxHBorderRow = pos.Row;
+										if (maxHBorderCol < pos.Col)
+											maxHBorderCol = pos.Col;
 									}
 
 									if (border._hasBottom)
@@ -647,8 +760,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 										hb.Style = border._bottom;
 										hb.Span = 1;
 
-										if (maxHBorderRow < pos.Row + 1) maxHBorderRow = pos.Row + 1;
-										if (maxHBorderCol < pos.Col) maxHBorderCol = pos.Col;
+										if (maxHBorderRow < pos.Row + 1)
+											maxHBorderRow = pos.Row + 1;
+										if (maxHBorderCol < pos.Col)
+											maxHBorderCol = pos.Col;
 									}
 
 									if (border._hasLeft)
@@ -658,8 +773,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 										vb.Style = border._left;
 										vb.Span = 1;
 
-										if (maxVBorderRow < pos.Row) maxVBorderRow = pos.Row;
-										if (maxVBorderCol < pos.Col) maxVBorderCol = pos.Col;
+										if (maxVBorderRow < pos.Row)
+											maxVBorderRow = pos.Row;
+										if (maxVBorderCol < pos.Col)
+											maxVBorderCol = pos.Col;
 									}
 
 									if (border._hasRight)
@@ -669,8 +786,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 										vb.Style = border._right;
 										vb.Span = 1;
 
-										if (maxVBorderRow < pos.Row) maxVBorderRow = pos.Row;
-										if (maxVBorderCol < pos.Col + 1) maxVBorderCol = pos.Col + 1;
+										if (maxVBorderRow < pos.Row)
+											maxVBorderRow = pos.Row;
+										if (maxVBorderCol < pos.Col + 1)
+											maxVBorderCol = pos.Col + 1;
 									}
 								}
 							}
