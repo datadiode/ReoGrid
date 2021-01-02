@@ -188,9 +188,20 @@ namespace unvell.ReoGrid.Editor
 			textWrapToolStripButton.Click += textWrapToolStripButton_Click;
 
 			// todo
-			this.grid.ActionPerformed += (s, e) => UpdateMenuAndToolStripsWhenAction(s, e);
-			this.grid.Undid += (s, e) => UpdateMenuAndToolStripsWhenAction(s, e);
-			this.grid.Redid += (s, e) => UpdateMenuAndToolStripsWhenAction(s, e);
+			this.grid.ActionPerformed += (s, e) =>
+			{
+				// TODO: Which actions call for recalculation?
+				if (e.Action as SetColumnsWidthAction == null &&
+					e.Action as SetRowsHeightAction == null &&
+					e.Action as CreateAutoFilterAction == null)
+				{
+					if (grid.CurrentWorksheet.HasSettings(WorksheetSettings.Formula_AutoUpdateReferenceCell))
+					{
+						grid.Recalculate();
+					}
+				}
+				UpdateMenuAndToolStripsWhenAction(s, e);
+			};
 
 			rowHeightToolStripMenuItem.Click += (s, e) =>
 			{
