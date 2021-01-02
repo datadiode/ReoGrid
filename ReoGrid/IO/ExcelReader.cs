@@ -1605,6 +1605,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 #region Data Format
 
+		private static char[] dateFormatChars = new char[] { 'm', 'h', 's', 'y', 'd', 'M', 'H', 'S', 'Y', 'D' };
 		private static Regex currencyFormatRegex = new Regex(@"([^\\\s]*)\\?(\s*)\[\$([^(\-|\])]+)-?([^\]]*)\]\\?(\s*)([^\\\s]*)", RegexOptions.Compiled);
 
 		private static NumberDataFormatter.INumberFormatArgs ReadNumberFormatArgs(string pattern, NumberDataFormatter.INumberFormatArgs arg)
@@ -1772,11 +1773,27 @@ namespace unvell.ReoGrid.IO.OpenXML
 							arg = ReadNumberFormatArgs(pattern, new NumberDataFormatter.NumberFormatArgs());
 							#endregion // Percent
 						}
-						else if (patterns[0].Any(c => c == 'm' || c == 'h' || c == 's' || c == 'y' || c == 'd'))
+						else if (patterns[0].IndexOfAny(dateFormatChars) != -1)
 						{
 							flag = CellDataFormatFlag.DateTime;
 							var darg = new DateTimeDataFormatter.DateTimeFormatArgs();
-							pattern = patterns[0].Replace('m', 'M');
+							pattern = patterns[0].ToLowerInvariant();
+							if (pattern.Contains("am/pm"))
+							{
+								darg.CultureName = "en-US";
+								pattern = pattern.Replace("am/pm", "tt");
+							}
+							else if (pattern.Contains("a/p"))
+							{
+								darg.CultureName = "en-US";
+								pattern = pattern.Replace("a/p", "t");
+							}
+							else
+							{
+								pattern = pattern.Replace('h', 'H'); // Assume 24h format
+							}
+							// When following a colon, assume M to be the minute not the month
+							pattern = pattern.Replace('m', 'M').Replace(":MM", ":mm").Replace(":M", ":m");
 							int i, j;
 							while ((i = pattern.IndexOf('[')) != -1 && (j = pattern.IndexOf(']', i + 1)) != -1)
 							{
