@@ -1775,10 +1775,23 @@ namespace unvell.ReoGrid.IO.OpenXML
 						else if (patterns[0].Any(c => c == 'm' || c == 'h' || c == 's' || c == 'y' || c == 'd'))
 						{
 							flag = CellDataFormatFlag.DateTime;
-							arg = new DateTimeDataFormatter.DateTimeFormatArgs
+							var darg = new DateTimeDataFormatter.DateTimeFormatArgs();
+							pattern = patterns[0].Replace('m', 'M');
+							int i, j;
+							while ((i = pattern.IndexOf('[')) != -1 && (j = pattern.IndexOf(']', i + 1)) != -1)
 							{
-								Format = patterns[0].Replace('m', 'M'),
-							};
+								string enquoted = pattern.Substring(i + 1, j - i - 1);
+								if (enquoted.StartsWith("$-"))
+								{
+									int culture = 0;
+									if (int.TryParse(enquoted.Substring(2), NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out culture))
+										darg.CultureName = (new CultureInfo(culture & 0xFFFF)).IetfLanguageTag;
+
+								}
+								pattern = pattern.Remove(i, j + 1 - i);
+							}
+							darg.Format = pattern;
+							arg = darg;
 						}
 						else
 						{
