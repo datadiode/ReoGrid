@@ -1809,16 +1809,6 @@ namespace unvell.ReoGrid
 				throw new ReferenceObjectNotAssociatedException("Reference style must be associated with an instance of owner.");
 			}
 		}
-
-		/// <summary>
-		/// Convert style reference to style object.
-		/// </summary>
-		/// <param name="refStyle">Style reference to be converted.</param>
-		/// <returns>Style object converted from style reference.</returns>
-		public static implicit operator WorksheetRangeStyle(ReferenceStyle refStyle)
-		{
-			return new WorksheetRangeStyle();
-		}
 	}
 	#endregion // ReferenceStyle
 

@@ -102,10 +102,8 @@ namespace unvell.ReoGrid.DataFormat
 
 				string pattern = System.Threading.Thread.CurrentThread.CurrentCulture.DateTimeFormat.ShortDatePattern;
 
-				if (cell.DataFormatArgs != null && cell.DataFormatArgs is DateTimeFormatArgs)
+				if (cell.DataFormatArgs is DateTimeFormatArgs dargs)
 				{
-					DateTimeFormatArgs dargs = (DateTimeFormatArgs)cell.DataFormatArgs;
-
 					// fixes issue #203: pattern is ignored incorrectly
 					if (!string.IsNullOrEmpty(dargs.Format))
 					{

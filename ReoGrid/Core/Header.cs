@@ -3076,18 +3076,6 @@ namespace unvell.ReoGrid
 	/// <summary>
 	/// Represents a column header on worksheet.
 	/// </summary>
-	[Obsolete("use ColumnHeader instead")]
-	public sealed class ReoGridColumnHeader : ColumnHeader
-	{
-		internal ReoGridColumnHeader(Worksheet sheet)
-			: base(sheet)
-		{
-		}
-	}
-
-	/// <summary>
-	/// Represents a column header on worksheet.
-	/// </summary>
 	public class ColumnHeader : ReoGridHeader
 	{
 		internal ColumnHeader(Worksheet sheet)
@@ -3238,12 +3226,6 @@ namespace unvell.ReoGrid
 			this.Worksheet.AutoFitColumnWidth(this.Col, byAction);
 		}
 
-		[Obsolete("use FitWidthToCells instead")]
-		public void FitColumnToCells(bool byAction = false)
-		{
-			this.FitWidthToCells(byAction);
-		}
-		
 		internal ColumnHeader Clone(Worksheet newSheet)
 		{
 			return new ColumnHeader(newSheet)
@@ -3274,16 +3256,6 @@ namespace unvell.ReoGrid
 				WidthChanged(this, new ColumnsWidthChangedEventArgs(this.Col, 1, this.InnerWidth));
 			}
 		}
-	}
-
-	/// <summary>
-	/// Represents a row header instance of worksheet.
-	/// </summary>
-	[Obsolete("use RowHeader instead")]
-	public sealed class ReoGridRowHeader : RowHeader
-	{
-		internal ReoGridRowHeader(Worksheet sheet)
-			: base(sheet) { }
 	}
 
 	/// <summary>
