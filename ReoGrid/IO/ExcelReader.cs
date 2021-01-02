@@ -352,7 +352,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 												if (border._hasTop)
 												{
-													for (int r = 0; r < rgSheet.Rows; r++)
+													for (int r = 0; r <= rgSheet.Rows; r++)
 													{
 														var hb = rgSheet.GetHBorder(r, colIndex);
 														hb.Pos |= Core.HBorderOwnerPosition.Top;
@@ -362,14 +362,13 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 													if (maxHBorderCol < colIndex)
 														maxHBorderCol = colIndex;
-													maxHBorderRow = rgSheet.Rows;
+													maxHBorderRow = rgSheet.Rows + 1;
 												}
-
-												if (border._hasBottom)
+												else if (border._hasBottom)
 												{
-													for (int r = 0; r < rgSheet.Rows; r++)
+													for (int r = 1; r <= rgSheet.Rows; r++)
 													{
-														var hb = rgSheet.GetHBorder(r + 1, colIndex);
+														var hb = rgSheet.GetHBorder(r, colIndex);
 														hb.Pos |= Core.HBorderOwnerPosition.Bottom;
 														hb.Style = border._bottom;
 														hb.Span = 1;
@@ -388,14 +387,17 @@ namespace unvell.ReoGrid.IO.OpenXML
 														vb.Pos |= Core.VBorderOwnerPosition.Left;
 														vb.Style = border._left;
 														vb.Span = 1;
+														vb = rgSheet.GetVBorder(r, colIndex + 1);
+														vb.Pos |= Core.VBorderOwnerPosition.Left;
+														vb.Style = border._left;
+														vb.Span = 1;
 													}
 
-													if (maxVBorderCol < colIndex)
-														maxVBorderCol = colIndex;
+													if (maxVBorderCol < colIndex + 1)
+														maxVBorderCol = colIndex + 1;
 													maxVBorderRow = rgSheet.Rows;
 												}
-
-												if (border._hasRight)
+												else if (border._hasRight)
 												{
 													for (int r = 0; r < rgSheet.Rows; r++)
 													{
@@ -582,14 +584,17 @@ namespace unvell.ReoGrid.IO.OpenXML
 											hb.Pos |= Core.HBorderOwnerPosition.Top;
 											hb.Style = border._top;
 											hb.Span = 1;
+											hb = rgSheet.GetHBorder(rowIndex + 1, c);
+											hb.Pos |= Core.HBorderOwnerPosition.Top;
+											hb.Style = border._top;
+											hb.Span = 1;
 										}
 
-										if (maxHBorderRow < rowIndex)
-											maxHBorderRow = rowIndex;
+										if (maxHBorderRow < rowIndex + 1)
+											maxHBorderRow = rowIndex + 1;
 										maxHBorderCol = rgSheet.Columns;
 									}
-
-									if (border._hasBottom)
+									else if (border._hasBottom)
 									{
 										for (int c = 0; c < rgSheet.Columns; c++)
 										{
@@ -606,7 +611,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 									if (border._hasLeft)
 									{
-										for (int c = 0; c < rgSheet.Columns; c++)
+										for (int c = 0; c <= rgSheet.Columns; c++)
 										{
 											var vb = rgSheet.GetVBorder(rowIndex, c);
 											vb.Pos |= Core.VBorderOwnerPosition.Left;
@@ -616,14 +621,13 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 										if (maxVBorderRow < rowIndex)
 											maxVBorderRow = rowIndex;
-										maxVBorderCol = rgSheet.Columns;
+										maxVBorderCol = rgSheet.Columns + 1;
 									}
-
-									if (border._hasRight)
+									else if (border._hasRight)
 									{
-										for (int c = 0; c < rgSheet.Columns; c++)
+										for (int c = 1; c <= rgSheet.Columns; c++)
 										{
-											var vb = rgSheet.GetVBorder(rowIndex, c + 1);
+											var vb = rgSheet.GetVBorder(rowIndex, c);
 											vb.Pos |= Core.VBorderOwnerPosition.Right;
 											vb.Style = border._right;
 											vb.Span = 1;
@@ -756,9 +760,12 @@ namespace unvell.ReoGrid.IO.OpenXML
 									if (border._hasBottom)
 									{
 										var hb = rgSheet.GetHBorder(pos.Row + 1, pos.Col);
-										hb.Pos |= Core.HBorderOwnerPosition.Bottom;
-										hb.Style = border._bottom;
-										hb.Span = 1;
+										if (hb.Pos == 0)
+										{
+											hb.Pos |= Core.HBorderOwnerPosition.Bottom;
+											hb.Style = border._bottom;
+											hb.Span = 1;
+										}
 
 										if (maxHBorderRow < pos.Row + 1)
 											maxHBorderRow = pos.Row + 1;
@@ -782,9 +789,12 @@ namespace unvell.ReoGrid.IO.OpenXML
 									if (border._hasRight)
 									{
 										var vb = rgSheet.GetVBorder(pos.Row, pos.Col + 1);
-										vb.Pos |= Core.VBorderOwnerPosition.Right;
-										vb.Style = border._right;
-										vb.Span = 1;
+										if (vb.Pos == 0)
+										{
+											vb.Pos |= Core.VBorderOwnerPosition.Right;
+											vb.Style = border._right;
+											vb.Span = 1;
+										}
 
 										if (maxVBorderRow < pos.Row)
 											maxVBorderRow = pos.Row;
@@ -1522,31 +1532,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 			border._hasLeft = ConvertFromExcelBorder(doc, border.left, ref border._left);
 			border._hasRight = ConvertFromExcelBorder(doc, border.right, ref border._right);
 			border._preprocessed = true;
-		}
-
-		private static void SetRGRangeBorders(Document doc, RGWorksheet rgSheet, RangePosition range, Border border)
-		{
-			RangeBorderStyle posStyle = new RangeBorderStyle();
-
-			if (ConvertFromExcelBorder(doc, border.top, ref posStyle))
-			{
-				rgSheet.SetRangeBorders(range, BorderPositions.Top, posStyle, false);
-			}
-
-			if (ConvertFromExcelBorder(doc, border.bottom, ref posStyle))
-			{
-				rgSheet.SetRangeBorders(range, BorderPositions.Bottom, posStyle, false);
-			}
-
-			if (ConvertFromExcelBorder(doc, border.left, ref posStyle))
-			{
-				rgSheet.SetRangeBorders(range, BorderPositions.Left, posStyle, false);
-			}
-
-			if (ConvertFromExcelBorder(doc, border.right, ref posStyle))
-			{
-				rgSheet.SetRangeBorders(range, BorderPositions.Right, posStyle, false);
-			}
 		}
 
 		private static bool ConvertFromExcelBorder(Document doc, SideBorder sideBorder, ref RangeBorderStyle rgStyle)
