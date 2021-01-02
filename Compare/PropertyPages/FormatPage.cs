@@ -423,39 +423,44 @@ namespace unvell.ReoGrid.PropertyPages
 
 					case CellDataFormatFlag.DateTime:
 						DateTimeDataFormatter.DateTimeFormatArgs dargs = (DateTimeDataFormatter.DateTimeFormatArgs)sampleCell.DataFormatArgs;
-						txtDatetimeFormat.Text = dargs.Format;
-						int dfindex =-1;
-						for (int i = 0; i < datetimeFormatList.Items.Count; i++)
+
+						foreach (var item in datetimeLocationList.Items)
 						{
-							DatetimeFormatListItem item = (DatetimeFormatListItem)datetimeFormatList.Items[i];
-							if (item.Pattern.Equals(dargs.Format, StringComparison.CurrentCultureIgnoreCase))
+							if (string.Compare(((CultureInfo)item).IetfLanguageTag, dargs.CultureName, true) == 0)
 							{
-								dfindex = i;
+								datetimeLocationList.SelectedItem = item;
 								break;
 							}
 						}
-						datetimeFormatList.SelectedIndex = dfindex;
+
+						txtDatetimeFormat.Text = dargs.Format;
+
+						object df = null;
+						foreach (var item in datetimeFormatList.Items)
+						{
+							if (((DatetimeFormatListItem)item).Pattern.Equals(dargs.Format, StringComparison.CurrentCultureIgnoreCase))
+							{
+								df = item;
+								break;
+							}
+						}
+						datetimeFormatList.SelectedItem = df;
 						backupFormatArgs = dargs;
 						break;
 
 					case CellDataFormatFlag.Currency:
 						var cargs = (CurrencyDataFormatter.CurrencyFormatArgs)sampleCell.DataFormatArgs;
 
-						var cultureName = cargs.CultureEnglishName;
-
-						foreach (var currencyCultureItem in currencySymbolList.Items)
+						foreach (var item in currencySymbolList.Items)
 						{
-							if (string.Compare(((CurrencySymbolListItem)currencyCultureItem).Culture.IetfLanguageTag, cultureName, true) == 0)
+							if (string.Compare(((CurrencySymbolListItem)item).Culture.IetfLanguageTag, cargs.CultureEnglishName, true) == 0)
 							{
-								currencySymbolList.SelectedItem = currencyCultureItem;
+								currencySymbolList.SelectedItem = item;
 								break;
 							}
 						}
 
 						currencyDecimalPlaces.Value = cargs.DecimalPlaces;
-
-						int cnindex = (int)cargs.NegativeStyle;
-						if (cnindex >= 0 && cnindex < currencyNegativeStyleList.Items.Count) currencyNegativeStyleList.SelectedIndex = cnindex;
 
 						foreach (NegativeStyleListItem item in currencyNegativeStyleList.Items)
 						{
