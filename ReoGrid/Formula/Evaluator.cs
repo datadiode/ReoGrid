@@ -1244,11 +1244,6 @@ namespace unvell.ReoGrid.Formula
 		#endregion // Number
 
 		#region Boolean
-		public static implicit operator bool(FormulaValue value)
-		{
-			return value.type != FormulaValueType.Boolean ? false : (bool)value.value;
-		}
-
 		public static implicit operator FormulaValue(bool b)
 		{
 			return new FormulaValue(FormulaValueType.Boolean, b);
@@ -1256,11 +1251,6 @@ namespace unvell.ReoGrid.Formula
 		#endregion // Boolean
 
 		#region DateTime
-		public static implicit operator DateTime(FormulaValue value)
-		{
-			return value.type != FormulaValueType.DateTime ? new DateTime(1900, 1, 1) : (DateTime)value.value;
-		}
-
 		public static implicit operator FormulaValue(DateTime b)
 		{
 			return new FormulaValue(FormulaValueType.DateTime, b);
@@ -1268,11 +1258,6 @@ namespace unvell.ReoGrid.Formula
 		#endregion // DateTime
 
 		#region Cell
-		public static implicit operator CellPosition(FormulaValue value)
-		{
-			return value.type != FormulaValueType.Cell ? CellPosition.Empty : (CellPosition)value.value;
-		}
-
 		public static implicit operator FormulaValue(CellPosition pos)
 		{
 			return new FormulaValue(FormulaValueType.Cell, pos);
@@ -1284,33 +1269,6 @@ namespace unvell.ReoGrid.Formula
 		{
 			return new FormulaValue(FormulaValueType.Range, range);
 		}
-		#endregion // Range
-
-		#region object/null
-		//public static implicit operator object(FormulaValue range)
-		//{
-		//	return new FormulaValue(FormulaValueType.Range, range);
-		//}
-
-		//public static implicit operator FormulaValue(object value)
-		//{
-		//	if (value == null)
-		//		return FormulaValue.Nil;
-		//	else if (value is double)
-		//		return (double)value;
-		//	else if (value is string)
-		//		return (string)value;
-		//	else if (value is bool)
-		//		return (bool)value;
-		//	else if (value is DateTime)
-		//		return (DateTime)value;
-		//	else if (value is ReoGridPos)
-		//		return (ReoGridPos)value;
-		//	else if (value is ReoGridRange)
-		//		return (ReoGridRange)value;
-		//	else
-		//		throw new NotSupportedException();
-		//}
 		#endregion // Range
 	}
 
