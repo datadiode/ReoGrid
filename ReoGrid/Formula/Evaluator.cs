@@ -757,7 +757,9 @@ namespace unvell.ReoGrid.Formula
 						throw new FormulaParameterMismatchException(cell);
 					}
 
-					dt = new DateTime((int)(double)args[0].value, (int)(double)args[1].value, (int)(double)args[2].value);
+					dt = new DateTime((int)(double)args[0].value, 1, 1)
+						.AddMonths((int)(double)args[1].value - 1)
+						.AddDays((int)(double)args[2].value - 1);
 
 					if (cell.DataFormat == DataFormat.CellDataFormatFlag.General)
 					{
