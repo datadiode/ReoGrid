@@ -243,6 +243,16 @@ namespace unvell.ReoGrid.IO.OpenXML
 			int sheetRowCount = sheet.rows.Count;
 			int sheetColCount = sheet.cols.Count;
 
+			// cope with omitted row elements
+			foreach (var row in sheet.rows)
+				if (sheetRowCount < row.index)
+					sheetRowCount = row.index;
+
+			// cope with omitted col elements
+			foreach (var col in sheet.cols)
+				if (sheetColCount < col.max)
+					sheetColCount = col.max;
+
 			if (sheet.dimension != null && !string.IsNullOrEmpty(sheet.dimension.address))
 			{
 				RangePosition contentRange = new RangePosition(sheet.dimension.address);
@@ -251,15 +261,11 @@ namespace unvell.ReoGrid.IO.OpenXML
 				sheetColCount = Math.Max(sheetColCount, contentRange.EndCol + 1);
 			}
 
-			if (rgSheet.RowCount < sheetRowCount)
-			{
+			if (rgSheet.Rows < sheetRowCount)
 				rgSheet.Rows = sheetRowCount;
-			}
 
-			if (rgSheet.ColumnCount < sheetColCount)
-			{
+			if (rgSheet.Columns < sheetColCount)
 				rgSheet.Columns = sheetColCount;
-			}
 			#endregion // Resize
 
 			// stylesheet
