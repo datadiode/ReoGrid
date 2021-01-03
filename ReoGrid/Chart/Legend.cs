@@ -144,15 +144,15 @@ namespace unvell.ReoGrid.Chart
 		/// </summary>
 		/// <param name="index">Index of serial in data source.</param>
 		/// <returns>Measured size for serial label.</returns>
-		protected virtual Size GetLabelSize(int index)
+		private Size GetLabelSize(ChartLegendItem legendItem)
 		{
 			var ds = this.Chart.DataSource;
 
 			if (ds == null) return Size.Zero;
 
-			string label = ds[index].Label;
+			string label = ds[legendItem.LegendIndex].Label;
 
-			return PlatformUtility.MeasureText(null, label, this.FontName, this.FontSize, this.FontStyles);
+			return PlatformUtility.MeasureText(null, label, legendItem.FontName, legendItem.FontSize, legendItem.FontStyles);
 		}
 
 		private Size layoutedSize = Size.Zero;
@@ -192,7 +192,7 @@ namespace unvell.ReoGrid.Chart
 
 				legendItem.SymbolBounds = new Rectangle(new Point(0, 0), symbolSize);
 
-				var labelSize = this.GetLabelSize(index);
+				var labelSize = this.GetLabelSize(legendItem);
 
 				// should +6, don't know why
 				labelSize.Width += 6;
