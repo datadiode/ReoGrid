@@ -265,14 +265,7 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Default formula settings.
 		/// </summary>
-		Formula_Default = Formula_AutoUpdateReferenceCell 
-			| Formula_AutoPickingCellAddress | Formula_AutoFormat
-			,
-
-		/// <summary>
-		/// Allow to update formula reference cells automatically.
-		/// </summary>
-		Formula_AutoUpdateReferenceCell = 0x100000000L,
+		Formula_Default = Formula_AutoPickingCellAddress | Formula_AutoFormat,
 
 		/// <summary>
 		/// Allow to pick an address from selected cell during formula editing. (Reserved)

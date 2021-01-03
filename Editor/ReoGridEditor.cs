@@ -195,7 +195,7 @@ namespace unvell.ReoGrid.Editor
 					e.Action as SetRowsHeightAction == null &&
 					e.Action as CreateAutoFilterAction == null)
 				{
-					if (grid.CurrentWorksheet.HasSettings(WorksheetSettings.Formula_AutoUpdateReferenceCell))
+					if (grid.HasSettings(WorkbookSettings.Formula_AutoUpdateReferenceCell))
 					{
 						grid.Recalculate();
 					}
@@ -744,7 +744,7 @@ namespace unvell.ReoGrid.Editor
 				WorksheetSettings.Edit_DragSelectionToFillSerial, this.dragToFillSerialToolStripMenuItem.Checked);
 
 			this.suspendReferenceUpdatingToolStripMenuItem.CheckedChanged += (s, e) =>
-				this.CurrentWorksheet.SetSettings(WorksheetSettings.Formula_AutoUpdateReferenceCell,
+				this.grid.SetSettings(WorkbookSettings.Formula_AutoUpdateReferenceCell,
 				!this.suspendReferenceUpdatingToolStripMenuItem.Checked);
 
 			this.recalculateWorksheetToolStripMenuItem.Click += (s, e) => this.GridControl.Recalculate();
@@ -859,7 +859,7 @@ namespace unvell.ReoGrid.Editor
 			check = sheet.HasSettings(WorksheetSettings.Edit_DragSelectionToFillSerial);
 			if (this.dragToFillSerialToolStripMenuItem.Checked != check) this.dragToFillSerialToolStripMenuItem.Checked = check;
 
-			check = !sheet.HasSettings(WorksheetSettings.Formula_AutoUpdateReferenceCell);
+			check = !grid.HasSettings(WorkbookSettings.Formula_AutoUpdateReferenceCell);
 			if (this.suspendReferenceUpdatingToolStripMenuItem.Checked != check) this.suspendReferenceUpdatingToolStripMenuItem.Checked = check;
 
 			sheetReadonlyToolStripMenuItem.Checked = sheet.HasSettings(WorksheetSettings.Edit_Readonly);

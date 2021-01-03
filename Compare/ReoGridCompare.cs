@@ -675,7 +675,7 @@ namespace unvell.ReoGrid.Editor
 				WorksheetSettings.Edit_DragSelectionToFillSerial, dragToFillSerialToolStripMenuItem.Checked);
 
 			suspendReferenceUpdatingToolStripMenuItem.CheckedChanged += (s, e) =>
-				CurrentWorksheet.SetSettings(WorksheetSettings.Formula_AutoUpdateReferenceCell,
+				GridControl.SetSettings(WorkbookSettings.Formula_AutoUpdateReferenceCell,
 				!suspendReferenceUpdatingToolStripMenuItem.Checked);
 
 			recalculateWorksheetToolStripMenuItem.Click += (s, e) =>
@@ -821,7 +821,7 @@ namespace unvell.ReoGrid.Editor
 			check = sheet.HasSettings(WorksheetSettings.Edit_DragSelectionToFillSerial);
 			if (dragToFillSerialToolStripMenuItem.Checked != check) dragToFillSerialToolStripMenuItem.Checked = check;
 
-			check = !sheet.HasSettings(WorksheetSettings.Formula_AutoUpdateReferenceCell);
+			check = !GridControl.HasSettings(WorkbookSettings.Formula_AutoUpdateReferenceCell);
 			if (suspendReferenceUpdatingToolStripMenuItem.Checked != check) suspendReferenceUpdatingToolStripMenuItem.Checked = check;
 
 			sheetReadonlyToolStripMenuItem.Checked = sheet.HasSettings(WorksheetSettings.Edit_Readonly);
@@ -3128,7 +3128,7 @@ namespace unvell.ReoGrid.Editor
 						roi = reusableAction.Range;
 					}
 				}
-				else
+				else if (grid.HasSettings(WorkbookSettings.Formula_AutoUpdateReferenceCell))
 				{
 					grid.Recalculate();
 				}
