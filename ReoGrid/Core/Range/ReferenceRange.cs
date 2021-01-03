@@ -124,17 +124,7 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Get or set end number of column.
 		/// </summary>
-		[Obsolete("use EndColumn instead")]
 		public int EndCol
-		{
-			get { return this.endCell.Column; }
-			set { this.EndColumn = value; }
-		}
-
-		/// <summary>
-		/// Get or set end number of column.
-		/// </summary>
-		public int EndColumn
 		{
 			get { return this.endCell.Column; }
 			set

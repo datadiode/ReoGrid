@@ -159,7 +159,7 @@ namespace unvell.ReoGrid.Chart
 			}
 			else
 			{
-				for (int c = serialsRange.Col; c <= serialsRange.EndColumn; c++)
+				for (int c = serialsRange.Col; c <= serialsRange.EndCol; c++)
 				{
 					var label = new CellPosition(serialNamesRange.Row, c);
 					var pos = new RangePosition(serialsRange.Row, c, serialsRange.Rows, 1);
