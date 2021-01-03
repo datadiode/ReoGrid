@@ -105,7 +105,7 @@ namespace unvell.ReoGrid.Demo.Styles
 
 		public void SelectRow(int row, bool rowChecked)
 		{
-			var rowRange = new RangePosition(row, 0, 1, worksheet.Columns);
+			var rowRange = new RangePosition(row, 0, 1, worksheet.ColumnCount);
 
 			// remove back color for row
 			worksheet.SetRangeStyles(rowRange, new WorksheetRangeStyle

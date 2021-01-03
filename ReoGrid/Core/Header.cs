@@ -1062,7 +1062,7 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Get or set number of rows of current worksheet
 		/// </summary>
-		public int Rows
+		public int RowCount
 		{
 			get { return this.rows.Count; }
 			set { SetRows(value); }
@@ -1071,7 +1071,7 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Get or set number of columns of current worksheet
 		/// </summary>
-		public int Columns
+		public int ColumnCount
 		{
 			get { return this.cols.Count; }
 			set { SetCols(value); }
@@ -2800,16 +2800,6 @@ namespace unvell.ReoGrid
 		#endregion // Visible
 
 		#region Collection
-
-		/// <summary>
-		/// Get or set number of columns for current worksheet (must at least one column left)
-		/// </summary>
-		public int ColumnCount { get { return this.cols.Count; } set { SetCols(value); } }
-
-		/// <summary>
-		/// Get or set number of rows for current worksheet (must at least one row left)
-		/// </summary>
-		public int RowCount { get { return this.rows.Count; } set { SetRows(value); } }
 
 		/// <summary>
 		/// Get instance of row header from specified number of row

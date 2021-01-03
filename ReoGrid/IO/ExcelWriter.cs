@@ -1019,7 +1019,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 		private static void WriteWorksheet(Document doc, RGWorksheet rgSheet)
 		{
-			if (rgSheet.Rows == 0 || rgSheet.Columns == 0)
+			if (rgSheet.RowCount == 0 || rgSheet.ColumnCount == 0)
 			{
 #if DEBUG
 				System.Diagnostics.Debug.Assert(false, "rows or columns on worksheet must not be zero.");
@@ -1169,7 +1169,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				}
 			}
 
-			if (lastColIndex > 0 && lastColIndex < rgSheet.Columns)
+			if (lastColIndex > 0 && lastColIndex < rgSheet.ColumnCount)
 			{
 				if (sheet.cols == null)
 				{
@@ -1179,7 +1179,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				sheet.cols.Add(new Column
 				{
 					min = lastColIndex + 1,
-					max = rgSheet.Columns,
+					max = rgSheet.ColumnCount,
 					width = Math.Truncate((rgSheet.defaultColumnWidth - columnWidthPad) / fixedCharWidth * 100.0 + 0.5) / 100.0,
 				});
 			}

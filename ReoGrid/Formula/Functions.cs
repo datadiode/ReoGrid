@@ -112,8 +112,8 @@ namespace unvell.ReoGrid.Formula
 			STValueNode leftExp = new STValueNode(null);
 			STNode compExp = Parser.ParseInterCompareExp(cell, expStr);
 
-			int rows = cell.Worksheet.Rows;
-			int cols = cell.Worksheet.Columns;
+			int rows = cell.Worksheet.RowCount;
+			int cols = cell.Worksheet.ColumnCount;
 
 			evalWorksheet.IterateCells(evalRange.Position, (r, c, inCell) =>
 			{
@@ -323,15 +323,15 @@ namespace unvell.ReoGrid.Formula
 			STValueNode leftExp = new STValueNode(null);
 			STNode compExp = Parser.ParseInterCompareExp(cell, expStr);
 
-			int rows = cell.Worksheet.Rows;
-			int cols = cell.Worksheet.Columns;
+			int rows = cell.Worksheet.RowCount;
+			int cols = cell.Worksheet.ColumnCount;
 
 			evalWorksheet.IterateCells(evalRange.Position, (r, c, inCell) =>
 			{
 				leftExp.Value = Evaluator.CreateFormulaValue(inCell);
 				compExp[0] = leftExp;
 
-				var result = (Evaluator.Evaluate(cell, compExp));
+				var result = Evaluator.Evaluate(cell, compExp);
 				if (result.type == FormulaValueType.Boolean && ((bool)result.value))
 				{
 					if (sumRange == null)
