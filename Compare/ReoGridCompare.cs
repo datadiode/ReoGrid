@@ -103,6 +103,27 @@ namespace unvell.ReoGrid.Editor
 			grid1.Visible && grid2.Visible && // need to avoid synchronization during Load()
 			grid1.GetWorksheetIndex(grid1.CurrentWorksheet) == grid2.GetWorksheetIndex(grid2.CurrentWorksheet);
 
+		private string b2xtranslate = null;
+
+		private string xls2x()
+		{
+			string path = null;
+			if (b2xtranslate != null)
+			{
+				path = Path.Combine(b2xtranslate, "xls2x.exe");
+			}
+			else if (Registry.GetValue("HKEY_CLASSES_ROOT\\.xls", "", null) is string classname)
+			{
+				if (Registry.GetValue("HKEY_CLASSES_ROOT\\" + classname + "\\shell\\Convert to .xlsx\\Command", "", null) is string command)
+				{
+					var parts = command.Split('"');
+					if (parts.Length > 1)
+						path = parts[1];
+				}
+			}
+			return path;
+		}
+
 		public void ParseArguments(IList arguments)
 		{
 			int i;
@@ -117,6 +138,15 @@ namespace unvell.ReoGrid.Editor
 					CreateControl();
 					Win32.SetWindowLong(Handle, Win32.GWL_STYLE, Win32.GetWindowLong(Handle, Win32.GWL_STYLE) | Win32.WS_CHILD);
 					Win32.SetParent(Handle, hwndParent);
+				}
+			}
+			if ((i = arguments.IndexOf("/b2xtranslate")) != -1)
+			{
+				arguments.RemoveAt(i);
+				if (i < arguments.Count)
+				{
+					b2xtranslate = (string)arguments[i];
+					arguments.RemoveAt(i);
 				}
 			}
 			if (arguments.Count > 0)
@@ -1599,30 +1629,27 @@ namespace unvell.ReoGrid.Editor
 						var loadFrom = header.Text;
 						if (IsFileTypeExcel2003(loadFrom))
 						{
-							if (Registry.GetValue("HKEY_CLASSES_ROOT\\.xls", "", null) is string classname)
+							var exe = xls2x();
+							if (exe != null)
 							{
-								if (Registry.GetValue("HKEY_CLASSES_ROOT\\" + classname + "\\shell\\Convert to .xlsx\\Command", "", null) is string command)
+								var name = Guid.NewGuid().ToString() + ".*";
+								var temp = Path.GetTempPath();
+								var path = Path.Combine(temp, name);
+								var psi = new ProcessStartInfo(exe, "\"" + loadFrom + "\" -o \"" + path + "\"")
 								{
-									var parts = command.Split('"');
-									var name = Guid.NewGuid().ToString() + ".*";
-									var temp = Path.GetTempPath();
-									var path = Path.Combine(temp, name);
-									var psi = new ProcessStartInfo(parts[1], "\"" + loadFrom + "\" -o \"" + path + "\"")
-									{
-										CreateNoWindow = true,
-										UseShellExecute = false,
-									};
-									var process = Process.Start(psi);
-									process.WaitForExit();
-									process.Close();
-									foreach (var file in Directory.GetFiles(temp, name))
-									{
-										path = file;
-									}
-									arg = grid.Load(path, IO.FileFormat.Excel2007, Encoding.Default);
-									File.Delete(path);
-									header.Text = Path.ChangeExtension(loadFrom, Path.GetExtension(path));
+									CreateNoWindow = true,
+									UseShellExecute = false,
+								};
+								var process = Process.Start(psi);
+								process.WaitForExit();
+								process.Close();
+								foreach (var file in Directory.GetFiles(temp, name))
+								{
+									path = file;
 								}
+								arg = grid.Load(path, IO.FileFormat.Excel2007, Encoding.Default);
+								File.Delete(path);
+								header.Text = Path.ChangeExtension(loadFrom, Path.GetExtension(path));
 							}
 						}
 						else
