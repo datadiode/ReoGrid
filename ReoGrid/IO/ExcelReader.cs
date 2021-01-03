@@ -305,16 +305,12 @@ namespace unvell.ReoGrid.IO.OpenXML
 					int startCol = col.min - 1;
 					int count = col.max - col.min + 1;
 
-					if (rgSheet.ColumnCount < startCol + count)
-						rgSheet.ColumnCount = startCol + count;
-
 					rgSheet.SetColumnsWidth(startCol, count, pixelWidth);
 
+					bool isAutoWidth = !OpenXMLUtility.IsTrue(col.customWidth);
 					for (int i = startCol; i < startCol + count; i++)
 					{
-						var header = rgSheet.GetColumnHeader(i);
-
-						header.IsAutoWidth = !OpenXMLUtility.IsTrue(col.customWidth);
+						rgSheet.GetColumnHeader(i).IsAutoWidth = isAutoWidth;
 					}
 
 					WorksheetRangeStyle colStyle = null;
@@ -324,7 +320,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 					// column style
 					if (!string.IsNullOrEmpty(col.style) && int.TryParse(col.style, out styleIndex))
 					{
-						var style = cellFormats.list.ElementAtOrDefault(styleIndex) as CellFormat;
+						var style = cellFormats.list.ElementAtOrDefault(styleIndex);
 
 						if (style != null)
 						{
@@ -431,7 +427,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			// data
 			SharedStrings sharedStringTable = doc.ReadSharedStringTable();
 
-			var defaultFont = fonts.list.ElementAtOrDefault(0) as Schema.Font;
+			var defaultFont = fonts.list.ElementAtOrDefault(0);
 			if (defaultFont != null)
 			{
 				SetStyleFont(doc, rgSheet.RootStyle, defaultFont);
@@ -464,7 +460,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 				int rowIndex = row.index - 1;
 
 				#region Row Height
-
 #if DEBUG
 				swRowHeight.Start();
 #endif // DEBUG
@@ -488,45 +483,26 @@ namespace unvell.ReoGrid.IO.OpenXML
 				double rowHeight = 0;
 				bool isHidden = OpenXMLUtility.IsTrue(row.hidden);
 
-				RowHeader rowHeader;
+				RowHeader rowHeader = rgSheet.GetRowHeader(rowIndex);
+				rowHeader.Top = rowTop;
 
-				if (//row.customHeight == "1"
-						//&& 
+				ushort height = defaultRowHeight;
+				if (//row.customHeight == "1" && 
 					!string.IsNullOrEmpty(row.height) && double.TryParse(row.height, ExcelWriter.Number,
 					ExcelWriter.EnglishCulture, out rowHeight))
 				{
-					rowHeader = rgSheet.GetRowHeader(rowIndex);
-					ushort height = (ushort)Math.Round(rowHeight * dpi / 72f);
+					height = (ushort)Math.Round(rowHeight * dpi / 72f);
+				}
 
-					rowHeader.Top = rowTop;
-
-					if (isHidden)
-					{
-						rowHeader.LastHeight = height;
-						rowHeader.InnerHeight = 0;
-					}
-					else
-					{
-						rowHeader.InnerHeight = height;
-						rowTop += height;
-					}
+				if (isHidden)
+				{
+					rowHeader.LastHeight = height;
+					rowHeader.InnerHeight = 0;
 				}
 				else
 				{
-					rowHeader = rgSheet.GetRowHeader(rowIndex);
-
-					rowHeader.Top = rowTop;
-
-					if (isHidden)
-					{
-						rowHeader.LastHeight = defaultRowHeight;
-						rowHeader.InnerHeight = 0;
-					}
-					else
-					{
-						rowHeader.InnerHeight = defaultRowHeight;
-						rowTop += defaultRowHeight;
-					}
+					rowHeader.InnerHeight = height;
+					rowTop += height;
 				}
 
 				rowHeader.IsAutoHeight = !OpenXMLUtility.IsTrue(row.customHeight);
@@ -551,7 +527,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				// row style
 				if (!string.IsNullOrEmpty(row.styleIndex) && int.TryParse(row.styleIndex, out styleIndex))
 				{
-					var style = cellFormats.list.ElementAtOrDefault(styleIndex) as CellFormat;
+					var style = cellFormats.list.ElementAtOrDefault(styleIndex);
 
 					if (style != null)
 					{
@@ -685,7 +661,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 #if DEBUG
 						swStyle.Start();
 #endif // DEBUG
-						style = cellFormats.list.ElementAtOrDefault(styleIndex) as CellFormat;
+						style = cellFormats.list.ElementAtOrDefault(styleIndex);
 #if DEBUG
 						swStyle.Stop();
 #endif // DEBUG
@@ -1268,7 +1244,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			if (//style.applyFont == "1" && 
 				!string.IsNullOrEmpty(style.fontId))
 			{
-				var font = fonts.list.ElementAtOrDefault(int.Parse(style.fontId)) as Schema.Font;
+				var font = fonts.list.ElementAtOrDefault(int.Parse(style.fontId));
 
 				if (font != null)
 				{
@@ -1282,7 +1258,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			if (//OpenXMLUtility.IsTrue(style.applyFill) &&
 				!string.IsNullOrEmpty(style.fillId))
 			{
-				var fill = fills.list.ElementAtOrDefault(int.Parse(style.fillId)) as Fill;
+				var fill = fills.list.ElementAtOrDefault(int.Parse(style.fillId));
 
 				if (fill != null && fill.patternFill != null && fill.patternFill.patternType != null)
 				{
@@ -2165,49 +2141,16 @@ namespace unvell.ReoGrid.IO.OpenXML
 				SetDrawingObjectStyle(doc, obj, shape);
 			}
 
-			if (obj is Drawing.Shapes.ShapeObject)
+			if (obj is Drawing.Shapes.ShapeObject rgShape)
 			{
 				// text
 				if (shape.textBody != null)
 				{
 					if (shape.textBody.paragraphs != null)
 					{
-						var rgShape = (Drawing.Shapes.ShapeObject)obj;
-
 						rgShape.RichText = CreateRichTextFromRuns(doc, shape.textBody.paragraphs);
-					var sb = new StringBuilder();
-					RGFloat fontSize = 11.0f;
-
-					foreach (var p in shape.textBody.paragraphs)
-					{
-						if (p.runs != null)
-						{
-							foreach (var r in p.runs)
-							{
-								if (r.text != null
-									&& !string.IsNullOrEmpty(r.text.innerText))
-								{
-									var runPr = r.property;
-
-									if (runPr != null)
-									{
-										int size = 0;
-										if (int.TryParse(runPr.sizeAttr, out size))
-										{
-											fontSize = (float)size / 133f;
-										}
-									}
-
-									sb.Append(r.text.innerText);
-								}
-							}
-
-							sb.Append(Environment.NewLine);
-						}
-					}
-
-					rgShape.Text = sb.ToString();
-					rgShape.FontSize = fontSize;
+						rgShape.RichText.TextWrap = TextWrapMode.WordBreak;
+						rgShape.RichText.VerticalAlignment = ReoGridVerAlign.Top;
 
 						if (shape.textBody.bodyProperty != null)
 						{

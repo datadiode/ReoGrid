@@ -146,15 +146,10 @@ namespace unvell.ReoGrid.Drawing.Shapes
 				//var rect = new Rectangle(this.ClientBounds.X, 0, this.ClientBounds.Width, this.Height);
 				this.richText.Draw(dc.Graphics, this.ClientBounds);
 			}
-			else
-			{
-
-			if (!string.IsNullOrEmpty(this.text))
+			else if (!string.IsNullOrEmpty(this.text))
 			{
 				dc.Graphics.DrawText(this.text, this.FontName, this.FontSize, this.ForeColor, this.TextBounds,
 					 ReoGridHorAlign.Center, ReoGridVerAlign.Middle);
-			}
-
 			}
 		}
 		#endregion // Paint
