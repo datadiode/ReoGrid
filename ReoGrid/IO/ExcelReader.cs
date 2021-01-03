@@ -2444,7 +2444,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			if (serial == null) return null;
 
 #if FORMULA
-			CellPosition labelAddress = CellPosition.Empty;
+			ReferenceRange labelAddress = null;
 
 			var label = serial.ChartLabel;
 
@@ -2455,7 +2455,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 					var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, label.strRef.formula);
 					if (serialNameVal.Type == Formula.STNodeType.CELL)
 					{
-						labelAddress = ((Formula.STCellNode)serialNameVal).Position;
+						var node = serialNameVal as Formula.STCellNode;
+						labelAddress = new ReferenceRange(node.Worksheet, node.Position);
 					}
 				}
 
