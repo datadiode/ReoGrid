@@ -786,7 +786,10 @@ namespace unvell.ReoGrid.Formula
 						throw new FormulaParameterMismatchException(cell);
 					}
 
-					dt = new DateTime(1900, 1, 1, (int)(double)args[0].value, (int)(double)args[1].value, (int)(double)args[2].value);
+					dt = DateTime.FromOADate(0)
+						.AddHours(Math.Truncate((double)args[0].value))
+						.AddMinutes(Math.Truncate((double)args[1].value))
+						.AddSeconds(Math.Truncate((double)args[1].value));
 
 					if (cell.DataFormat == DataFormat.CellDataFormatFlag.General)
 					{
@@ -803,18 +806,42 @@ namespace unvell.ReoGrid.Formula
 
 				case BuiltinFunctionNames.YEAR_EN:
 				case BuiltinFunctionNames.YEAR_RU:
-					dt = (DateTime)GetFunctionArg(cell, funNode.Children, FormulaValueType.DateTime);
-					return dt.Year;
+					args = GetFunctionArgs(cell, funNode.Children, 1);
+					if (args[0].type == FormulaValueType.DateTime)
+					{
+						return ((DateTime)args[0].value).Year;
+					}
+					if (args[0].type == FormulaValueType.Number)
+					{
+						return DateTime.FromOADate((double)args[0].value).Year;
+					}
+					throw new FormulaTypeMismatchException(cell);
 
 				case BuiltinFunctionNames.MONTH_EN:
 				case BuiltinFunctionNames.MONTH_RU:
-					dt = (DateTime)GetFunctionArg(cell, funNode.Children, FormulaValueType.DateTime);
-					return dt.Month;
+					args = GetFunctionArgs(cell, funNode.Children, 1);
+					if (args[0].type == FormulaValueType.DateTime)
+					{
+						return ((DateTime)args[0].value).Month;
+					}
+					if (args[0].type == FormulaValueType.Number)
+					{
+						return DateTime.FromOADate((double)args[0].value).Month;
+					}
+					throw new FormulaTypeMismatchException(cell);
 
 				case BuiltinFunctionNames.DAY_EN:
 				case BuiltinFunctionNames.DAY_RU:
-					dt = (DateTime)GetFunctionArg(cell, funNode.Children, FormulaValueType.DateTime);
-					return dt.Day;
+					args = GetFunctionArgs(cell, funNode.Children, 1);
+					if (args[0].type == FormulaValueType.DateTime)
+					{
+						return ((DateTime)args[0].value).Day;
+					}
+					if (args[0].type == FormulaValueType.Number)
+					{
+						return DateTime.FromOADate((double)args[0].value).Day;
+					}
+					throw new FormulaTypeMismatchException(cell);
 
 				case BuiltinFunctionNames.HOUR_EN:
 				case BuiltinFunctionNames.HOUR_RU:
