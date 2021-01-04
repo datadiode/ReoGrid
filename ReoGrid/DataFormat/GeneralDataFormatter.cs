@@ -17,6 +17,7 @@
  ****************************************************************************/
 
 using System;
+using System.Globalization;
 using unvell.ReoGrid.Core;
 
 namespace unvell.ReoGrid.DataFormat
@@ -65,16 +66,9 @@ namespace unvell.ReoGrid.DataFormat
 				value = (double)(decimal)data;
 				isNumeric = true;
 			}
-			else if (data is string)
+			else if (data is string str)
 			{
-				var str = (string)data;
-
-				if (str.StartsWith(" ") || str.EndsWith(" "))
-				{
-					str = str.Trim();
-				}
-
-				isNumeric = double.TryParse(str, out value);
+				isNumeric = double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out value);
 
 				if (isNumeric) cell.InnerData = value;
 			}

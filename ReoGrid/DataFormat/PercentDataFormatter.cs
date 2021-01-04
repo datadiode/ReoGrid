@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -20,7 +21,6 @@ namespace unvell.ReoGrid.DataFormat
 			double percent = 0;
 			bool isFormat = false;
 			short digits = 0;
-			string formattedText = null;
 
 			if (data is double)
 			{
@@ -28,9 +28,9 @@ namespace unvell.ReoGrid.DataFormat
 				isFormat = true;
 				digits = 9;
 			}
-			else if (data is DateTime)
+			else if (data is DateTime dt)
 			{
-				percent = ((DateTime)data - new DateTime(1900, 1, 1)).TotalDays;
+				percent = dt.ToOADate();
 				isFormat = true;
 				digits = 0;
 			}
@@ -42,13 +42,13 @@ namespace unvell.ReoGrid.DataFormat
 					// string ends with "%"
 					str = str.Substring(0, str.Length - 1);
 
-					isFormat = double.TryParse(str, out percent);
+					isFormat = double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out percent);
 
 					if (isFormat)
 					{
 						percent /= 100d;
 
-						int decimalDigits = (short)str.LastIndexOf(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+						int decimalDigits = str.LastIndexOf(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 						if (decimalDigits >= 0)
 						{
 							digits = (short)(str.Length - 1 - decimalDigits);
@@ -58,11 +58,11 @@ namespace unvell.ReoGrid.DataFormat
 				else
 				{
 					// string ends without "%"
-					isFormat = double.TryParse(str, out percent);
+					isFormat = double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out percent);
 
 					if (isFormat)
 					{
-						int decimalDigits = (short)str.LastIndexOf(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+						int decimalDigits = str.LastIndexOf(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 						if (decimalDigits >= 0)
 						{
 							digits = (short)(str.Length - 1 - decimalDigits);
@@ -71,10 +71,10 @@ namespace unvell.ReoGrid.DataFormat
 					else
 					{
 						// try convert from datetime
-						DateTime date = new DateTime(1900, 1, 1);
+						DateTime date;
 						if (DateTime.TryParse(str, out date))
 						{
-							percent = (date - new DateTime(1900, 1, 1)).TotalDays;
+							percent = date.ToOADate();
 							isFormat = true;
 						}
 					}
@@ -85,30 +85,13 @@ namespace unvell.ReoGrid.DataFormat
 
 			if (isFormat)
 			{
-				//if (cell.DataFormatArgs != null && cell.DataFormatArgs is NumberDataFormatter.NumberFormatArgs)
-				//{
-				//	digits = ((NumberDataFormatter.NumberFormatArgs)cell.DataFormatArgs).DecimalPlaces;
-				//}
-				//else
-				//{
-				//	cell.DataFormatArgs = new NumberDataFormatter.NumberFormatArgs { DecimalPlaces = digits };
-				//}
-
-				//string decimalPlacePart = new string('0', digits);
-
-				//formattedText = (percent * 100).ToString("0." + decimalPlacePart) + "%";
-
-				//if (cell.InnerStyle.HAlign == ReoGridHorAlign.General)
-				//{
-				//	cell.RenderHorAlign = ReoGridRenderHorAlign.Right;
-				//}
 				var format = NumberDataFormatter.FormatNumberCellAndGetPattern(cell, ref percent,
 					cell.DataFormatArgs as NumberDataFormatter.INumberFormatArgs);
 
 				return percent.ToString(format + "%");
 			}
 
-			return isFormat ? formattedText : null;
+			return null;
 		}
 
 

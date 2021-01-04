@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -72,19 +73,15 @@ namespace unvell.ReoGrid.DataFormat
 				value = (double)(decimal)data;
 				isNumeric = true;
 			}
-			else if (data is string)
+			else if (data is string str)
 			{
-				string strdata = (data as string).Trim();
-
-				isNumeric = double.TryParse(strdata, out value);
-
-				if (!isNumeric) isNumeric = double.TryParse(strdata.Replace(",", ""), out value);
+				isNumeric = double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out value);
 
 				if (isNumeric) cell.InnerData = value;
 			}
-			else if (data is DateTime)
+			else if (data is DateTime dt)
 			{
-				value = ((DateTime)data - new DateTime(1900, 1, 1)).TotalDays;
+				value = dt.ToOADate();
 				isNumeric = true;
 			}
 

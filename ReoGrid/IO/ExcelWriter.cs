@@ -1281,12 +1281,9 @@ namespace unvell.ReoGrid.IO.OpenXML
 								cell.dataType = "s";
 							}
 #endif // DRAWING
-							else if (data is DateTime)
+							else if (data is DateTime dt)
 							{
-								var dt = (DateTime)data;
-								double days = (dt - DateTimeDataFormatter.BaseStartDate).TotalDays + 1;
-								if (days > 59) days++;
-
+								double days = dt.ToOADate();
 								cell.value = new ElementText(Convert.ToString(days, EnglishCulture));
 							}
 							else if (data != null)
