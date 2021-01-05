@@ -58,7 +58,7 @@ namespace unvell.ReoGrid.Demo.Documents
 				Title = "Warnings and Errors",
 				DataSource = new WorksheetChartDataSource(worksheet, "Q6:Q7", "R6:T7")
 				{
-					CategoryNameRange = new RangePosition("S6:T6"),
+					CategoryNameRange = new ReferenceRange(worksheet, "S6:T6"),
 				},
 
 				Location = new Graphics.Point(40, 150),
@@ -70,7 +70,7 @@ namespace unvell.ReoGrid.Demo.Documents
 				Title = "Warnings and Errors",
 				DataSource = new WorksheetChartDataSource(worksheet, "Q6:Q7", "R6:T7")
 				{
-					CategoryNameRange = new RangePosition("R6:T6"),
+					CategoryNameRange = new ReferenceRange(worksheet, "R6:T6"),
 				},
 
 				Location = new Graphics.Point(460, 150),

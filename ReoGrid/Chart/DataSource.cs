@@ -214,7 +214,7 @@ namespace unvell.ReoGrid.Chart
 		/// <summary>
 		/// Get or set the range that contains the category names.
 		/// </summary>
-		public RangePosition CategoryNameRange { get; set; }
+		public ReferenceRange CategoryNameRange { get; set; }
 
 		/// <summary>
 		/// Return the title of specified column.
@@ -223,14 +223,19 @@ namespace unvell.ReoGrid.Chart
 		/// <returns>Return the title that will be displayed on chart.</returns>
 		public string GetCategoryName(int index)
 		{
-			if (this.CategoryNameRange.IsEmpty)
+			if (CategoryNameRange != null)
 			{
-				return null;
+				var worksheet = CategoryNameRange.Worksheet ?? this.worksheet;
+				var row = CategoryNameRange.Row;
+				var col = CategoryNameRange.Col;
+				if (CategoryNameRange.Row == CategoryNameRange.EndRow ?
+					(col += index) <= CategoryNameRange.EndCol :
+					(row += index) <= CategoryNameRange.EndRow)
+				{
+					return worksheet.GetCellData<string>(row, col);
+				}
 			}
-			else
-			{
-				return this.worksheet.GetCellData<string>(this.CategoryNameRange.Row, this.CategoryNameRange.Col + index);
-			}
+			return null;
 		}
 
 		#endregion // Category
