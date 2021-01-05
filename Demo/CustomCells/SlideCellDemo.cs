@@ -147,6 +147,7 @@ namespace unvell.ReoGrid.Demo.CustomCells
 			if (value > 1) value = 1;
 
 			Worksheet.SetCellData(cellPos, value);
+			Worksheet.Workbook.Recalculate();
 		}
 
 		public override bool OnMouseEnter(CellMouseEventArgs e)

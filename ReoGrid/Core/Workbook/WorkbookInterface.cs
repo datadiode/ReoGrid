@@ -215,6 +215,11 @@ namespace unvell.ReoGrid
 		void Reset();
 
 		/// <summary>
+		/// Recalculate this workbook
+		/// </summary>
+		void Recalculate();
+
+		/// <summary>
 		/// Event raised when worksheet is created.
 		/// </summary>
 		event EventHandler<WorksheetCreatedEventArgs> WorksheetCreated;
