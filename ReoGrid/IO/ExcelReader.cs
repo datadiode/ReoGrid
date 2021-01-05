@@ -2356,7 +2356,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				{
 					foreach (var ser in plot.pieChart.serials)
 					{
-						ReadDataSerial(dataSource, rgSheet, ser);
+						ReadDataSerial(dataSource, rgSheet, ser, true);
 					}
 				}
 
@@ -2365,6 +2365,23 @@ namespace unvell.ReoGrid.IO.OpenXML
 					DataSource = dataSource,
 				};
 #endregion // Pie Chart Plot Area
+			}
+			else if (plot.radarChart != null)
+			{
+#region Radar Chart Plot Area
+				if (plot.radarChart.serials != null)
+				{
+					foreach (var ser in plot.radarChart.serials)
+					{
+						ReadDataSerial(dataSource, rgSheet, ser);
+					}
+				}
+
+				rgChart = new Chart.BarChart()
+				{
+					DataSource = dataSource,
+				};
+#endregion // Radar Chart Plot Area
 			}
 			else if (plot.doughnutChart != null)
 			{
@@ -2410,7 +2427,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 		}
 
 		private static Chart.WorksheetChartDataSerial ReadDataSerial(Chart.WorksheetChartDataSource dataSource,
-			RGWorksheet rgSheet, IChartSerial serial)
+			RGWorksheet rgSheet, IChartSerial serial, bool isPieChartSerial = false)
 		{
 			if (serial == null) return null;
 
@@ -2419,36 +2436,19 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 			var label = serial.ChartLabel;
 
-			if (label != null && label.strRef != null)
+			if (!string.IsNullOrEmpty(label?.strRef?.formula))
 			{
-				if (label.strRef.formula != null && !string.IsNullOrEmpty(label.strRef.formula))
+				var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, label.strRef.formula);
+				if (serialNameVal.Type == Formula.STNodeType.CELL)
 				{
-					var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, label.strRef.formula);
-					if (serialNameVal.Type == Formula.STNodeType.CELL)
-					{
-						var node = serialNameVal as Formula.STCellNode;
-						labelAddress = new ReferenceRange(node.Worksheet, node.Position);
-					}
+					var node = serialNameVal as Formula.STCellNode;
+					labelAddress = new ReferenceRange(node.Worksheet, node.Position);
 				}
-
-				//if (label.strRef.strCache != null
-				//	&& label.strRef.strCache.ptList != null
-				//	&& label.strRef.strCache.ptList.Count > 0)
-				//{
-				//	var pt = label.strRef.strCache.ptList[0];
-
-				//	if (pt.value != null)
-				//	{
-				//		serialName = pt.value.val;
-				//	}
-				//}
 			}
 
 			var values = serial.Values;
 
-			if (values.numRef != null
-				&& values.numRef.formula != null
-				&& !string.IsNullOrEmpty(values.numRef.formula))
+			if (!string.IsNullOrEmpty(values?.numRef?.formula))
 			{
 				var dataRangeVal = Formula.Evaluator.Evaluate(rgSheet.workbook, values.numRef.formula);
 
@@ -2456,7 +2456,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				{
 					var range = (ReferenceRange)dataRangeVal.value;
 
-					if (serial is PieChartSerial)
+					if (isPieChartSerial)
 					{
 						// transfer to multiple serials
 						for (int r = range.Row; r <= range.EndRow; r++)
@@ -2467,6 +2467,24 @@ namespace unvell.ReoGrid.IO.OpenXML
 					}
 					else
 					{
+						var categories = serial.Categories;
+						if (categories != null && categories.strRef != null)
+						{
+							if (!string.IsNullOrEmpty(categories.strRef.formula))
+							{
+								var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, categories.strRef.formula);
+								if (serialNameVal.Type == Formula.STNodeType.CELL)
+								{
+									var node = serialNameVal as Formula.STCellNode;
+									dataSource.CategoryNameRange = new ReferenceRange(node.Worksheet, node.Position);
+								}
+								else if (serialNameVal.Type == Formula.STNodeType.RANGE)
+								{
+									var node = serialNameVal as Formula.STRangeNode;
+									dataSource.CategoryNameRange = new ReferenceRange(node.Worksheet, node.Range);
+								}
+							}
+						}
 						dataSource.AddSerial(rgSheet, labelAddress, range);
 					}
 				}

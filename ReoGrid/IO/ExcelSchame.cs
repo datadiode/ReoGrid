@@ -1639,6 +1639,9 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		[XmlElement("pieChart")]
 		public PieChart pieChart;
 
+		[XmlElement("radarChart")]
+		public RadarChart radarChart;
+
 		[XmlElement("doughnutChart")]
 		public PieChart doughnutChart;
 
@@ -1653,7 +1656,7 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 	public class LineChart
 	{
 		[XmlElement("ser")]
-		public List<LineChartSerial> serials;
+		public List<ChartSerial> serials;
 
 		[XmlElement("dLbls")]
 		public DataLabels labels;
@@ -1665,7 +1668,7 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		public ElementValue<string> barDir;
 
 		[XmlElement("ser")]
-		public List<BarChartSerial> serials;
+		public List<ChartSerial> serials;
 
 		[XmlElement("dLbls")]
 		public DataLabels labels;
@@ -1674,16 +1677,22 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 	public class PieChart
 	{
 		[XmlElement("ser")]
-		public List<PieChartSerial> serials;
+		public List<ChartSerial> serials;
 
 		[XmlElement("dLbls")]
 		public DataLabels labels;
 	}
 
+	public class RadarChart
+	{
+		[XmlElement("ser")]
+		public List<ChartSerial> serials;
+	}
+
 	public class AreaChart
 	{
 		[XmlElement("ser")]
-		public List<AreaChartSerial> serials;
+		public List<ChartSerial> serials;
 
 		[XmlElement("dLbls")]
 		public DataLabels labels;
@@ -1692,13 +1701,17 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 	internal interface IChartSerial
 	{
 		ChartText ChartLabel { get; }
+		ChartText Categories { get; }
 		ChartDataValues Values { get; }
 	}
 
-	public class LineChartSerial : IChartSerial
+	public class ChartSerial : IChartSerial
 	{
 		[XmlElement("tx")]
 		public ChartText chartLabel;
+
+		[XmlElement("cat")]
+		public ChartText categories;
 
 		[XmlElement("val")]
 		public ChartDataValues values;
@@ -1707,49 +1720,7 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		public ChartText ChartLabel { get { return this.chartLabel; } }
 
 		[XmlIgnore]
-		public ChartDataValues Values { get { return this.values; } }
-	}
-
-	public class BarChartSerial : IChartSerial
-	{
-		[XmlElement("tx")]
-		public ChartText chartLabel;
-
-		[XmlElement("val")]
-		public ChartDataValues values;
-
-		[XmlIgnore]
-		public ChartText ChartLabel { get { return this.chartLabel; } }
-
-		[XmlIgnore]
-		public ChartDataValues Values { get { return this.values; } }
-	}
-
-	public class PieChartSerial : IChartSerial
-	{
-		[XmlElement("tx")]
-		public ChartText chartLabel;
-
-		[XmlElement("val")]
-		public ChartDataValues values;
-
-		[XmlIgnore]
-		public ChartText ChartLabel { get { return this.chartLabel; } }
-
-		[XmlIgnore]
-		public ChartDataValues Values { get { return this.values; } }
-	}
-
-	public class AreaChartSerial : IChartSerial
-	{
-		[XmlElement("tx")]
-		public ChartText chartLabel;
-
-		[XmlElement("val")]
-		public ChartDataValues values;
-
-		[XmlIgnore]
-		public ChartText ChartLabel { get { return this.chartLabel; } }
+		public ChartText Categories { get { return this.categories; } }
 
 		[XmlIgnore]
 		public ChartDataValues Values { get { return this.values; } }
