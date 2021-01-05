@@ -27,6 +27,7 @@ using System.Windows.Forms;
 
 using unvell.ReoGrid.Graphics;
 using unvell.ReoGrid.DataFormat;
+using System.Globalization;
 
 namespace unvell.ReoGrid.Demo.CellAndRange
 {
@@ -51,7 +52,7 @@ namespace unvell.ReoGrid.Demo.CellAndRange
 
 	class MyDataFormatter : IDataFormatter
 	{
-		public string FormatCell(Cell cell)
+		public string FormatCell(Cell cell, CultureInfo culture)
 		{
 			// Custom formatter only valid for this demo
 			if (cell.Worksheet.Name != "Custom Data Format Demo") return null;

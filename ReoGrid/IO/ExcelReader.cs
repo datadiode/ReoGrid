@@ -857,42 +857,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 						}
 					}
 
-					double value;
-					switch (rgCell.DataFormat)
-					{
-						case CellDataFormatFlag.DateTime:
-							if (double.TryParse(rgCell.InnerData as string, ExcelWriter.Number,
-								ExcelWriter.EnglishCulture, out value))
-							{
-								rgCell.Data = DateTime.FromOADate(value);
-							}
-							else if (DataFormatterManager.Instance.DataFormatters[CellDataFormatFlag.DateTime].FormatCell(rgCell) is string text)
-							{
-								rgCell.Data = text;
-							}
-							else
-							{
-								DataFormatterManager.Instance.FormatCell(rgCell);
-							}
-							break;
-						case CellDataFormatFlag.General:
-						case CellDataFormatFlag.Number:
-						case CellDataFormatFlag.Percent:
-						case CellDataFormatFlag.Currency:
-							if (double.TryParse(rgCell.InnerData as string, ExcelWriter.Number,
-								ExcelWriter.EnglishCulture, out value))
-							{
-								rgCell.Data = value;
-							}
-							else
-							{
-								DataFormatterManager.Instance.FormatCell(rgCell);
-							}
-							break;
-						default:
-							DataFormatterManager.Instance.FormatCell(rgCell);
-							break;
-					}
+					DataFormatterManager.Instance.FormatCell(rgCell, ExcelWriter.EnglishCulture);
 
 #endregion // Data Format
 

@@ -17,13 +17,8 @@
  ****************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-
 using unvell.ReoGrid.Core;
-using unvell.ReoGrid.DataFormat;
 using unvell.ReoGrid.Graphics;
 
 namespace unvell.ReoGrid.DataFormat
@@ -36,11 +31,12 @@ namespace unvell.ReoGrid.DataFormat
 	public class NumberDataFormatter : IDataFormatter
 	{
 		/// <summary>
-		/// Format given cell
+		/// Format specified cell
 		/// </summary>
-		/// <param name="cell">Instance of cell to be formatted</param>
-		/// <returns></returns>
-		public string FormatCell(Cell cell)
+		/// <param name="cell">cell to be formatted</param>
+		/// <param name="culture">culture for parsing</param>
+		/// <returns>Formatted text used to display as cell content</returns>
+		public string FormatCell(Cell cell, CultureInfo culture)
 		{
 			object data = cell.InnerData;
 
@@ -75,7 +71,7 @@ namespace unvell.ReoGrid.DataFormat
 			}
 			else if (data is string str)
 			{
-				isNumeric = double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out value);
+				isNumeric = double.TryParse(str, NumberStyles.Any, culture, out value);
 
 				if (isNumeric) cell.InnerData = value;
 			}
@@ -87,16 +83,15 @@ namespace unvell.ReoGrid.DataFormat
 
 			if (isNumeric)
 			{
-				string prefix = null;
-				string postfix = null;
-
 				INumberFormatArgs arg = cell.DataFormatArgs as INumberFormatArgs;
 
 				var numberPart = FormatNumberCellAndGetPattern(cell, ref value, arg);
 
-				if (arg is NumberFormatArgs)
+				string prefix = null;
+				string postfix = null;
+
+				if (arg is NumberFormatArgs nargs)
 				{
-					NumberFormatArgs nargs = (NumberFormatArgs)cell.DataFormatArgs;
 					prefix = nargs.CustomNegativePrefix;
 					postfix = nargs.CustomNegativePostfix;
 				}
@@ -109,10 +104,7 @@ namespace unvell.ReoGrid.DataFormat
 
 				return value.ToString(numberPart);
 			}
-			else
-			{
-				return null;
-			}
+			return null;
 		}
 
 		internal static string FormatNumberCellAndGetPattern(Cell cell, ref double value, INumberFormatArgs arg)
@@ -122,8 +114,13 @@ namespace unvell.ReoGrid.DataFormat
 				cell.RenderHorAlign = ReoGridRenderHorAlign.Right;
 			}
 
-			short decimals = 2;
-			bool useSeparator = true;
+			/*if (cell.DataFormat == CellDataFormatFlag.General)
+			{
+				return Convert.ToString(value);
+			}*/
+
+			short decimals = 0;
+			bool useSeparator = false;
 			NumberNegativeStyle negativeStyle = NumberNegativeStyle.Default;
 
 			if (arg != null)
@@ -135,7 +132,7 @@ namespace unvell.ReoGrid.DataFormat
 
 			if (value < 0)
 			{
-				if ((negativeStyle & NumberNegativeStyle.Red) == NumberNegativeStyle.Red)
+				if ((negativeStyle & NumberNegativeStyle.Red) != 0)
 				{
 					cell.RenderColor = SolidColor.Red;
 				}
@@ -240,8 +237,8 @@ namespace unvell.ReoGrid.DataFormat
 			/// </summary>
 			public NumberFormatArgs()
 			{
-				this.DecimalPlaces = 2;
-				this.NegativeStyle = NumberNegativeStyle.Minus;
+				this.DecimalPlaces = 0;
+				this.NegativeStyle = NumberNegativeStyle.Default;
 			}
 
 			/// <summary>
@@ -368,18 +365,6 @@ namespace unvell.ReoGrid.DataFormat
 			/// </summary>
 			CustomSymbol = 0xf0,
 		}
-		/*
-		internal enum NumberNegativeStyle : byte
-		{
-			Minus = 0x1,
-			Red = 0x2,
-			Brackets = 0x4,
-
-			MinusRed = Minus | Red,
-			BracketsRed = Brackets | Red,
-
-			// todo: support culture prefix negative symbol
-		}*/
 
 		/// <summary>
 		/// Determine whether or not to perform a test when cell is not be set to use current format.

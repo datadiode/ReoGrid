@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -89,7 +90,7 @@ namespace unvell.ReoGrid.DataFormat
 		/// </summary>
 		/// <param name="cell">Instance of cell to be formatted.</param>
 		/// <returns>Return non-empty string if formatting was performed successfully; Otherwise return null.</returns>
-		string FormatCell(Cell cell);
+		string FormatCell(Cell cell, CultureInfo culture);
 
 		/// <summary>
 		/// Indicate that whether or not to check the data type before format.
@@ -133,14 +134,14 @@ namespace unvell.ReoGrid.DataFormat
 			// add data formatter by this order to decide format detecting priority
 			// by default General Data Formatter is first formatter
 			dataFormatters.Add(CellDataFormatFlag.General, new GeneralDataFormatter());
-			dataFormatters.Add(CellDataFormatFlag.Number, new NumberDataFormatter());
 			dataFormatters.Add(CellDataFormatFlag.DateTime, new DateTimeDataFormatter());
+			dataFormatters.Add(CellDataFormatFlag.Number, new NumberDataFormatter());
 			dataFormatters.Add(CellDataFormatFlag.Percent, new PercentDataFormatter());
 			dataFormatters.Add(CellDataFormatFlag.Currency, new CurrencyDataFormatter());
 			dataFormatters.Add(CellDataFormatFlag.Text, new TextDataFormatter());
 		}
 
-		internal void FormatCell(Cell cell)
+		internal void FormatCell(Cell cell, CultureInfo culture)
 		{
 			// clear cell render color
 			// render color used for draw a negative number
@@ -156,7 +157,7 @@ namespace unvell.ReoGrid.DataFormat
 					var formatter = dataFormatters[flag];
 
 					if (formatter.PerformTestFormat()
-						&& (formattedText = dataFormatters[flag].FormatCell(cell)) != null)
+						&& (formattedText = dataFormatters[flag].FormatCell(cell, culture)) != null)
 					{
 						cell.DataFormat = flag;
 						cell.InnerDisplay = formattedText;
@@ -191,11 +192,11 @@ namespace unvell.ReoGrid.DataFormat
 
 				if (DataFormatters.TryGetValue(cell.DataFormat, out formatter))
 				{
-					string formattedText = DataFormatters[cell.DataFormat].FormatCell(cell);
+					string formattedText = DataFormatters[cell.DataFormat].FormatCell(cell, culture);
 
 					if (formattedText == null)
 					{
-						formattedText = DataFormatters[CellDataFormatFlag.Text].FormatCell(cell);
+						formattedText = DataFormatters[CellDataFormatFlag.Text].FormatCell(cell, culture);
 					}
 
 					cell.InnerDisplay = formattedText;

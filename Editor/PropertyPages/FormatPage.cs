@@ -358,7 +358,7 @@ namespace unvell.ReoGrid.PropertyPages
 				sampleCell.DataFormatArgs = currentFormatArgs;
 
 				// force format sample cell
-				labSample.Text = DataFormatterManager.Instance.DataFormatters[sampleCell.DataFormat].FormatCell(sampleCell);
+				labSample.Text = DataFormatterManager.Instance.DataFormatters[sampleCell.DataFormat].FormatCell(sampleCell, sampleCell.Worksheet.Culture);
 
 				var renderColor = sampleCell.RenderColor;
 				labSample.ForeColor = renderColor.IsTransparent ? Color.Black : (Color)renderColor;

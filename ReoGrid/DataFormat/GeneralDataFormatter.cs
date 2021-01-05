@@ -28,7 +28,7 @@ namespace unvell.ReoGrid.DataFormat
 	/// </summary>
 	internal class GeneralDataFormatter : IDataFormatter
 	{
-		public string FormatCell(Cell cell)
+		public string FormatCell(Cell cell, CultureInfo culture)
 		{
 			object data = cell.InnerData;
 
@@ -68,7 +68,7 @@ namespace unvell.ReoGrid.DataFormat
 			}
 			else if (data is string str)
 			{
-				isNumeric = double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out value);
+				isNumeric = double.TryParse(str, NumberStyles.Float, culture, out value);
 
 				if (isNumeric) cell.InnerData = value;
 			}

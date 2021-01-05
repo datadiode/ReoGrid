@@ -17,13 +17,8 @@
  ****************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using unvell.ReoGrid.Core;
-using unvell.ReoGrid.DataFormat;
 using unvell.ReoGrid.Graphics;
 
 namespace unvell.ReoGrid.DataFormat
@@ -36,9 +31,10 @@ namespace unvell.ReoGrid.DataFormat
 		/// <summary>
 		/// Format specified cell
 		/// </summary>
-		/// <param name="cell">cell instance</param>
-		/// <returns>true if cell has been formatted</returns>
-		public string FormatCell(Cell cell)
+		/// <param name="cell">cell to be formatted</param>
+		/// <param name="culture">culture for parsing</param>
+		/// <returns>Formatted text used to display as cell content</returns>
+		public string FormatCell(Cell cell, CultureInfo culture)
 		{
 			bool isFormat = false;
 
@@ -62,7 +58,7 @@ namespace unvell.ReoGrid.DataFormat
 				if (str.StartsWith("$"))
 				{
 					string number = str.Substring(1);
-					if (double.TryParse(number, NumberStyles.Any, CultureInfo.InvariantCulture, out currency))
+					if (double.TryParse(number, NumberStyles.Any, culture, out currency))
 					{
 						isFormat = true;
 						cell.InnerData = currency;
@@ -70,7 +66,6 @@ namespace unvell.ReoGrid.DataFormat
 						{
 							DecimalPlaces = 2
 						};
-						var culture = Thread.CurrentThread.CurrentCulture;
 						switch (culture.NumberFormat.CurrencyPositivePattern)
 						{
 							case 0:
@@ -92,7 +87,7 @@ namespace unvell.ReoGrid.DataFormat
 				else
 				{
 					// Stop trying to convert datetime value to currency, #170
-					isFormat = double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out currency);
+					isFormat = double.TryParse(str, NumberStyles.Any, culture, out currency);
 				}
 			}
 

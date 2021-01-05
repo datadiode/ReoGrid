@@ -283,7 +283,7 @@ namespace unvell.ReoGrid
 
 			if (this.HasSettings(WorksheetSettings.Edit_AutoFormatCell))
 			{
-				DataFormatterManager.Instance.FormatCell(cell);
+				DataFormatterManager.Instance.FormatCell(cell, Culture);
 			}
 			else
 			{

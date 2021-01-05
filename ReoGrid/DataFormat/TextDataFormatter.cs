@@ -17,18 +17,20 @@
  ****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+using System.Globalization;
 using unvell.ReoGrid.Core;
-using unvell.ReoGrid.DataFormat;
 
 namespace unvell.ReoGrid.DataFormat
 {
 	internal class TextDataFormatter : IDataFormatter
 	{
-		public string FormatCell(Cell cell)
+		/// <summary>
+		/// Format specified cell
+		/// </summary>
+		/// <param name="cell">cell to be formatted</param>
+		/// <param name="culture">culture for parsing</param>
+		/// <returns>Formatted text used to display as cell content</returns>
+		public string FormatCell(Cell cell, CultureInfo culture)
 		{
 			if (cell.InnerStyle.HAlign == ReoGridHorAlign.General)
 			{

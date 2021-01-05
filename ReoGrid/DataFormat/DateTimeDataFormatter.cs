@@ -17,14 +17,9 @@
  ****************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using unvell.ReoGrid.Core;
-using unvell.ReoGrid.DataFormat;
-using unvell.ReoGrid.Utility;
 
 namespace unvell.ReoGrid.DataFormat
 {
@@ -34,11 +29,12 @@ namespace unvell.ReoGrid.DataFormat
 	public class DateTimeDataFormatter : IDataFormatter
 	{
 		/// <summary>
-		/// Format cell
+		/// Format specified cell
 		/// </summary>
 		/// <param name="cell">cell to be formatted</param>
+		/// <param name="culture">culture for parsing</param>
 		/// <returns>Formatted text used to display as cell content</returns>
-		public string FormatCell(Cell cell)
+		public string FormatCell(Cell cell, CultureInfo culture)
 		{
 			object data = cell.InnerData;
 
@@ -54,29 +50,29 @@ namespace unvell.ReoGrid.DataFormat
 			else
 			{
 				string strdata = (data is string ? (string)data : Convert.ToString(data));
-				isFormat = DateTime.TryParse(strdata, out value);
-				if (isFormat)
+				double number;
+				bool isnumber = double.TryParse(strdata, NumberStyles.Float, culture, out number);
+				if (DateTime.TryParse(strdata, culture, DateTimeStyles.None, out value) && !isnumber)
 				{
 					cell.InnerData = value;
-					var culture = Thread.CurrentThread.CurrentCulture;
-					cell.DataFormatArgs = new DateTimeFormatArgs
+					isFormat = true;
+					if (cell.DataFormatArgs == null)
 					{
-						Format = culture.DateTimeFormat.ShortDatePattern,
-						CultureName = culture.Name
-					};
-				}
-				else
-				{
-					double number;
-					if (double.TryParse(strdata, NumberStyles.Any, CultureInfo.InvariantCulture, out number))
-					{
-						try
+						cell.DataFormatArgs = new DateTimeFormatArgs
 						{
-							value = DateTime.FromOADate(number);
-							isFormat = true;
-						}
-						catch { }
+							Format = culture.DateTimeFormat.ShortDatePattern,
+							CultureName = culture.Name
+						};
 					}
+				}
+				else if (isnumber)
+				{
+					try
+					{
+						value = DateTime.FromOADate(number);
+						isFormat = true;
+					}
+					catch { }
 				}
 			}
 
@@ -87,7 +83,7 @@ namespace unvell.ReoGrid.DataFormat
 					cell.RenderHorAlign = ReoGridRenderHorAlign.Right;
 				}
 
-				CultureInfo culture = Thread.CurrentThread.CurrentCulture;
+				culture = cell.Worksheet.Culture;
 				string pattern = culture.DateTimeFormat.ShortDatePattern;
 
 				if (cell.DataFormatArgs is DateTimeFormatArgs args)
@@ -100,7 +96,7 @@ namespace unvell.ReoGrid.DataFormat
 
 					if (args.CultureName != null && args.CultureName != culture.Name)
 					{
-						culture = new CultureInfo(args.CultureName);
+						culture = CultureInfo.GetCultureInfoByIetfLanguageTag(args.CultureName);
 					}
 				}
 
