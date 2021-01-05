@@ -61,6 +61,8 @@ using RGKeys = System.Windows.Forms.Keys;
 using unvell.ReoGrid.Graphics;
 using unvell.ReoGrid.Interaction;
 using unvell.ReoGrid.Main;
+using System.Globalization;
+using System.Threading;
 
 namespace unvell.ReoGrid
 {
@@ -93,6 +95,8 @@ namespace unvell.ReoGrid
 			}
 		}
 		#endregion // ControlAdapter
+
+		public CultureInfo Culture { get; set; } = Thread.CurrentThread.CurrentCulture;
 
 		#region Constants
 		/// <summary>

@@ -143,7 +143,7 @@ namespace unvell.ReoGrid
 			this.ScaleFactor = 1f;
 
 			// todo: clear current view controller and viewport position
-			CultureInfo culture = Thread.CurrentThread.CurrentCulture;
+			CultureInfo culture = CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
 
 			#region Head
 			// head
@@ -201,6 +201,8 @@ namespace unvell.ReoGrid
 						Logger.Log("load", "warning: unsupported culture: " + cultureName);
 					}
 				}
+
+				Culture = culture;
 
 				// load default header size
 				defaultRowHeight = head.defaultRowHeight;
