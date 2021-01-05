@@ -47,7 +47,7 @@ namespace unvell.ReoGrid.Actions
 		/// </summary>
 		public override void Do()
 		{
-			backupData = Worksheet.GetPartialGrid(Range, PartialGridCopyFlag.CellFormat);
+			backupData = Worksheet.GetPartialGrid(Range, PartialGridCopyFlag.CellAll);
 			Worksheet.SetRangeDataFormat(Range, format, formatArgs);
 		}
 
@@ -56,7 +56,7 @@ namespace unvell.ReoGrid.Actions
 		/// </summary>
 		public override void Undo()
 		{
-			Worksheet.SetPartialGrid(Range, backupData, PartialGridCopyFlag.CellFormat);
+			Worksheet.SetPartialGrid(Range, backupData, PartialGridCopyFlag.CellAll);
 		}
 
 		/// <summary>
