@@ -66,7 +66,7 @@ namespace unvell.ReoGrid.PropertyPages
 
 		private object originalData = null;
 
-		private CellDataFormatFlag? currentFormat = null;
+		private CellDataFormatFlag currentFormat = CellDataFormatFlag.General;
 		private object currentFormatArgs = null;
 
 		private Panel currentSettingPanel = null;
@@ -354,7 +354,7 @@ namespace unvell.ReoGrid.PropertyPages
 			if (sampleCell != null)
 			{
 				sampleCell.Data = originalData;
-				sampleCell.DataFormat = currentFormat ?? CellDataFormatFlag.General;
+				sampleCell.DataFormat = currentFormat;
 				sampleCell.DataFormatArgs = currentFormatArgs;
 
 				// force format sample cell
@@ -365,7 +365,7 @@ namespace unvell.ReoGrid.PropertyPages
 			}
 		}
 
-		private CellDataFormatFlag? backupFormat;
+		private CellDataFormatFlag backupFormat = CellDataFormatFlag.General;
 		private object backupFormatArgs;
 
 		public void LoadPage()
@@ -374,7 +374,7 @@ namespace unvell.ReoGrid.PropertyPages
 
 			sheet.IterateCells(sheet.SelectionRange, (r, c, cell) =>
 			{
-				if (backupFormat == null)
+				if (backupFormat == CellDataFormatFlag.General)
 				{
 					sampleCell = cell.Clone();
 					unvell.ReoGrid.Utility.CellUtility.CopyCellContent(sampleCell, cell);
@@ -390,7 +390,7 @@ namespace unvell.ReoGrid.PropertyPages
 				}
 				else
 				{
-					backupFormat = null;
+					backupFormat = CellDataFormatFlag.General;
 					return false;
 				}
 			});
@@ -399,14 +399,15 @@ namespace unvell.ReoGrid.PropertyPages
 
 			backupFormatArgs = null;
 
-			if (currentFormat != null)
+			if (currentFormat != CellDataFormatFlag.General)
 			{
 				switch (currentFormat)
 				{
 					case CellDataFormatFlag.Number:
-						if (sampleCell.DataFormatArgs is NumberDataFormatter.NumberFormatArgs)
+						if ((sampleCell.DataFormatArgs
+							?? new NumberDataFormatter.NumberFormatArgs())
+							is NumberDataFormatter.NumberFormatArgs nargs)
 						{
-							NumberDataFormatter.NumberFormatArgs nargs = (NumberDataFormatter.NumberFormatArgs)sampleCell.DataFormatArgs;
 							numberDecimalPlaces.Value = nargs.DecimalPlaces;
 							chkNumberUseSeparator.Checked = nargs.UseSeparator;
 							foreach (NegativeStyleListItem item in numberNegativeStyleList.Items)
@@ -417,8 +418,8 @@ namespace unvell.ReoGrid.PropertyPages
 									break;
 								}
 							}
-							backupFormatArgs = nargs;
 						}
+						backupFormatArgs = sampleCell.DataFormatArgs;
 						break;
 
 					case CellDataFormatFlag.DateTime:
@@ -445,7 +446,7 @@ namespace unvell.ReoGrid.PropertyPages
 							}
 						}
 						datetimeFormatList.SelectedItem = df;
-						backupFormatArgs = dargs;
+						backupFormatArgs = sampleCell.DataFormatArgs;
 						break;
 
 					case CellDataFormatFlag.Currency:
@@ -471,13 +472,17 @@ namespace unvell.ReoGrid.PropertyPages
 							}
 						}
 
-						backupFormatArgs = cargs;
+						backupFormatArgs = sampleCell.DataFormatArgs;
 						break;
 
 					case CellDataFormatFlag.Percent:
-						var pargs = (NumberDataFormatter.NumberFormatArgs)sampleCell.DataFormatArgs;
-						percentDecimalPlaces.Value = pargs.DecimalPlaces;
-						backupFormatArgs = pargs;
+						if ((sampleCell.DataFormatArgs
+							?? new NumberDataFormatter.NumberFormatArgs())
+							is NumberDataFormatter.NumberFormatArgs pargs)
+						{
+							percentDecimalPlaces.Value = pargs.DecimalPlaces;
+						}
+						backupFormatArgs = sampleCell.DataFormatArgs;
 						break;
 				}
 
@@ -502,14 +507,12 @@ namespace unvell.ReoGrid.PropertyPages
 
 		public WorksheetReusableAction CreateUpdateAction()
 		{
-			if (currentFormat != backupFormat || currentFormatArgs != backupFormatArgs
-				&& currentFormat != null)
+			if (currentFormat != backupFormat || currentFormatArgs != backupFormatArgs)
 			{
 				return new SetRangeDataFormatAction(grid.CurrentWorksheet.SelectionRange,
-					(CellDataFormatFlag)currentFormat, currentFormatArgs);
+					currentFormat, currentFormatArgs);
 			}
-			else
-				return null;
+			return null;
 		}
 
 		#region CurrencySymbolListItem
