@@ -167,6 +167,14 @@ namespace unvell.ReoGrid.Chart
 		}
 
 		/// <summary>
+		/// MeasureSize() produces a layout scaled to the resulting bounds.
+		/// Therefore, nop out OnBoundsChanged() to prevent excess scaling.
+		/// </summary>
+		public override void OnBoundsChanged(Rectangle oldRect)
+		{
+		}
+
+		/// <summary>
 		/// Layout all legned items.
 		/// </summary>
 		public virtual void MeasureSize(Rectangle parentClientRect)
