@@ -582,7 +582,7 @@ namespace unvell.ReoGrid
 			return new RangePosition(minr, minc, rows, cols);
 		}
 
-		private void ApplyRangeSelection(CellPosition start, CellPosition end, bool appendSelect)
+		private void ApplyRangeSelection(CellPosition start, CellPosition end, bool appendSelect, bool noScroll = false)
 		{
 			if (!appendSelect)
 			{
@@ -632,7 +632,7 @@ namespace unvell.ReoGrid
 					)
 				{
 					// skip to scroll if entire worksheet is selected
-					if (!(start.Row == 0 && start.Col == 0
+					if (!(noScroll || start.Row == 0 && start.Col == 0
 						&& selEnd.Row == this.rows.Count - 1 && selEnd.Col == this.cols.Count - 1))
 					{
 						this.ScrollToCell(selEnd);
@@ -780,10 +780,11 @@ namespace unvell.ReoGrid
 		{
 			if (range.IsEmpty || this.selectionMode == WorksheetSelectionMode.None) return;
 
+			bool noScroll = range.Rows == -1 || range.Cols == -1;
 			range = this.FixRange(range);
 
 			// submit to select a range 
-			ApplyRangeSelection(range.StartPos, range.EndPos, true);
+			ApplyRangeSelection(range.StartPos, range.EndPos, true, noScroll);
 		}
 
 		/// <summary>
