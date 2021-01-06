@@ -60,7 +60,7 @@ namespace unvell.ReoGrid.WinForm
 		{
 			this.sf = new StringFormat(StringFormat.GenericTypographic)
 			{
-				FormatFlags = StringFormatFlags.MeasureTrailingSpaces
+				FormatFlags = StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.FitBlackBox
 			};
 		}
 
