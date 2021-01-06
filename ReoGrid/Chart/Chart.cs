@@ -913,17 +913,21 @@ namespace unvell.ReoGrid.Chart
 					int serialCount = ds.SerialCount;
 					int categoryCount = ds.CategoryCount;
 
-					var total = (ai.Maximum - ai.Minimum);
+					var total = ai.Maximum - ai.Minimum;
+					var clientSize = PlotViewContainer.Size;
+					var isTransposed = this is BarChart; // TODO: should be more generic
 
-					var clientSize = this.PlotViewContainer.Size;
+					double width = isTransposed ? clientSize.Height : clientSize.Width;
+					double height = isTransposed ? clientSize.Width : clientSize.Height;
 
-					RGFloat scaleX = clientSize.Width / categoryCount;
-					double scaleY = clientSize.Height / total;
+					double scaleX = width / categoryCount;
+					double scaleY = height / total;
 
-					this.ZeroHeight = (RGFloat)(clientSize.Height + clientSize.Height * ai.Minimum / total);
-					this.ZeroWidth = (RGFloat)(clientSize.Width * ai.Minimum / total);
+					height *= ai.Minimum / total;
+					width *= ai.Minimum / total;
 
-					var colHalf = clientSize.Width / categoryCount / 2;
+					ZeroWidth = (RGFloat)(isTransposed ? -height : width);
+					ZeroHeight = (RGFloat)(isTransposed ? width : height + clientSize.Height);
 
 					for (int r = 0; r < serialCount; r++)
 					{
@@ -933,18 +937,18 @@ namespace unvell.ReoGrid.Chart
 						{
 							if (r == 0)
 							{
-								this.platColPoints[c] = colHalf + (float)c * scaleX;
+								platColPoints[c] = (RGFloat)((c + 0.5) * scaleX);
 							}
 
 							var data = serial[c];
 
 							if (data == null)
 							{
-								this.platRowPoints[r][c] = PlotPointColumn.Nil;
+								platRowPoints[r][c] = PlotPointColumn.Nil;
 							}
 							else
 							{
-								this.platRowPoints[r][c] = (RGFloat)((data) * scaleY);
+								platRowPoints[r][c] = (RGFloat)(data * scaleY);
 							}
 						}
 					}
