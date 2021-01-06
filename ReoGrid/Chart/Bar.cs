@@ -136,18 +136,18 @@ namespace unvell.ReoGrid.Chart
 			var columns = ds.CategoryCount;
 
 			var groupColumnWidth = availableHeight / columns;
-			var groupColumnSpace = ((clientRect.Height - availableHeight) / (columns + 1));
+			var groupColumnSpace = columns > 1 ? (clientRect.Height - availableHeight) / (columns - 1) : 0;
 			var singleColumnHeight = groupColumnWidth / rows;
 
 			var ai = axisChart.PrimaryAxisInfo;
 
-			double y = groupColumnSpace;
+			double y = 0;
 
 			var g = dc.Graphics;
 
 			for (int c = 0; c < columns; c++)
 			{
-				for (int r = 0; r < ds.SerialCount; r++)
+				for (int r = 0; r < rows; r++)
 				{
 					var pt = axisChart.PlotDataPoints[r][c];
 
