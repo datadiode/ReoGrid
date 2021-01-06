@@ -185,11 +185,6 @@ namespace unvell.ReoGrid.Chart
 		/// <returns></returns>
 		protected virtual Rectangle GetLegendBounds(Rectangle plotViewBounds, LegendType type, LegendPosition position)
 		{
-			if (!this.showLegend)
-			{
-				return new Rectangle(0, 0, 0, 0);
-			}
-
 			var clientRect = this.ClientBounds;
 
 			Size legendSize = Size.Zero;
@@ -288,9 +283,7 @@ namespace unvell.ReoGrid.Chart
 		/// </summary>
 		protected virtual void OnDataChanged()
 		{
-			this.UpdatePlotData();
-
-			this.UpdateLayout();
+			this.layoutDirty = true;
 
 			if (this.ChartDataChanged != null)
 			{
@@ -308,9 +301,7 @@ namespace unvell.ReoGrid.Chart
 		/// </summary>
 		protected virtual void OnDataSourceChanged()
 		{
-			this.UpdatePlotData();
-
-			this.UpdateLayout();
+			this.layoutDirty = true;
 
 			if (this.DataSourceChanged != null)
 			{
@@ -707,7 +698,9 @@ namespace unvell.ReoGrid.Chart
 
 			double range = maxData - minData;
 
-			ai.Levels = (int)Math.Ceiling(clientRect.Height / 30f);
+			var isTransposed = this is BarChart; // TODO: should be more generic
+
+			ai.Levels = (int)Math.Ceiling((isTransposed ? clientRect.Width : clientRect.Height) / 30f);
 
 			// when clientRect is zero, nothing to do
 			if (double.IsNaN(ai.Levels))
@@ -988,20 +981,8 @@ namespace unvell.ReoGrid.Chart
 			base.UpdateLayout();
 
 			this.ResetDrawPoints();
+			this.UpdatePlotData();
 			this.UpdateDrawPoints();
-
-			//if (this.PlotViewContainer != null)
-			//{
-			//	var bodyBounds = this.PlotViewContainer.Bounds;
-
-			//	if (this.HorizontalAxisInfoView != null)
-			//	{
-			//		this.HorizontalAxisInfoView.Bounds = GetDefaultHorizontalAxisInfoViewBounds(bodyBounds);
-			//	}
-
-			//	this.UpdateChart();
-			//	this.UpdateDrawPoints();
-			//}
 
 			this.GuideLineBackgroundView.Bounds = this.PlotViewContainer.ClientBounds;
 
@@ -1012,8 +993,11 @@ namespace unvell.ReoGrid.Chart
 		{
 			const RGFloat spacing = 10;
 
-			this.VerticalAxisInfoView.Bounds = new Rectangle(this.ClientBounds.X, plotRect.Y - 5, 30, plotRect.Height + 10);
-			this.HorizontalAxisInfoView.Bounds = new Rectangle(plotRect.X, plotRect.Bottom + spacing, plotRect.Width, 10);
+			var isTransposed = this is BarChart; // TODO: should be more generic
+			var vbounds = new Rectangle(ClientBounds.X, plotRect.Y - 5, plotRect.X - ClientBounds.X - spacing, plotRect.Height + 10);
+			var hbounds = new Rectangle(plotRect.X, plotRect.Bottom + spacing, plotRect.Width, 10);
+			VerticalAxisInfoView.Bounds = isTransposed ? hbounds : vbounds;
+			HorizontalAxisInfoView.Bounds = isTransposed ? vbounds : hbounds;
 		}
 
 		protected override Rectangle GetPlotViewBounds(Rectangle bodyBounds)

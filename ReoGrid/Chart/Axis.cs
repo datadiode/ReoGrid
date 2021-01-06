@@ -275,7 +275,6 @@ namespace unvell.ReoGrid.Chart
 			var boxes = new List<Size>();
 
 			int dataCount = ds.CategoryCount;
-			double rowValue = ai.Minimum;
 
 			for (int i = 0; i < dataCount; i++)
 			{
@@ -319,7 +318,7 @@ namespace unvell.ReoGrid.Chart
 			}
 			else if (orientation == AxisOrientation.Vertical)
 			{
-				RGFloat rowHeight = (clientRect.Height) / dataCount;
+				RGFloat rowHeight = (clientRect.Height - 10) / dataCount;
 
 				var maxHeight = boxes.Max(b => b.Height);
 				var showableRows = clientRect.Height / maxHeight;
@@ -334,9 +333,9 @@ namespace unvell.ReoGrid.Chart
 					if (titles.TryGetValue(i, out text) && !string.IsNullOrEmpty(text))
 					{
 						var size = boxes[i];
-						var textRect = new Rectangle(0, rowHeight * i, clientRect.Width, rowHeight);
+						var textRect = new Rectangle(0, rowHeight * i + 5, clientRect.Width, rowHeight);
 
-						g.DrawText(text, this.FontName, this.FontSize, this.ForeColor, textRect, ReoGridHorAlign.Center, ReoGridVerAlign.Middle);
+						g.DrawText(text, this.FontName, this.FontSize, this.ForeColor, textRect, ReoGridHorAlign.Right, ReoGridVerAlign.Middle);
 					}
 				}
 			}

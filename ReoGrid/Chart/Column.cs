@@ -141,19 +141,19 @@ namespace unvell.ReoGrid.Chart
 			var rows = ds.SerialCount;
 			var columns = ds.CategoryCount;
 
-			var roundColumnWidth = availableWidth / columns;
-			var roundColumnSpace = ((clientRect.Width - availableWidth) / (columns + 1));
-			var singleColumnWidth = roundColumnWidth / rows;
+			var groupColumnWidth = availableWidth / columns;
+			var groupColumnSpace = (clientRect.Width - availableWidth) / columns;
+			var singleColumnWidth = groupColumnWidth / rows;
 
 			var ai = axisChart.PrimaryAxisInfo;
 
-			double x = roundColumnSpace;
+			double x = groupColumnSpace / 2;
 
 			var g = dc.Graphics;
 
 			for (int c = 0; c < columns; c++)
 			{
-				for (int r = 0; r < ds.SerialCount; r++)
+				for (int r = 0; r < rows; r++)
 				{
 					var pt = axisChart.PlotDataPoints[r][c];
 
@@ -174,7 +174,7 @@ namespace unvell.ReoGrid.Chart
 					x += singleColumnWidth;
 				}
 
-				x += roundColumnSpace;
+				x += groupColumnSpace;
 			}
 		}
 	}

@@ -90,12 +90,27 @@ namespace unvell.ReoGrid.Chart
 			};
 		}
 
-		protected override void UpdateAxisLabelViewLayout(Rectangle plotRect)
+		protected override Rectangle GetPlotViewBounds(Rectangle bodyBounds)
 		{
-			const RGFloat spacing = 10;
+			var rect = base.GetPlotViewBounds(bodyBounds);
 
-			this.HorizontalAxisInfoView.Bounds = new Rectangle(this.ClientBounds.X, plotRect.Y - 5, 30, plotRect.Height + 10);
-			this.VerticalAxisInfoView.Bounds = new Rectangle(plotRect.X, plotRect.Bottom + spacing, plotRect.Width, 10);
+			RGFloat extraWidth = 0;
+
+			for (int i = 0; i < DataSource.CategoryCount; i++)
+			{
+				var title = DataSource.GetCategoryName(i);
+
+				if (!string.IsNullOrEmpty(title))
+				{
+					var size = PlatformUtility.MeasureText(null, title, this.FontName, this.FontSize, Drawing.Text.FontStyles.Regular);
+					if (extraWidth < size.Width)
+						extraWidth = size.Width;
+				}
+			}
+
+			extraWidth -= 30; // to compensate for the 30 units set aside by base.GetPlotViewBounds()
+
+			return new Rectangle(rect.X + extraWidth, rect.Y, rect.Width - extraWidth, rect.Height);
 		}
 	}
 
@@ -136,12 +151,12 @@ namespace unvell.ReoGrid.Chart
 			var columns = ds.CategoryCount;
 
 			var groupColumnWidth = availableHeight / columns;
-			var groupColumnSpace = columns > 1 ? (clientRect.Height - availableHeight) / (columns - 1) : 0;
+			var groupColumnSpace = (clientRect.Height - availableHeight) / columns;
 			var singleColumnHeight = groupColumnWidth / rows;
 
 			var ai = axisChart.PrimaryAxisInfo;
 
-			double y = 0;
+			double y = groupColumnSpace / 2;
 
 			var g = dc.Graphics;
 
