@@ -322,7 +322,7 @@ namespace unvell.ReoGrid.Chart
 				RGFloat rowHeight = (clientRect.Height) / dataCount;
 
 				var maxHeight = boxes.Max(b => b.Height);
-				var showableRows = clientRect.Width / maxHeight;
+				var showableRows = clientRect.Height / maxHeight;
 
 				int showTitleStride = (int)Math.Ceiling(dataCount / showableRows);
 				if (showTitleStride < 1) showTitleStride = 1;
