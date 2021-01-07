@@ -202,9 +202,6 @@ namespace unvell.ReoGrid.Chart
 
 				var labelSize = this.GetLabelSize(legendItem);
 
-				// should +6, don't know why
-				labelSize.Width += 6;
-
 				if (maxLabelWidth < labelSize.Width) maxLabelWidth = labelSize.Width;
 				if (maxLabelHeight < labelSize.Height) maxLabelHeight = labelSize.Height;
 
@@ -221,7 +218,12 @@ namespace unvell.ReoGrid.Chart
 			var itemHeight = Math.Max(maxSymbolHeight, maxLabelHeight);
 
 			var clientRect = parentClientRect;
-			RGFloat x = 0, y = 0, right = 0, bottom = 0;
+			RGFloat x = 0, y = 0, right = 0, bottom = 0, overflow = 0;
+
+			if (LegendPosition == LegendPosition.Top || LegendPosition == LegendPosition.Bottom)
+			{
+				overflow = clientRect.Width - itemWidth;
+			}
 
 			for (int index = 0; index < dataCount; index++)
 			{
@@ -238,24 +240,14 @@ namespace unvell.ReoGrid.Chart
 					if (bottom < legendItem.Bottom) bottom = legendItem.Bottom;
 				}
 
-				x += itemWidth;
-
 				const RGFloat itemSpacing = 10;
 
-				if (this.LegendPosition == LegendPosition.Left || this.LegendPosition == LegendPosition.Right)
+				x += itemWidth + itemSpacing;
+
+				if (x > overflow)
 				{
 					x = 0;
 					y += itemHeight + itemSpacing;
-				}
-				else
-				{
-					x += itemSpacing;
-
-					if (x > clientRect.Width)
-					{
-						x = 0;
-						y += itemHeight + itemSpacing;
-					}
 				}
 			}
 			#endregion // Layout
