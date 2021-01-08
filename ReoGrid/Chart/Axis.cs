@@ -271,8 +271,8 @@ namespace unvell.ReoGrid.Chart
 			var ds = this.Chart.DataSource;
 			var clientRect = this.ClientBounds;
 
-			var titles = new Dictionary<int, string>();
-			var boxes = new List<Size>();
+			RGFloat maxWidth = 0;
+			RGFloat maxHeight = 0;
 
 			int dataCount = ds.CategoryCount;
 
@@ -282,20 +282,19 @@ namespace unvell.ReoGrid.Chart
 
 				if (!string.IsNullOrEmpty(title))
 				{
-					titles[i] = title;
-					boxes.Add(PlatformUtility.MeasureText(dc.Renderer, title, this.FontName, this.FontSize, Drawing.Text.FontStyles.Regular));
-				}
-				else
-				{
-					boxes.Add(new Size(0, 0));
+					var size = PlatformUtility.MeasureText(dc.Renderer, title, this.FontName, this.FontSize, Drawing.Text.FontStyles.Regular);
+
+					if (maxWidth < size.Width)
+						maxWidth = size.Width;
+					if (maxHeight < size.Height)
+						maxHeight = size.Height;
 				}
 			}
 
-			if (orientation == AxisOrientation.Horizontal)
+			if (orientation == AxisOrientation.Horizontal && maxWidth != 0)
 			{
 				RGFloat columnWidth = (clientRect.Width) / dataCount;
 
-				var maxWidth = boxes.Max(b => b.Width);
 				var showableColumns = clientRect.Width / maxWidth;
 
 				int showTitleStride = (int)Math.Ceiling(dataCount / showableColumns);
@@ -305,22 +304,20 @@ namespace unvell.ReoGrid.Chart
 
 				for (int i = 0; i < dataCount; i += showTitleStride)
 				{
-					string text = null;
+					string text = ds.GetCategoryName(i);
 
-					if (titles.TryGetValue(i, out text) && !string.IsNullOrEmpty(text))
+					if (!string.IsNullOrEmpty(text))
 					{
-						var size = boxes[i];
-						var textRect = new Rectangle(columnWidth * i, 0, columnWidth, clientRect.Height);
+						var textRect = new Rectangle(columnWidth * i, 0, columnWidth * showTitleStride, clientRect.Height);
 
 						g.DrawText(text, this.FontName, this.FontSize, this.ForeColor, textRect, ReoGridHorAlign.Center, ReoGridVerAlign.Middle);
 					}
 				}
 			}
-			else if (orientation == AxisOrientation.Vertical)
+			else if (orientation == AxisOrientation.Vertical && maxHeight != 0)
 			{
 				RGFloat rowHeight = (clientRect.Height - 10) / dataCount;
 
-				var maxHeight = boxes.Max(b => b.Height);
 				var showableRows = clientRect.Height / maxHeight;
 
 				int showTitleStride = (int)Math.Ceiling(dataCount / showableRows);
@@ -328,11 +325,10 @@ namespace unvell.ReoGrid.Chart
 
 				for (int i = 0; i < dataCount; i += showTitleStride)
 				{
-					string text = null;
+					string text = ds.GetCategoryName(i);
 
-					if (titles.TryGetValue(i, out text) && !string.IsNullOrEmpty(text))
+					if (!string.IsNullOrEmpty(text))
 					{
-						var size = boxes[i];
 						var textRect = new Rectangle(0, rowHeight * i + 5, clientRect.Width, rowHeight);
 
 						g.DrawText(text, this.FontName, this.FontSize, this.ForeColor, textRect, ReoGridHorAlign.Right, ReoGridVerAlign.Middle);
