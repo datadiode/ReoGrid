@@ -184,11 +184,11 @@ namespace unvell.ReoGrid.Demo
 					web.Document.OpenNew(true);
 					web.Visible = true;
 				}
-				else if (item.docUrl != null && !string.IsNullOrEmpty(item.docUrl.val))
+				/*else if (item.docUrl != null && !string.IsNullOrEmpty(item.docUrl.val))
 				{
 					web.Navigate(string.Format("{0}/{1}", demoFile.baseSite, item.docUrl.val));
 					web.Visible = true;
-				}
+				}*/
 				else
 				{
 					web.Visible = false;
