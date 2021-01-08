@@ -23,6 +23,8 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.Threading;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 using unvell.ReoGrid.DataFormat;
 using unvell.ReoGrid.Actions;
@@ -365,6 +367,17 @@ namespace unvell.ReoGrid.PropertyPages
 			}
 		}
 
+		private static object Clone(object obj)
+		{
+			using (var ms = new MemoryStream())
+			{
+				var formatter = new BinaryFormatter();
+				formatter.Serialize(ms, obj);
+				ms.Position = 0;
+				return formatter.Deserialize(ms);
+			}
+		}
+
 		private CellDataFormatFlag backupFormat = CellDataFormatFlag.General;
 		private object backupFormatArgs;
 
@@ -419,7 +432,7 @@ namespace unvell.ReoGrid.PropertyPages
 								}
 							}
 						}
-						backupFormatArgs = sampleCell.DataFormatArgs;
+						backupFormatArgs = Clone(sampleCell.DataFormatArgs);
 						break;
 
 					case CellDataFormatFlag.DateTime:
@@ -446,7 +459,7 @@ namespace unvell.ReoGrid.PropertyPages
 							}
 						}
 						datetimeFormatList.SelectedItem = df;
-						backupFormatArgs = sampleCell.DataFormatArgs;
+						backupFormatArgs = Clone(sampleCell.DataFormatArgs);
 						break;
 
 					case CellDataFormatFlag.Currency:
@@ -472,7 +485,7 @@ namespace unvell.ReoGrid.PropertyPages
 							}
 						}
 
-						backupFormatArgs = sampleCell.DataFormatArgs;
+						backupFormatArgs = Clone(sampleCell.DataFormatArgs);
 						break;
 
 					case CellDataFormatFlag.Percent:
@@ -482,7 +495,7 @@ namespace unvell.ReoGrid.PropertyPages
 						{
 							percentDecimalPlaces.Value = pargs.DecimalPlaces;
 						}
-						backupFormatArgs = sampleCell.DataFormatArgs;
+						backupFormatArgs = Clone(sampleCell.DataFormatArgs);
 						break;
 				}
 
@@ -507,10 +520,9 @@ namespace unvell.ReoGrid.PropertyPages
 
 		public WorksheetReusableAction CreateUpdateAction()
 		{
-			if (currentFormat != backupFormat || currentFormatArgs != backupFormatArgs)
+			if (currentFormat != backupFormat || !object.Equals(currentFormatArgs, backupFormatArgs))
 			{
-				return new SetRangeDataFormatAction(grid.CurrentWorksheet.SelectionRange,
-					currentFormat, currentFormatArgs);
+				return new SetRangeDataFormatAction(grid.CurrentWorksheet.SelectionRange, currentFormat, currentFormatArgs);
 			}
 			return null;
 		}
@@ -544,7 +556,7 @@ namespace unvell.ReoGrid.PropertyPages
 				{
 					return Culture.EnglishName;
 				}
-      }
+			}
 		}
 		#endregion // CurrencySymbolListItem
 
@@ -564,7 +576,7 @@ namespace unvell.ReoGrid.PropertyPages
 			{
 			}
 
-      public NegativeStyleListItem(NumberDataFormatter.NumberNegativeStyle negativeStyle,
+			public NegativeStyleListItem(NumberDataFormatter.NumberNegativeStyle negativeStyle,
 				string sample, Color textColor, Color backColor)
 				: this()
 			{
