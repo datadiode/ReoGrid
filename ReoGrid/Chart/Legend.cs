@@ -173,17 +173,22 @@ namespace unvell.ReoGrid.Chart
 			#region Measure Sizes
 			for (int index = 0; index < count; index++)
 			{
+				string label = GetSymbolText(index);
+
+				if (string.IsNullOrEmpty(label)) continue;
+
 				var symbolSize = GetSymbolSize(index);
 
 				if (maxSymbolWidth < symbolSize.Width) maxSymbolWidth = symbolSize.Width;
 				if (maxSymbolHeight < symbolSize.Height) maxSymbolHeight = symbolSize.Height;
 
-				string label = GetSymbolText(index);
-
-				if (string.IsNullOrEmpty(label)) continue;
-
-				var legendItem = new ChartLegendItem(Chart.DataSerialStyles[index], label);
-				legendItem.SymbolBounds = new Rectangle(new Point(0, 0), symbolSize);
+				var legendItem = new ChartLegendItem(Chart.DataSerialStyles[index], label)
+				{
+					FontName = FontName,
+					FontSize = FontSize,
+					FontStyles = FontStyles,
+					SymbolBounds = new Rectangle(new Point(0, 0), symbolSize),
+				};
 
 				var labelSize = PlatformUtility.MeasureText(null, label, legendItem.FontName, legendItem.FontSize, legendItem.FontStyles);
 
