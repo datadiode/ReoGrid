@@ -30,6 +30,7 @@ using RGFloat = System.Double;
 using unvell.ReoGrid.Graphics;
 using unvell.ReoGrid.Drawing.Shapes;
 using unvell.ReoGrid.Drawing;
+using unvell.ReoGrid.Rendering;
 
 namespace unvell.ReoGrid.Chart
 {
@@ -39,7 +40,6 @@ namespace unvell.ReoGrid.Chart
 	public class PieChart : Chart
 	{
 		internal virtual PieChartDataInfo DataInfo { get; private set; }
-		internal virtual List<RGFloat> PlotPieAngles { get; private set; }
 		internal virtual PiePlotView PiePlotView { get; private set; }
 
 		/// <summary>
@@ -48,15 +48,13 @@ namespace unvell.ReoGrid.Chart
 		public PieChart()
 		{
 			this.DataInfo = new PieChartDataInfo();
-			this.PlotPieAngles = new List<RGFloat>();
-			
 			this.AddPlotViewLayer(this.PiePlotView = CreatePlotViewInstance());
 		}
 
 		#region Legend
 		protected override ChartLegend CreateChartLegend(LegendType type)
 		{
-			var chartLegend = base.CreateChartLegend(type);
+			var chartLegend = new ChartLegendByCategory(this);
 
 			if (type == LegendType.PrimaryLegend)
 			{
@@ -88,98 +86,6 @@ namespace unvell.ReoGrid.Chart
 				minSize, minSize);
 		}
 		#endregion // Layout
-
-		#region Data Serials
-		//public override int GetSerialCount()
-		//{
-		//	return this.DataSource.CategoryCount;
-		//}
-		//public override string GetSerialName(int index)
-		//{
-		//	return this.DataSource == null ? string.Empty : this.DataSource.GetCategoryName(index);
-		//}
-		#endregion // Data Serials
-
-		#region Update Draw Points
-		//protected override int GetSerialStyleCount()
-		//{
-		//	var ds = this.DataSource;
-		//	return ds == null ? 0 : ds.CategoryCount;
-		//}
-
-		/// <summary>
-		/// Update data serial information.
-		/// </summary>
-		protected override void UpdatePlotData()
-		{
-			var ds = this.DataSource;
-
-			if (ds == null) return;
-
-			double sum = 0;
-
-			if (ds != null && ds.SerialCount > 0)
-			{
-				for (int index = 0; index < ds.SerialCount; index++)
-				{
-					double? data = ds[index][0];
-
-					if (data != null)
-					{
-						sum += (double)data;
-					}
-				}
-			}
-
-			this.DataInfo.Total = sum;
-
-			this.UpdatePlotPoints();
-		}
-
-		/// <summary>
-		/// Update plot calculation points.
-		/// </summary>
-		protected virtual void UpdatePlotPoints()
-		{
-			var ds = this.DataSource;
-
-			if (ds != null)
-			{
-				int dataCount = ds.SerialCount;
-
-				var clientRect = this.ClientBounds;
-				RGFloat scale = (RGFloat)(360.0 / this.DataInfo.Total);
-
-				for (int i = 0; i < dataCount; i++)
-				{
-					var data = ds[i][0];
-
-					if (data != null)
-					{
-						RGFloat angle = (RGFloat)(data * scale);
-
-						if (i >= this.PlotPieAngles.Count)
-						{
-							this.PlotPieAngles.Add(angle);
-						}
-						else
-						{
-							this.PlotPieAngles[i] = angle;
-						}
-					}
-				}
-			}
-			else
-			{
-				this.PlotPieAngles.Clear();
-			}
-
-			if (this.PiePlotView != null)
-			{
-				this.PiePlotView.Invalidate();
-			}
-		}
-		#endregion // Update Draw Points
 	}
 	
 	/// <summary>
@@ -202,51 +108,6 @@ namespace unvell.ReoGrid.Chart
 		public PiePlotView(Chart chart)
 			: base(chart)
 		{
-			this.Chart.DataSourceChanged += Chart_DataSourceChanged;
-			this.Chart.ChartDataChanged += Chart_DataSourceChanged;
-		}
-
-		~PiePlotView()
-		{
-			this.Chart.DataSourceChanged -= Chart_DataSourceChanged;
-			this.Chart.ChartDataChanged -= Chart_DataSourceChanged;
-		}
-
-		void Chart_DataSourceChanged(object sender, EventArgs e)
-		{
-			this.UpdatePieShapes();
-		}
-
-		protected List<PieShape> PlotPieShapes = new List<PieShape>();
-
-		protected virtual void UpdatePieShapes()
-		{
-			var pieChart = this.Chart as PieChart;
-			if (pieChart == null) return;
-
-			var ds = this.Chart.DataSource;
-			if (ds != null)
-			{
-				var dataCount = ds.SerialCount;
-				RGFloat currentAngle = 0;
-
-				for (int i = 0; i < dataCount && i < pieChart.PlotPieAngles.Count; i++)
-				{
-					RGFloat angle = pieChart.PlotPieAngles[i];
-
-					if (i >= this.PlotPieShapes.Count)
-					{
-						this.PlotPieShapes.Add(CreatePieShape(this.ClientBounds));
-					}
-
-					var pie = this.PlotPieShapes[i];
-					pie.StartAngle = currentAngle;
-					pie.SweepAngle = angle;
-					pie.FillColor = pieChart.DataSerialStyles[i].FillColor;
-
-					currentAngle += angle;
-				}
-			}
 		}
 
 		protected virtual PieShape CreatePieShape(Rectangle bounds)
@@ -266,9 +127,73 @@ namespace unvell.ReoGrid.Chart
 		{
 			base.OnPaint(dc);
 
-			foreach (var pieShape in this.PlotPieShapes)
+			var ds = Chart.DataSource;
+			if (ds != null && ds.SerialCount != 0)
 			{
-				pieShape.Draw(dc);
+				var serial = ds[0];
+				var dataCount = serial.Count;
+
+				// Sum up the data values
+				double sum = 0;
+
+				for (int i = 0; i < dataCount; i++)
+				{
+					var data = serial[i];
+
+					if (data != null)
+					{
+						sum += (double)data;
+					}
+				}
+
+				// Draw the pie shapes
+				RGFloat currentAngle = 0;
+				PieShape pie = null;
+
+				for (int i = 0; i < dataCount; i++)
+				{
+					RGFloat scale = (RGFloat)(360.0 / sum);
+					var data = serial[i];
+
+					if (data != null)
+					{
+						RGFloat angle = (RGFloat)(data * scale);
+
+						pie = CreatePieShape(ClientBounds);
+						pie.StartAngle = currentAngle;
+						pie.SweepAngle = angle;
+						pie.FillColor = Chart.DataSerialStyles[i].FillColor;
+						pie.Draw(dc);
+
+						currentAngle += angle;
+					}
+				}
+
+				// Draw the category names over the pie shapes (experimental)
+				/*currentAngle = 0;
+
+				for (int i = 0; i < dataCount; i++)
+				{
+					RGFloat scale = (RGFloat)(360.0 / sum);
+					var data = serial[i];
+
+					if (data != null)
+					{
+						RGFloat angle = (RGFloat)(data * scale);
+						currentAngle += angle;
+						var itemTitle = ds.GetCategoryName(i);
+						if (itemTitle != null)
+						{
+							angle = currentAngle - angle / 2;
+							var bounds = pie.ClientBounds;
+							var x = Math.Sin(Math.PI * angle / 180) * bounds.Width / 3;
+							var y = Math.Cos(Math.PI * angle / 180) * bounds.Height / -3;
+							bounds.Offset((RGFloat)x, (RGFloat)y);
+							dc.Graphics.DrawText(itemTitle, FontName, FontSize, ForeColor, bounds,
+								ReoGridHorAlign.Center, ReoGridVerAlign.Middle);
+						}
+					}
+				}*/
 			}
 		}
 	}

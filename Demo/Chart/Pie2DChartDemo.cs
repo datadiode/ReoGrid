@@ -53,7 +53,11 @@ namespace unvell.ReoGrid.Demo.Charts
 				Size = new Graphics.Size(400, 260),
 
 				Title = "2D Pie Chart Sample",
-				DataSource = new Chart.WorksheetChartDataSource(worksheet, titleRange, dataRange, RowOrColumn.Column),
+
+				DataSource = new Chart.WorksheetChartDataSource(worksheet, null, dataRange, RowOrColumn.Both)
+				{
+					CategoryNameRange = titleRange,
+				},
 			};
 
 			worksheet.FloatingObjects.Add(c1);

@@ -26,8 +26,7 @@ namespace unvell.ReoGrid.Data
 	/// <summary>
 	/// Represents common data source.
 	/// </summary>
-	public interface IDataSource<T> //: IEnumerable<T> 
-		where T : IDataSerial
+	public interface IDataSource<T> where T : IDataSerial
 	{
 		/// <summary>
 		/// Get the number of available data serials of this source.
@@ -54,16 +53,6 @@ namespace unvell.ReoGrid.Data
 		T this[int index] { get; }
 
 		void Add(T serial);
-		
-		/// <summary>
-		/// This event will be raised when any data from the serial data range changed.
-		/// </summary>
-		event EventHandler DataChanged;
-
-		///// <summary>
-		///// This event will be raised when serial data range changed.
-		///// </summary>
-		//event EventHandler DataRangeChanged;
 	}
 
 	/// <summary>

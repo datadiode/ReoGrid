@@ -68,18 +68,6 @@ namespace unvell.ReoGrid.Chart
 
 		#region Ranges
 
-		/// <summary>
-		/// Get or set the range to read row serial titles.
-		/// </summary>
-		[Obsolete("use AddSerial method to add data serial instead")]
-		public virtual RangePosition RowTitleRange { get; set; }
-
-		/// <summary>
-		/// Get or set the range to read column serial titles.
-		/// </summary>
-		[Obsolete("use CategoryNameRange instead")]
-		public virtual RangePosition ColTitleRange { get; set; }
-
 		private int categoryCount;
 
 		#endregion // Ranges
@@ -135,13 +123,8 @@ namespace unvell.ReoGrid.Chart
 		/// <param name="serialPerRowOrColumn">Add serials by this specified direction. Default is Row.</param>
 		public WorksheetChartDataSource(Worksheet worksheet, ReferenceRange serialNamesRange, ReferenceRange serialsRange,
 			RowOrColumn serialPerRowOrColumn = RowOrColumn.Row)
-			: this(worksheet)
+			: this(worksheet ?? throw new ArgumentNullException("worksheet"))
 		{
-			if (worksheet == null)
-			{
-				throw new ArgumentNullException("worksheet");
-			}
-
 			this.AddSerialsFromRange(serialNamesRange, serialsRange, serialPerRowOrColumn);
 		}
 
@@ -159,7 +142,7 @@ namespace unvell.ReoGrid.Chart
 						new ReferenceRange(serialsRange.Worksheet, pos));
 				}
 			}
-			else
+			else if (serialPerRowOrColumn == RowOrColumn.Column)
 			{
 				for (int c = serialsRange.Col; c <= serialsRange.EndCol; c++)
 				{
@@ -170,44 +153,13 @@ namespace unvell.ReoGrid.Chart
 						new ReferenceRange(serialsRange.Worksheet, pos));
 				}
 			}
-		}
-
-		#endregion // Constructor
-
-		#region Changes
-		/// <summary>
-		/// This method will be invoked when any data from the serial data range changed.
-		/// </summary>
-		public virtual void OnDataChanged()
-		{
-			if (this.DataChanged != null)
+			else
 			{
-				this.DataChanged(this, null);
+				this.AddSerial(worksheet, serialNamesRange, serialsRange);
 			}
 		}
 
-		///// <summary>
-		///// This method will be invoked when the serial data range changed.
-		///// </summary>
-		//public virtual void OnDataRangeChanged()
-		//{
-		//	if (this.DataRangeChanged != null)
-		//	{
-		//		this.DataRangeChanged(this, null);
-		//	}
-		//}
-
-		/// <summary>
-		/// This event will be raised when data from the serial data range changed.
-		/// </summary>
-		public event EventHandler DataChanged;
-
-		///// <summary>
-		///// This event will be raised when the serial data range changed.
-		///// </summary>
-		//public event EventHandler DataRangeChanged;
-
-		#endregion // Changes
+		#endregion // Constructor
 
 		#region Category
 
@@ -225,14 +177,13 @@ namespace unvell.ReoGrid.Chart
 		{
 			if (CategoryNameRange != null)
 			{
-				var worksheet = CategoryNameRange.Worksheet ?? this.worksheet;
 				var row = CategoryNameRange.Row;
 				var col = CategoryNameRange.Col;
 				if (CategoryNameRange.Row == CategoryNameRange.EndRow ?
 					(col += index) <= CategoryNameRange.EndCol :
 					(row += index) <= CategoryNameRange.EndRow)
 				{
-					return worksheet.GetCellData<string>(row, col);
+					return (CategoryNameRange.Worksheet ?? worksheet).GetCellData<string>(row, col);
 				}
 			}
 			return null;
@@ -318,29 +269,19 @@ namespace unvell.ReoGrid.Chart
 
 		private Worksheet worksheet;
 
-		private ReferenceRange dataRange;
-
 		/// <summary>
 		/// Determine the range to read data from worksheet
 		/// </summary>
-		public virtual ReferenceRange DataRange
-		{
-			get { return dataRange; }
-			set
-			{
-				if (this.dataRange != value)
-				{
-					this.dataRange = value;
+		public ReferenceRange DataRange { get; set; }
 
-					//this.dataSource.OnDataRangeChanged();
-					this.dataSource.OnDataChanged();
-				}
-			}
-		}
-
-		//private string name;
+		/// <summary>
+		/// Determine the range to read serial labels from worksheet
+		/// </summary>
 		public ReferenceRange LabelAddress { get; set; }
 
+		/// <summary>
+		/// Create chart data serial instance with specified worksheet and reference ranges
+		/// </summary>
 		/// <param name="dataSource">Data source to read chart data from worksheet.</param>
 		/// <param name="worksheet">Instance of worksheet that contains the data to be read.</param>
 		/// <param name="labelAddress">The address to locate label of serial on worksheet.</param>
@@ -350,70 +291,8 @@ namespace unvell.ReoGrid.Chart
 			this.dataSource = dataSource ?? throw new ArgumentNullException("dataSource");
 			this.worksheet = worksheet ?? throw new ArgumentNullException("worksheet");
 			this.LabelAddress = labelAddress;
-			this.dataRange = dataRange;
-
-			var evtSource = dataRange.Worksheet ?? this.worksheet;
-			if (evtSource != null)
-			{
-				evtSource.CellDataChanged += worksheet_CellDataChanged;
-				evtSource.RangeDataChanged += worksheet_RangeDataChanged;
-			}
-			if (LabelAddress != null && LabelAddress.Worksheet != dataRange.Worksheet)
-			{
-				evtSource = LabelAddress.Worksheet ?? this.worksheet;
-				if (evtSource != null)
-				{
-					evtSource.CellDataChanged += worksheet_CellDataChanged;
-					evtSource.RangeDataChanged += worksheet_RangeDataChanged;
-				}
-			}
+			this.DataRange = dataRange;
 		}
-
-		/// <summary>
-		/// Destroy the worksheet data serial and release all event handlers to data source.
-		/// </summary>
-		~WorksheetChartDataSerial()
-		{
-			var evtSource = dataRange.Worksheet ?? this.worksheet;
-			if (evtSource != null)
-			{
-				evtSource.CellDataChanged -= worksheet_CellDataChanged;
-				evtSource.RangeDataChanged -= worksheet_RangeDataChanged;
-			}
-			if (LabelAddress != null && LabelAddress.Worksheet != dataRange.Worksheet)
-			{
-				evtSource = LabelAddress.Worksheet ?? this.worksheet;
-				if (evtSource != null)
-				{
-					evtSource.CellDataChanged -= worksheet_CellDataChanged;
-					evtSource.RangeDataChanged -= worksheet_RangeDataChanged;
-				}
-			}
-		}
-
-		#region Events
-		void worksheet_CellDataChanged(object sender, Events.CellEventArgs e)
-		{
-			var pos = e.Cell.Position;
-
-			if (dataRange.Contains(pos) ||
-				LabelAddress != null && LabelAddress.Contains(pos))
-			{
-				this.dataSource.OnDataChanged();
-			}
-		}
-
-		void worksheet_RangeDataChanged(object sender, Events.RangeEventArgs e)
-		{
-			var range = e.Range;
-
-			if (dataRange.IntersectWith(range) ||
-				LabelAddress != null && LabelAddress.IntersectWith(range))
-			{
-				this.dataSource.OnDataChanged();
-			}
-		}
-		#endregion // Events
 
 		/// <summary>
 		/// Get label text of serial.
@@ -436,10 +315,7 @@ namespace unvell.ReoGrid.Chart
 		/// <summary>
 		/// Get number of data items of current serial.
 		/// </summary>
-		public int Count
-		{
-			get { return dataRange.Cols; }
-		}
+		public int Count => Math.Max(DataRange.Rows, DataRange.Cols);
 
 		/// <summary>
 		/// Get data from serial by specified index position.
@@ -454,14 +330,14 @@ namespace unvell.ReoGrid.Chart
 			{
 				object data;
 
-				var worksheet = dataRange.Worksheet != null ? dataRange.Worksheet : this.worksheet;
-				if (this.dataRange.Rows > this.dataRange.Cols)
+				var worksheet = DataRange.Worksheet ?? this.worksheet;
+				if (DataRange.Rows > DataRange.Cols)
 				{
-					data = worksheet.GetCellData(this.dataRange.Row + index, this.dataRange.Col);
+					data = worksheet.GetCellData(DataRange.Row + index, DataRange.Col);
 				}
 				else
 				{
-					data = worksheet.GetCellData(this.dataRange.Row, this.dataRange.Col + index);
+					data = worksheet.GetCellData(DataRange.Row, DataRange.Col + index);
 				}
 
 				double val;

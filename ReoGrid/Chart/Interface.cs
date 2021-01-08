@@ -59,44 +59,12 @@ namespace unvell.ReoGrid.Chart
 		/// </summary>
 		DataSerialStyleCollection DataSerialStyles { get; }
 
-		///// <summary>
-		///// Get number of data serials from data source.
-		///// </summary>
-		///// <returns>Number of data serials.</returns>
-		//int GetSerialCount();
-
-		///// <summary>
-		///// Get name of specified data serial.
-		///// </summary>
-		///// <param name="index">Zero-based number of data serial to get name.</param>
-		///// <returns>Name in string of specified data serial.</returns>
-		//string GetSerialName(int index);
-
-		///// <summary>
-		///// Update chart legend. Update the title, legend and plot view positions.
-		///// </summary>
-		//void UpdateLayout();
+		/// <summary>
+		/// Get the chart title shown to the user, either as explicitly assigned,
+		/// or as derived from the exact one serial or category name if such exists.
+		/// </summary>
+		string GetDisplayTitle();
 	}
-
-	///// <summary>
-	///// Represents legend supported chart interface.
-	///// </summary>
-	//public interface ILegendSupportedChart
-	//{
-	//	/// <summary>
-	//	/// Get default symbol size of chart legend.
-	//	/// </summary>
-	//	/// <returns>Symbol size of chart legend.</returns>
-	//	Size GetLegendSymbolSize();
-
-	//	/// <summary>
-	//	/// Draw legend symbol for every data rows
-	//	/// </summary>
-	//	/// <param name="dc">Current instance of drawing context.</param>
-	//	/// <param name="index">Number of row in data source.</param>
-	//	/// <param name="bounds">Symbol bounds relative to legend view.</param>
-	//	void DrawLegendSymbol(DrawingContext dc, int index, Rectangle bounds);
-	//}
 
 	/// <summary>
 	/// Event arguments for drawing context in Chart

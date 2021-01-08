@@ -51,7 +51,7 @@ namespace unvell.ReoGrid.Chart
 
 			var g = dc.Graphics;
 
-			g.DrawText(Chart.Title, this.FontName, this.FontSize,
+			g.DrawText(Chart.GetDisplayTitle(), this.FontName, this.FontSize,
 				unvell.ReoGrid.Rendering.StaticResources.SystemColor_WindowText, this.ClientBounds,
 				ReoGridHorAlign.Center, ReoGridVerAlign.Middle);
 		}

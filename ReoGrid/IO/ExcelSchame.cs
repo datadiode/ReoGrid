@@ -1619,8 +1619,23 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		public Chart chart;
 	}
 
+	public class TitleText
+	{
+		[XmlElement("rich")]
+		public TextBody rich;
+	}
+
+	public class Title
+	{
+		[XmlElement("tx")]
+		public TitleText tx;
+	}
+
 	public class Chart
 	{
+		[XmlElement("title")]
+		public Title title;
+
 		[XmlElement("plotArea")]
 		public PlotArea plotArea;
 
