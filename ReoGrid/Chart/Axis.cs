@@ -300,6 +300,8 @@ namespace unvell.ReoGrid.Chart
 				int showTitleStride = (int)Math.Ceiling(dataCount / showableColumns);
 				if (showTitleStride < 1) showTitleStride = 1;
 
+				ReoGridHorAlign halign = showTitleStride == 1 ? ReoGridHorAlign.Center : ReoGridHorAlign.Left;
+
 				RGFloat stepX = clientRect.Width / dataCount;
 
 				for (int i = 0; i < dataCount; i += showTitleStride)
@@ -310,7 +312,7 @@ namespace unvell.ReoGrid.Chart
 					{
 						var textRect = new Rectangle(columnWidth * i, 0, columnWidth * showTitleStride, clientRect.Height);
 
-						g.DrawText(text, this.FontName, this.FontSize, this.ForeColor, textRect, ReoGridHorAlign.Center, ReoGridVerAlign.Middle);
+						g.DrawText(text, FontName, FontSize, ForeColor, textRect, halign, ReoGridVerAlign.Middle);
 					}
 				}
 			}
@@ -331,7 +333,7 @@ namespace unvell.ReoGrid.Chart
 					{
 						var textRect = new Rectangle(0, rowHeight * i + 5, clientRect.Width, rowHeight);
 
-						g.DrawText(text, this.FontName, this.FontSize, this.ForeColor, textRect, ReoGridHorAlign.Right, ReoGridVerAlign.Middle);
+						g.DrawText(text, FontName, FontSize, ForeColor, textRect, ReoGridHorAlign.Right, ReoGridVerAlign.Middle);
 					}
 				}
 			}
