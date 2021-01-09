@@ -2304,150 +2304,213 @@ namespace unvell.ReoGrid.IO.OpenXML
 			var plot = chart.plotArea;
 			if (plot == null) return null;
 
-			bool legendByCategory = false;
+			var showLegend = chart.legend?.legendPos != null;
+
+			var title = LoadTitle(chart.title);
 
 			Chart.Chart rgChart = null;
-
-			List<ChartSerial> serials = null;
 
 			if (plot.lineChart != null)
 			{
 #region Line Chart Plot Area
-				serials = plot.lineChart.serials;
-				rgChart = new Chart.LineChart();
+				rgChart = new Chart.LineChart()
+				{
+					DataSource = CreateDataSourceFromSerials(rgSheet, plot.lineChart.serials),
+					ShowLegend = showLegend,
+					Title = title,
+				};
 #endregion // Line Chart Plot Area
 			}
 			else if (plot.barChart != null)
 			{
 #region Column/Bar Chart Plot Area
-				serials = plot.barChart.serials;
 				if (plot.barChart.barDir != null
 					&& plot.barChart.barDir.value == "col")
 				{
-					rgChart = new Chart.ColumnChart();
+					rgChart = new Chart.ColumnChart()
+					{
+						DataSource = CreateDataSourceFromSerials(rgSheet, plot.barChart.serials),
+						ShowLegend = showLegend,
+						Title = title,
+					};
 				}
 				else
 				{
-					rgChart = new Chart.BarChart();
+					rgChart = new Chart.BarChart()
+					{
+						DataSource = CreateDataSourceFromSerials(rgSheet, plot.barChart.serials),
+						ShowLegend = showLegend,
+						Title = title,
+					};
 				}
 #endregion // Column Chart Plot Area
 			}
 			else if (plot.radarChart != null)
 			{
-				#region Radar Chart Plot Area
-				serials = plot.radarChart.serials;
-				rgChart = new Chart.BarChart();
-				#endregion // Radar Chart Plot Area
+#region Radar Chart Plot Area
+				rgChart = new Chart.BarChart()
+				{
+					DataSource = CreateDataSourceFromSerials(rgSheet, plot.radarChart.serials),
+					ShowLegend = showLegend,
+					Title = title,
+				};
+#endregion // Radar Chart Plot Area
 			}
 			else if (plot.pieChart != null)
 			{
 #region Pie Chart Plot Area
-				serials = plot.pieChart.serials;
-				legendByCategory = true;
-				rgChart = new Chart.PieChart();
+				rgChart = new Chart.PieChart()
+				{
+					DataSource = CreateDataSourceFromSerials(rgSheet, plot.pieChart.serials),
+					Title = title,
+				};
 #endregion // Pie Chart Plot Area
 			}
 			else if (plot.doughnutChart != null)
 			{
 #region Doughnut Chart Plot Area
-				serials = plot.doughnutChart.serials;
-				legendByCategory = true;
-				rgChart = new Chart.DoughnutChart();
+				rgChart = new Chart.DoughnutChart()
+				{
+					DataSource = CreateDataSourceFromSerials(rgSheet, plot.doughnutChart.serials),
+					Title = title,
+				};
 #endregion // Pie Chart Plot Area	
 			}
 			else if (plot.areaChart != null)
 			{
 #region Area Chart Plot Area
-				serials = plot.areaChart.serials;
-				rgChart = new Chart.AreaChart();
+				rgChart = new Chart.AreaChart()
+				{
+					DataSource = CreateDataSourceFromSerials(rgSheet, plot.areaChart.serials),
+					ShowLegend = showLegend,
+					Title = title,
+				};
 #endregion // Area Chart Plot Area
 			}
-
-			if (rgChart != null)
+			else if (plot.scatterChart != null)
 			{
-				rgChart.ShowLegend = chart.legend?.legendPos != null;
-
-				Chart.WorksheetChartDataSource dataSource = new Chart.WorksheetChartDataSource(rgSheet);
-#if FORMULA
-				if (serials != null)
+#region Scatter Chart Plot Area
+				rgChart = new Chart.ScatterChart()
 				{
-					foreach (var serial in serials)
-					{
-						if (serial != null)
-						{
-							ReferenceRange labelAddress = null;
-
-							var label = serial.ChartLabel;
-
-							if (!string.IsNullOrEmpty(label?.strRef?.formula))
-							{
-								var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, label.strRef.formula);
-								if (serialNameVal.Type == Formula.STNodeType.CELL)
-								{
-									var node = serialNameVal as Formula.STCellNode;
-									labelAddress = new ReferenceRange(node.Worksheet, node.Position);
-								}
-							}
-
-							var values = serial.Values;
-
-							if (!string.IsNullOrEmpty(values?.numRef?.formula))
-							{
-								var dataRangeVal = Formula.Evaluator.Evaluate(rgSheet.workbook, values.numRef.formula);
-
-								if (dataRangeVal.type == Formula.FormulaValueType.Range)
-								{
-									dataSource.AddSerial(rgSheet, labelAddress, (ReferenceRange)dataRangeVal.value);
-								}
-							}
-
-							var categories = serial.Categories;
-
-							if (!string.IsNullOrEmpty(categories?.strRef?.formula))
-							{
-								var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, categories.strRef.formula);
-								if (serialNameVal.Type == Formula.STNodeType.CELL)
-								{
-									var node = serialNameVal as Formula.STCellNode;
-									dataSource.CategoryNameRange = new ReferenceRange(node.Worksheet, node.Position);
-								}
-								else if (serialNameVal.Type == Formula.STNodeType.RANGE)
-								{
-									var node = serialNameVal as Formula.STRangeNode;
-									dataSource.CategoryNameRange = new ReferenceRange(node.Worksheet, node.Range);
-								}
-								if (legendByCategory)
-								{
-									rgChart.ShowLegend = true;
-								}
-							}
-						}
-					}
-				}
-#endif
-				rgChart.DataSource = dataSource;
-
-				var paragraphs = chart.title?.tx?.rich?.paragraphs;
-
-				if (paragraphs != null)
-				{
-					var sb = new StringBuilder(256);
-					foreach (var p in paragraphs)
-					{
-						if (sb.Length > 0)
-						{
-							sb.Append(Environment.NewLine);
-						}
-						foreach (var r in p.runs)
-						{
-							sb.Append(r.text.innerText);
-						}
-					}
-					rgChart.Title = sb.ToString();
-				}
+					DataSource = CreateDataSourceFromSerials(rgSheet, plot.scatterChart.serials),
+					Title = title,
+				};
+#endregion // Scatter Chart Plot Area
 			}
 
 			return rgChart;
+		}
+
+		private static string LoadTitle(Title title)
+		{
+			var paragraphs = title?.tx?.rich?.paragraphs;
+			if (paragraphs == null) return null;
+
+			var sb = new StringBuilder(256);
+			foreach (var p in paragraphs)
+			{
+				if (sb.Length > 0)
+				{
+					sb.Append(Environment.NewLine);
+				}
+				foreach (var r in p.runs)
+				{
+					sb.Append(r.text.innerText);
+				}
+			}
+			return sb.ToString();
+		}
+
+		private static Chart.WorksheetChartDataSource CreateDataSourceFromSerials(RGWorksheet rgSheet, IEnumerable<ChartSerial> serials)
+		{
+			Chart.WorksheetChartDataSource dataSource = new Chart.WorksheetChartDataSource(rgSheet);
+#if FORMULA
+			if (serials != null)
+			{
+				foreach (var serial in serials)
+				{
+					if (serial != null)
+					{
+						ReferenceRange labelAddress = null;
+
+						var label = serial.ChartLabel;
+
+						if (!string.IsNullOrEmpty(label?.strRef?.formula))
+						{
+							var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, label.strRef.formula);
+							if (serialNameVal.Type == Formula.STNodeType.CELL)
+							{
+								var node = serialNameVal as Formula.STCellNode;
+								labelAddress = new ReferenceRange(node.Worksheet, node.Position);
+							}
+						}
+
+						var values = serial.Values;
+
+						if (!string.IsNullOrEmpty(values?.numRef?.formula))
+						{
+							var dataRangeVal = Formula.Evaluator.Evaluate(rgSheet.workbook, values.numRef.formula);
+
+							if (dataRangeVal.type == Formula.FormulaValueType.Range)
+							{
+								dataSource.AddSerial(rgSheet, labelAddress, (ReferenceRange)dataRangeVal.value);
+							}
+						}
+
+						var categories = serial.Categories;
+						string formula = categories?.strRef?.formula ?? categories?.numRef?.formula;
+
+						if (!string.IsNullOrEmpty(formula))
+						{
+							var serialNameVal = Formula.Parser.Parse(rgSheet.workbook, null, formula);
+							if (serialNameVal.Type == Formula.STNodeType.CELL)
+							{
+								var node = serialNameVal as Formula.STCellNode;
+								dataSource.CategoryNameRange = new ReferenceRange(node.Worksheet, node.Position);
+							}
+							else if (serialNameVal.Type == Formula.STNodeType.RANGE)
+							{
+								var node = serialNameVal as Formula.STRangeNode;
+								dataSource.CategoryNameRange = new ReferenceRange(node.Worksheet, node.Range);
+							}
+						}
+					}
+				}
+			}
+#endif // FORMULA
+			return dataSource;
+		}
+
+		private static Chart.WorksheetChartDataSource CreateDataSourceFromSerials(RGWorksheet rgSheet, ScatterSerials serials)
+		{
+			Chart.WorksheetChartDataSource dataSource = new Chart.WorksheetChartDataSource(rgSheet);
+#if FORMULA
+			if (serials != null)
+			{
+				string formula;
+
+				if (!string.IsNullOrEmpty(formula = serials?.xVal?.numRef?.formula))
+				{
+					var dataRangeVal = Formula.Evaluator.Evaluate(rgSheet.workbook, formula);
+
+					if (dataRangeVal.type == Formula.FormulaValueType.Range)
+					{
+						dataSource.AddSerial(rgSheet, null, (ReferenceRange)dataRangeVal.value);
+					}
+				}
+
+				if (!string.IsNullOrEmpty(formula = serials?.yVal?.numRef?.formula))
+				{
+					var dataRangeVal = Formula.Evaluator.Evaluate(rgSheet.workbook, formula);
+
+					if (dataRangeVal.type == Formula.FormulaValueType.Range)
+					{
+						dataSource.AddSerial(rgSheet, null, (ReferenceRange)dataRangeVal.value);
+					}
+				}
+			}
+#endif // FORMULA
+			return dataSource;
 		}
 #endregion // Chart
 #endif // DRAWING

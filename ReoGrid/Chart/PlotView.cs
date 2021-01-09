@@ -53,7 +53,7 @@ namespace unvell.ReoGrid.Chart
 		/// <summary>
 		/// Get or set the owner chart to this plot view.
 		/// </summary>
-		public Chart Chart { get; set; }
+		public readonly Chart Chart;
 
 		/// <summary>
 		/// Create common chart plot view object.
@@ -61,10 +61,10 @@ namespace unvell.ReoGrid.Chart
 		/// <param name="chart">Owner chart instance.</param>
 		public ChartPlotView(Chart chart)
 		{
-			this.Chart = chart;
+			Chart = chart;
 
-			this.FillColor = SolidColor.Transparent;
-			this.LineColor = SolidColor.Transparent;
+			FillColor = SolidColor.Transparent;
+			LineColor = SolidColor.Transparent;
 		}
 	}
 

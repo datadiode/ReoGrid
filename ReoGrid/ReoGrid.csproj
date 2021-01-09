@@ -306,6 +306,7 @@
     <Compile Include="Chart\Bar.cs" />
     <Compile Include="Chart\Column.cs" />
     <Compile Include="Chart\DataSource.cs" />
+    <Compile Include="Chart\Scatter.cs" />
     <Compile Include="Chart\Pie.cs" />
     <Compile Include="Chart\PlotView.cs" />
     <Compile Include="Chart\Chart.cs" />

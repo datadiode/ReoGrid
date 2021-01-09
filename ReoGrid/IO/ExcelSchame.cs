@@ -1663,6 +1663,9 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		[XmlElement("areaChart")]
 		public AreaChart areaChart;
 
+		[XmlElement("scatterChart")]
+		public ScatterChart scatterChart;
+
 		[XmlElement("valAx")]
 		public ValueAxis valueAxis;
 	}
@@ -1704,6 +1707,24 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		public List<ChartSerial> serials;
 	}
 
+	public class ScatterSerials
+	{
+		[XmlElement("xVal")]
+		public ChartDataValues xVal;
+
+		[XmlElement("yVal")]
+		public ChartDataValues yVal;
+	}
+
+	public class ScatterChart
+	{
+		[XmlElement("ser")]
+		public ScatterSerials serials;
+
+		[XmlElement("dLbls")]
+		public DataLabels labels;
+	}
+
 	public class AreaChart
 	{
 		[XmlElement("ser")]
@@ -1716,7 +1737,7 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 	internal interface IChartSerial
 	{
 		ChartText ChartLabel { get; }
-		ChartText Categories { get; }
+		Categories Categories { get; }
 		ChartDataValues Values { get; }
 	}
 
@@ -1726,7 +1747,7 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		public ChartText chartLabel;
 
 		[XmlElement("cat")]
-		public ChartText categories;
+		public Categories categories;
 
 		[XmlElement("val")]
 		public ChartDataValues values;
@@ -1735,10 +1756,19 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		public ChartText ChartLabel { get { return this.chartLabel; } }
 
 		[XmlIgnore]
-		public ChartText Categories { get { return this.categories; } }
+		public Categories Categories { get { return this.categories; } }
 
 		[XmlIgnore]
 		public ChartDataValues Values { get { return this.values; } }
+	}
+
+	public class Categories
+	{
+		[XmlElement("strRef")]
+		public StringReference strRef;
+
+		[XmlElement("numRef")]
+		public NumberReference numRef;
 	}
 
 	public class ChartText
@@ -1753,10 +1783,10 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 		public ElementText formula;
 
 		[XmlElement("strCache")]
-		public StringCache strCache;
+		public ReferenceCache strCache;
 	}
 
-	public class StringCache
+	public class ReferenceCache
 	{
 		[XmlElement("ptCount")]
 		public ElementValue<int> ptCount;
@@ -1789,6 +1819,9 @@ namespace unvell.ReoGrid.IO.OpenXML.Schema
 	{
 		[XmlElement("f")]
 		public ElementText formula;
+
+		[XmlElement("numCache")]
+		public ReferenceCache numCache;
 	}
 
 	public class NumericPoint
