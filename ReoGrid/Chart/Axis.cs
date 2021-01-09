@@ -158,24 +158,20 @@ namespace unvell.ReoGrid.Chart
 	#region On-Axis Views
 	public abstract class AxisInfoView : DrawingObject
 	{
-		public AxisChart Chart { get; protected set; }
+		public readonly AxisChart Chart;
+		public readonly AxisTypes AxisType;
 
-		public AxisTypes AxisType { get; protected set; }
-
-		public AxisInfoView(AxisChart chart, AxisTypes axisType)
+		public AxisInfoView(AxisChart chart, AxisTypes axisType = AxisTypes.Primary)
 		{
-			this.Chart = chart;
-			this.AxisType = axisType;
+			Chart = chart;
+			AxisType = axisType;
 
-			this.FillColor = SolidColor.Transparent;
-			this.LineColor = SolidColor.Transparent;
-			this.FontSize *= 0.9f;
+			FillColor = SolidColor.Transparent;
+			LineColor = SolidColor.Transparent;
+			FontSize *= 0.9f;
 		}
 
-		public AxisInfoView(AxisChart chart)
-			: this(chart, AxisTypes.Primary)
-		{
-		}
+		protected AxisDataInfo AxisInfo => AxisType == AxisTypes.Primary ? Chart.PrimaryAxisInfo : Chart.SecondaryAxisInfo;
 	}
 
 	public class AxisCategoryLabelView : AxisInfoView
@@ -196,17 +192,14 @@ namespace unvell.ReoGrid.Chart
 		{
 			base.OnPaint(dc);
 
-			if (this.Chart == null) return;
-
-			var ai = this.AxisType == AxisTypes.Primary ?
-				this.Chart.PrimaryAxisInfo : this.Chart.SecondaryAxisInfo;
+			var ai = AxisInfo;
 
 			if (ai == null) return;
 
 			var g = dc.Graphics;
 
-			var ds = this.Chart.DataSource;
-			var clientRect = this.ClientBounds;
+			var ds = Chart.DataSource;
+			var clientRect = ClientBounds;
 
 			RGFloat fontHeight = (RGFloat)(this.FontSize * PlatformUtility.GetDPI() / 72.0) + 4;
 
@@ -219,7 +212,7 @@ namespace unvell.ReoGrid.Chart
 
 				for (int level = 0; level <= ai.Levels; level++)
 				{
-					g.DrawText(Math.Round(rowValue, Math.Abs(ai.Scaler)).ToString(), this.FontName, this.FontSize, this.ForeColor, textRect, ReoGridHorAlign.Right, ReoGridVerAlign.Middle);
+					g.DrawText(Math.Round(rowValue, Math.Abs(ai.Scaler)).ToString(), FontName, FontSize, ForeColor, textRect, ReoGridHorAlign.Right, ReoGridVerAlign.Middle);
 
 					textRect.Y -= stepY;
 					rowValue += Math.Round(ai.LargeStride, Math.Abs(ai.Scaler));
@@ -227,15 +220,27 @@ namespace unvell.ReoGrid.Chart
 			}
 			else if (orientation == AxisOrientation.Horizontal)
 			{
-				RGFloat columnWidth = clientRect.Width / ai.Levels;
+				var maxWidth = Math.Max(
+					PlatformUtility.MeasureText(dc.Renderer,
+						Math.Round(ai.Minimum, Math.Abs(ai.Scaler)).ToString(),
+						FontName, FontSize, Drawing.Text.FontStyles.Regular
+					).Width,
+					PlatformUtility.MeasureText(dc.Renderer,
+						Math.Round(ai.Maximum, Math.Abs(ai.Scaler)).ToString(),
+						FontName, FontSize, Drawing.Text.FontStyles.Regular
+					).Width);
+
+				int showTitleStride = Math.Max((int)Math.Ceiling(ai.Levels * maxWidth / clientRect.Width), 1);
+
+				RGFloat columnWidth = clientRect.Width / ai.Levels * showTitleStride;
 				var textRect = new Rectangle(clientRect.Left - (columnWidth / 2), clientRect.Top, columnWidth, clientRect.Height);
 
-				for (int level = 0; level <= ai.Levels; level ++)
+				for (int level = 0; level <= ai.Levels; level += showTitleStride)
 				{
-					g.DrawText(Math.Round(rowValue, Math.Abs(ai.Scaler)).ToString(), this.FontName, this.FontSize, this.ForeColor, textRect, ReoGridHorAlign.Center, ReoGridVerAlign.Top);
+					g.DrawText(Math.Round(rowValue, Math.Abs(ai.Scaler)).ToString(), FontName, FontSize, ForeColor, textRect, ReoGridHorAlign.Center, ReoGridVerAlign.Top);
 
 					textRect.X += columnWidth;
-					rowValue += Math.Round(ai.LargeStride, Math.Abs(ai.Scaler));
+					rowValue += Math.Round(ai.LargeStride, Math.Abs(ai.Scaler)) * showTitleStride;
 				}
 			}
 		}
@@ -259,10 +264,7 @@ namespace unvell.ReoGrid.Chart
 		{
 			base.OnPaint(dc);
 
-			if (this.Chart == null) return;
-
-			var ai = this.AxisType == AxisTypes.Primary ?
-				this.Chart.PrimaryAxisInfo : this.Chart.SecondaryAxisInfo;
+			var ai = AxisInfo;
 
 			if (ai == null) return;
 
@@ -347,7 +349,7 @@ namespace unvell.ReoGrid.Chart
 		public AxisGuideLinePlotView(AxisChart chart)
 			: base(chart)
 		{
-			this.LineColor = SolidColor.Silver;
+			LineColor = SolidColor.Silver;
 		}
 
 		/// <summary>
@@ -356,8 +358,7 @@ namespace unvell.ReoGrid.Chart
 		/// <param name="dc">Platform unassociated drawing context instance.</param>
 		protected override void OnPaint(DrawingContext dc)
 		{
-			var axisChart = this.Chart as AxisChart;
-			if (axisChart == null) return;
+			var axisChart = Chart as AxisChart;
 
 			var g = dc.Graphics;
 			var clientRect = this.ClientBounds;
