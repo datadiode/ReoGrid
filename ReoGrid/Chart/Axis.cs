@@ -160,11 +160,13 @@ namespace unvell.ReoGrid.Chart
 	{
 		public readonly AxisChart Chart;
 		public readonly AxisTypes AxisType;
+		public readonly AxisOrientation Orientation;
 
-		public AxisInfoView(AxisChart chart, AxisTypes axisType = AxisTypes.Primary)
+		public AxisInfoView(AxisChart chart, AxisTypes axisType, AxisOrientation orientation)
 		{
 			Chart = chart;
 			AxisType = axisType;
+			Orientation = orientation;
 
 			FillColor = SolidColor.Transparent;
 			LineColor = SolidColor.Transparent;
@@ -176,12 +178,9 @@ namespace unvell.ReoGrid.Chart
 
 	public class AxisCategoryLabelView : AxisInfoView
 	{
-		private AxisOrientation orientation;
-
 		public AxisCategoryLabelView(AxisChart chart, AxisTypes axisType = AxisTypes.Primary, AxisOrientation orientation = AxisOrientation.Vertical)
-			: base(chart, axisType)
+			: base(chart, axisType, orientation)
 		{
-			this.orientation = orientation;
 		}
 
 		/// <summary>
@@ -205,7 +204,7 @@ namespace unvell.ReoGrid.Chart
 
 			double rowValue = ai.Minimum;
 
-			if (orientation == AxisOrientation.Vertical)
+			if (Orientation == AxisOrientation.Vertical)
 			{
 				RGFloat stepY = (clientRect.Height - fontHeight) / ai.Levels;
 				var textRect = new Rectangle(0, clientRect.Bottom - fontHeight, clientRect.Width, fontHeight);
@@ -218,7 +217,7 @@ namespace unvell.ReoGrid.Chart
 					rowValue += Math.Round(ai.LargeStride, Math.Abs(ai.Scaler));
 				}
 			}
-			else if (orientation == AxisOrientation.Horizontal)
+			else if (Orientation == AxisOrientation.Horizontal)
 			{
 				var maxWidth = Math.Max(
 					PlatformUtility.MeasureText(dc.Renderer,
@@ -248,12 +247,9 @@ namespace unvell.ReoGrid.Chart
 
 	public class AxisSerialLabelView : AxisInfoView
 	{
-		private AxisOrientation orientation;
-
 		public AxisSerialLabelView(AxisChart chart, AxisTypes axisType = AxisTypes.Primary, AxisOrientation orientation = AxisOrientation.Horizontal)
-			: base(chart, axisType)
+			: base(chart, axisType, orientation)
 		{
-			this.orientation = orientation;
 		}
 
 		/// <summary>
@@ -293,7 +289,7 @@ namespace unvell.ReoGrid.Chart
 				}
 			}
 
-			if (orientation == AxisOrientation.Horizontal && maxWidth != 0)
+			if (Orientation == AxisOrientation.Horizontal && maxWidth != 0)
 			{
 				RGFloat columnWidth = (clientRect.Width) / dataCount;
 
@@ -318,7 +314,7 @@ namespace unvell.ReoGrid.Chart
 					}
 				}
 			}
-			else if (orientation == AxisOrientation.Vertical && maxHeight != 0)
+			else if (Orientation == AxisOrientation.Vertical && maxHeight != 0)
 			{
 				RGFloat rowHeight = (clientRect.Height - 10) / dataCount;
 

@@ -579,7 +579,7 @@ namespace unvell.ReoGrid.Chart
 
 			double range = maxData - minData;
 
-			var isTransposed = this is BarChart; // TODO: should be more generic
+			var isTransposed = HorizontalAxisInfoView.Orientation == AxisOrientation.Vertical;
 
 			ai.Levels = (int)Math.Ceiling((isTransposed ? clientRect.Width : clientRect.Height) / 30f);
 
@@ -599,6 +599,7 @@ namespace unvell.ReoGrid.Chart
 
 			int scaler;
 			double stride = ChartUtility.CalcLevelStride(minData, maxData, ai.Levels, out scaler);
+			double nearzero = stride / 1E9;
 			ai.Scaler = scaler;
 
 			double m;
@@ -612,7 +613,7 @@ namespace unvell.ReoGrid.Chart
 				else
 				{
 					m = minData % stride;
-					if (m == 0)
+					if (Math.Abs(m) < nearzero)
 					{
 						if (minData == 0)
 						{
@@ -640,7 +641,7 @@ namespace unvell.ReoGrid.Chart
 			if (!ai.AutoMaximum)
 			{
 				m = maxData % stride;
-				if (m == 0)
+				if (Math.Abs(m) < nearzero)
 				{
 					ai.Maximum = maxData;
 				}
@@ -789,7 +790,7 @@ namespace unvell.ReoGrid.Chart
 
 					var total = ai.Maximum - ai.Minimum;
 					var clientSize = PlotViewContainer.Size;
-					var isTransposed = this is BarChart; // TODO: should be more generic
+					var isTransposed = HorizontalAxisInfoView.Orientation == AxisOrientation.Vertical;
 
 					double width = isTransposed ? clientSize.Height : clientSize.Width;
 					double height = isTransposed ? clientSize.Width : clientSize.Height;
@@ -854,7 +855,7 @@ namespace unvell.ReoGrid.Chart
 		{
 			const RGFloat spacing = 10;
 
-			var isTransposed = this is BarChart; // TODO: should be more generic
+			var isTransposed = HorizontalAxisInfoView.Orientation == AxisOrientation.Vertical;
 			var vbounds = new Rectangle(ClientBounds.X, plotRect.Y - 5, plotRect.X - ClientBounds.X - spacing, plotRect.Height + 10);
 			var hbounds = new Rectangle(plotRect.X, plotRect.Bottom + 5, plotRect.Width, 15);
 			VerticalAxisInfoView.Bounds = isTransposed ? hbounds : vbounds;
