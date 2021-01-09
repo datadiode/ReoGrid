@@ -545,39 +545,26 @@ namespace unvell.ReoGrid.Chart
 		/// </summary>
 		protected override void UpdatePlotData()
 		{
-			var ds = this.DataSource;
+			var ds = DataSource;
 			if (ds == null) return;
 
-			double minData = 0;
-			double maxData = 0;
-			bool first = true;
+			double minData = double.PositiveInfinity;
+			double maxData = double.NegativeInfinity;
 
 			for (int r = 0; r < ds.SerialCount; r++)
 			{
 				for (int c = 0; c < ds.CategoryCount; c++)
 				{
-					double? data = ds[r][c];
-
-					if (data != null)
+					if (ds[r][c] is double data)
 					{
-						if (first)
-						{
-							minData = (double)data;
-							maxData = minData;
-
-							first = false;
-						}
-						else
-						{
-							if (minData > data) minData = (double)data;
-							if (maxData < data) maxData = (double)data;
-						}
+						if (minData > data) minData = data;
+						if (maxData < data) maxData = data;
 					}
 				}
 			}
 
 			//var ai = !SwapDataRowColumn ? PrimaryAxisInfo : SecondaryAxisInfo;
-			this.UpdateAxisInfo(this.PrimaryAxisInfo, minData, maxData);
+			UpdateAxisInfo(PrimaryAxisInfo, minData, maxData);
 		}
 
 		/// <summary>
@@ -655,7 +642,7 @@ namespace unvell.ReoGrid.Chart
 				m = maxData % stride;
 				if (m == 0)
 				{
-					ai.Maximum = maxData + stride;
+					ai.Maximum = maxData;
 				}
 				else
 				{
