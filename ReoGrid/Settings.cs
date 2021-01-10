@@ -17,9 +17,6 @@
  ****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace unvell.ReoGrid
 {
@@ -27,6 +24,7 @@ namespace unvell.ReoGrid
 	/// <summary>
 	/// Workbook Control Settings
 	/// </summary>
+	[Flags]
 	public enum WorkbookSettings : ulong
 	{
 		/// <summary>

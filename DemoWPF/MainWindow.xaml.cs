@@ -107,7 +107,7 @@ namespace unvell.ReoGrid.WPFDemo
 
 				DataSource = new WorksheetChartDataSource(worksheet, "A2:A6", "B3:F6")
 				{
-					CategoryNameRange = new RangePosition("B2:F2"),
+					CategoryNameRange = new ReferenceRange(worksheet, "B2:F2"),
 				},
 			};
 
@@ -381,7 +381,7 @@ namespace unvell.ReoGrid.WPFDemo
 
 		private void Sheet_Append_100_Rows_Click(object sender, RoutedEventArgs e)
 		{
-			grid.DoAction(new Actions.InsertRowsAction(grid.CurrentWorksheet.Rows, 100));
+			grid.DoAction(new Actions.InsertRowsAction(grid.CurrentWorksheet.RowCount, 100));
 		}
 
 		#endregion Menu - Sheet

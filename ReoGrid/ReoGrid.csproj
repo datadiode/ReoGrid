@@ -206,6 +206,7 @@
     <Reference Include="System.Printing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Workflow.ComponentModel" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>

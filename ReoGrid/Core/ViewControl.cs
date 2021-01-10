@@ -25,6 +25,12 @@ using System.Text;
 using System.Diagnostics;
 #endif // DEBUG
 
+#if WINFORM || ANDROID
+using RGFloat = System.Single;
+#else
+using RGFloat = System.Double;
+#endif // WINFORM
+
 using unvell.ReoGrid.Views;
 
 namespace unvell.ReoGrid
@@ -69,7 +75,7 @@ namespace unvell.ReoGrid
 			set { this.viewportController = value; }
 		}
 
-		public float ViewLeft
+		public RGFloat ViewLeft
 		{
 			get
 			{
@@ -78,7 +84,7 @@ namespace unvell.ReoGrid
 			}
 		}
 
-		public float ViewTop
+		public RGFloat ViewTop
 		{
 			get
 			{
