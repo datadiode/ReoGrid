@@ -84,7 +84,7 @@ namespace unvell.ReoGrid.Chart
 		/// <summary>
 		/// Update children view bounds.
 		/// </summary>
-		protected virtual void UpdateLayout()
+		protected virtual void UpdateLayout(DrawingContext dc)
 		{
 			var clientRect = ClientBounds;
 
@@ -102,7 +102,7 @@ namespace unvell.ReoGrid.Chart
 
 				if (PrimaryLegend != null)
 				{
-					PrimaryLegend.MeasureSize(clientRect);
+					PrimaryLegend.MeasureSize(dc, clientRect);
 					PrimaryLegend.Visible = PrimaryLegend.Children.Count != 0;
 
 					if (PrimaryLegend.Visible)
@@ -230,7 +230,7 @@ namespace unvell.ReoGrid.Chart
 		#region Paint
 		protected override void OnPaint(DrawingContext dc)
 		{
-			UpdateLayout();
+			UpdateLayout(dc);
 			base.OnPaint(dc);
 		}
 		#endregion // Paint
@@ -615,14 +615,7 @@ namespace unvell.ReoGrid.Chart
 					m = minData % stride;
 					if (Math.Abs(m) < nearzero)
 					{
-						if (minData == 0)
-						{
-							ai.Minimum = minData;
-						}
-						else
-						{
-							ai.Minimum = minData - stride;
-						}
+						ai.Minimum = minData;
 					}
 					else
 					{
@@ -683,154 +676,6 @@ namespace unvell.ReoGrid.Chart
 					&& Math.Abs(minData) < range;
 		}
 
-		/// <summary>
-		/// Get the origin value of width related to this view object.
-		/// </summary>
-		public RGFloat ZeroWidth { get; protected set; }
-
-		/// <summary>
-		/// Get the origin value of height related to this view object.
-		/// </summary>
-		public RGFloat ZeroHeight { get; protected set; }
-
-		private PlotPointRow[] platRowPoints = null;
-		internal PlotPointRow[] PlotDataPoints { get { return this.platRowPoints; } }
-
-		private RGFloat[] platColPoints = null;
-		internal RGFloat[] PlotColumnPoints { get { return this.platColPoints; } }
-
-		/// <summary>
-		/// Reset plot drawing points.
-		/// </summary>
-		protected virtual void ResetDrawPoints()
-		{
-			var ds = this.DataSource;
-
-			if (ds != null)
-			{
-				#region Row
-
-				if (this.platRowPoints == null)
-				{
-					this.platRowPoints = new PlotPointRow[ds.SerialCount];
-				}
-				else
-				{
-					if (this.platRowPoints.Length != ds.SerialCount)
-					{
-						Array.Resize(ref this.platColPoints, ds.SerialCount);
-					}
-				}
-
-				for (int r = 0; r < ds.SerialCount; r++)
-				{
-					this.platRowPoints[r].columns = new PlotPointColumn[ds.CategoryCount];
-				}
-
-				#endregion // Row
-
-				#region Columns
-
-				if (this.platColPoints == null)
-				{
-					this.platColPoints = new RGFloat[ds.CategoryCount];
-				}
-				else
-				{
-					if (this.platColPoints.Length != ds.CategoryCount)
-					{
-						Array.Resize(ref this.platColPoints, ds.CategoryCount);
-					}
-
-					for (int i = 0; i < ds.CategoryCount; i++)
-					{
-						this.platColPoints[i] = 0;
-					}
-				}
-
-				#endregion // Columns
-			}
-			else
-			{
-				#region Reset
-				for (int r = 0; r < this.platRowPoints.Length; r++)
-				{
-					var row = this.platRowPoints[r];
-
-					for (int c = 0; c < row.Length; c++)
-					{
-						this.platRowPoints[r][c] = 0;
-					}
-				}
-
-				for (int i = 0; i < this.platColPoints.Length; i++)
-				{
-					this.platColPoints[i] = 0;
-				}
-				#endregion // Reset
-			}
-		}
-
-		/// <summary>
-		/// Update plot drawing points.
-		/// </summary>
-		protected virtual void UpdateDrawPoints()
-		{
-			var ds = this.DataSource;
-
-			if (ds != null)
-			{
-				//var ai = !this.SwapDataRowColumn ? this.PrimaryAxisInfo : this.SecondaryAxisInfo;
-				var ai = this.PrimaryAxisInfo;
-
-				if (!double.IsNaN(ai.Levels))
-				{
-					int serialCount = ds.SerialCount;
-					int categoryCount = ds.CategoryCount;
-
-					var total = ai.Maximum - ai.Minimum;
-					var clientSize = PlotViewContainer.Size;
-					var isTransposed = HorizontalAxisInfoView.Orientation == AxisOrientation.Vertical;
-
-					double width = isTransposed ? clientSize.Height : clientSize.Width;
-					double height = isTransposed ? clientSize.Width : clientSize.Height;
-
-					double scaleX = width / categoryCount;
-					double scaleY = height / total;
-
-					height *= ai.Minimum / total;
-					width *= ai.Minimum / total;
-
-					ZeroWidth = (RGFloat)(isTransposed ? -height : width);
-					ZeroHeight = (RGFloat)(isTransposed ? width : height + clientSize.Height);
-
-					for (int r = 0; r < serialCount; r++)
-					{
-						var serial = ds.GetSerial(r);
-
-						for (int c = 0; c < categoryCount; c++)
-						{
-							if (r == 0)
-							{
-								platColPoints[c] = (RGFloat)((c + 0.5) * scaleX);
-							}
-
-							var data = serial[c];
-
-							if (data == null)
-							{
-								platRowPoints[r][c] = PlotPointColumn.Nil;
-							}
-							else
-							{
-								platRowPoints[r][c] = (RGFloat)(data * scaleY);
-							}
-						}
-					}
-				}
-			}
-		}
-
 		#endregion // Update Draw Points
 
 		#region Layout
@@ -838,15 +683,13 @@ namespace unvell.ReoGrid.Chart
 		/// <summary>
 		/// Update all children bounds.
 		/// </summary>
-		protected override void UpdateLayout()
+		protected override void UpdateLayout(DrawingContext dc)
 		{
-			base.UpdateLayout();
+			base.UpdateLayout(dc);
 
-			this.ResetDrawPoints();
-			this.UpdatePlotData();
-			this.UpdateDrawPoints();
+			UpdatePlotData();
 
-			this.GuideLineBackgroundView.Bounds = this.PlotViewContainer.ClientBounds;
+			GuideLineBackgroundView.Bounds = PlotViewContainer.ClientBounds;
 
 			UpdateAxisLabelViewLayout(this.PlotViewContainer.Bounds);
 		}

@@ -18,6 +18,12 @@
 
 #if DRAWING
 
+#if WINFORM || ANDROID
+using RGFloat = System.Single;
+#else
+using RGFloat = System.Double;
+#endif // WINFORM
+
 using unvell.ReoGrid.Rendering;
 
 namespace unvell.ReoGrid.Chart
@@ -73,14 +79,22 @@ namespace unvell.ReoGrid.Chart
 		/// <param name="dc">Platform no-associated drawing context.</param>
 		protected override void OnPaint(DrawingContext dc)
 		{
-			var axisChart = base.Chart as AxisChart;
-			if (axisChart == null) return;
+			var axisChart = Chart as AxisChart;
+
+			var ai = axisChart.PrimaryAxisInfo;
+			if (double.IsNaN(ai.Levels) || ai.Levels <= 0)
+			{
+				return;
+			}
 
 			var ds = Chart.DataSource;
 
 			var g = dc.Graphics;
-			var clientRect = this.ClientBounds;
+			var clientRect = ClientBounds;
 
+			double scaleX = clientRect.Width / ds.CategoryCount;
+			double scaleY = clientRect.Height / (ai.Maximum - ai.Minimum);
+			var zeroHeight = (RGFloat)(ai.Minimum * scaleY + clientRect.Height);
 
 #if WINFORM
 			var path = new System.Drawing.Drawing2D.GraphicsPath();
@@ -88,32 +102,29 @@ namespace unvell.ReoGrid.Chart
 			for (int r = 0; r < ds.SerialCount; r++)
 			{
 				var style = axisChart.DataSerialStyles[r];
-				var lastPoint = new System.Drawing.PointF(axisChart.PlotColumnPoints[0], axisChart.ZeroHeight);
+				var lastPoint = new System.Drawing.PointF((RGFloat)(0.5 * scaleX), zeroHeight);
 
+				var point = lastPoint;
 				for (int c = 0; c < ds.CategoryCount; c++)
 				{
-					var pt = axisChart.PlotDataPoints[r][c];
-
-					System.Drawing.PointF point;
-
-					if (pt.hasValue)
+					if (ds[r][c] is double value)
 					{
-						point = new System.Drawing.PointF(axisChart.PlotColumnPoints[c], axisChart.ZeroHeight - pt.value);
+						point.Y = zeroHeight - (RGFloat)(value * scaleY);
 					}
 					else
 					{
-						point = new System.Drawing.PointF(axisChart.PlotColumnPoints[c], axisChart.ZeroHeight);
+						point.Y = zeroHeight;
 					}
-
 					path.AddLine(lastPoint, point);
 					lastPoint = point;
+					point.X += (RGFloat)scaleX;
 				}
 
-				var endPoint = new System.Drawing.PointF(axisChart.PlotColumnPoints[ds.CategoryCount - 1], axisChart.ZeroHeight);
-
-				if (lastPoint != endPoint)
+				if (lastPoint.Y != zeroHeight)
 				{
-					path.AddLine(lastPoint, endPoint);
+					point.X = lastPoint.X;
+					point.Y = zeroHeight;
+					path.AddLine(lastPoint, point);
 				}
 
 				path.CloseFigure();
@@ -126,35 +137,34 @@ namespace unvell.ReoGrid.Chart
 			path.Dispose();
 #elif WPF
 
-
 			for (int r = 0; r < ds.SerialCount; r++)
 			{
 				var style = axisChart.DataSerialStyles[r];
 
 				var seg = new System.Windows.Media.PathFigure();
 
-				seg.StartPoint = new System.Windows.Point(axisChart.PlotColumnPoints[0], axisChart.ZeroHeight);
+				var lastPoint = new System.Windows.Point(0.5 * scaleX, zeroHeight);
+				seg.StartPoint = lastPoint;
 
+				var point = seg.StartPoint;
 				for (int c = 0; c < ds.CategoryCount; c++)
 				{
-					var pt = axisChart.PlotDataPoints[r][c];
-
-					System.Windows.Point point;
-
-					if (pt.hasValue)
+					if (ds[r][c] is double value)
 					{
-						point = new System.Windows.Point(axisChart.PlotColumnPoints[c], axisChart.ZeroHeight - pt.value);
+						point.Y = zeroHeight - value * scaleY;
 					}
 					else
 					{
-						point = new System.Windows.Point(axisChart.PlotColumnPoints[c], axisChart.ZeroHeight);
+						point.Y = zeroHeight;
 					}
-
 					seg.Segments.Add(new System.Windows.Media.LineSegment(point, true));
+					lastPoint = point;
+					point.X += scaleX;
 				}
 
-				var endPoint = new System.Windows.Point(axisChart.PlotColumnPoints[ds.CategoryCount - 1], axisChart.ZeroHeight);
-				seg.Segments.Add(new System.Windows.Media.LineSegment(endPoint, true));
+				point.X = lastPoint.X;
+				point.Y = zeroHeight;
+				seg.Segments.Add(new System.Windows.Media.LineSegment(point, true));
 
 				seg.IsClosed = true;
 

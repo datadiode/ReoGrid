@@ -155,7 +155,7 @@ namespace unvell.ReoGrid.Chart
 		/// <summary>
 		/// Layout all legned items.
 		/// </summary>
-		public virtual void MeasureSize(Rectangle parentClientRect)
+		public virtual void MeasureSize(DrawingContext dc, Rectangle parentClientRect)
 		{
 			var ds = Chart.DataSource;
 			if (ds == null) return;
@@ -190,7 +190,7 @@ namespace unvell.ReoGrid.Chart
 					SymbolBounds = new Rectangle(new Point(0, 0), symbolSize),
 				};
 
-				var labelSize = PlatformUtility.MeasureText(null, label, legendItem.FontName, legendItem.FontSize, legendItem.FontStyles);
+				var labelSize = PlatformUtility.MeasureText(dc, label, legendItem.FontName, legendItem.FontSize, legendItem.FontStyles);
 
 				if (maxLabelWidth < labelSize.Width) maxLabelWidth = labelSize.Width;
 				if (maxLabelHeight < labelSize.Height) maxLabelHeight = labelSize.Height;

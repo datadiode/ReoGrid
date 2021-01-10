@@ -69,25 +69,11 @@ namespace unvell.ReoGrid.Rendering
 			FormatFlags = StringFormatFlags.MeasureTrailingSpaces
 		};
 
-		private static ResourcePoolManager resourcePoolManager;// = new ResourcePoolManager();
-
-		internal static Graphics.Size MeasureText(IRenderer r, string text, string fontName, float fontSize, Drawing.Text.FontStyles style)
+		internal static Graphics.Size MeasureText(DrawingContext dc, string text, string fontName, float fontSize, Drawing.Text.FontStyles style)
 		{
-			ResourcePoolManager resManager;
-			Font font = null;
+			ResourcePoolManager resManager = dc.Renderer.ResourcePoolManager;
 
-			if (r == null)
-			{
-				if (resourcePoolManager == null) resourcePoolManager = new ResourcePoolManager();
-
-				resManager = resourcePoolManager;
-			}
-			else
-			{
-				resManager = r.ResourcePoolManager;
-			}
-
-			font = resManager.GetFont(fontName, fontSize, ToWFFontStyle(style));
+			var font = resManager.GetFont(fontName, fontSize, ToWFFontStyle(style));
 
 			if (font == null)
 			{

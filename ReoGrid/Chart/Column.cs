@@ -146,6 +146,8 @@ namespace unvell.ReoGrid.Chart
 			var singleColumnWidth = groupColumnWidth / rows;
 
 			var ai = axisChart.PrimaryAxisInfo;
+			double scaleY = clientRect.Height / (ai.Maximum - ai.Minimum);
+			var zeroHeight = (RGFloat)(ai.Minimum * scaleY + clientRect.Height);
 
 			double x = groupColumnSpace / 2;
 
@@ -155,18 +157,16 @@ namespace unvell.ReoGrid.Chart
 			{
 				for (int r = 0; r < rows; r++)
 				{
-					var pt = axisChart.PlotDataPoints[r][c];
-
-					if (pt.hasValue)
+					if (ds[r][c] is double value)
 					{
 						var style = axisChart.DataSerialStyles[r];
-						var rect = pt.value > 0 ?
+						var rect = value > 0 ?
 							new Rectangle(
-								(RGFloat)x, axisChart.ZeroHeight - pt.value,
-								(RGFloat)(singleColumnWidth - 1), pt.value) :
+								(RGFloat)x, (RGFloat)(zeroHeight - value * scaleY),
+								(RGFloat)(singleColumnWidth - 1), (RGFloat)(value * scaleY)) :
 							new Rectangle(
-								(RGFloat)x, axisChart.ZeroHeight,
-								(RGFloat)(singleColumnWidth - 1), -pt.value);
+								(RGFloat)x, zeroHeight,
+								(RGFloat)(singleColumnWidth - 1), (RGFloat)(-value * scaleY));
 						rect.Intersect(clientRect);
 						g.DrawAndFillRectangle(rect, style.LineColor, style.FillColor);
 					}

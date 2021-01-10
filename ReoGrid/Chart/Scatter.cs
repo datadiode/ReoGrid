@@ -187,7 +187,11 @@ namespace unvell.ReoGrid.Chart
 
 			var g = dc.Graphics;
 
-			var clientRect = this.ClientBounds;
+			var clientRect = ClientBounds;
+			double scaleX = clientRect.Width / (xai.Maximum - xai.Minimum);
+			double scaleY = clientRect.Height / (yai.Maximum - yai.Minimum);
+			var zeroWidth = (RGFloat)(xai.Minimum * scaleX);
+			var zeroHeight = (RGFloat)(yai.Minimum * scaleY + clientRect.Height);
 
 			int c = 0;
 
@@ -205,15 +209,10 @@ namespace unvell.ReoGrid.Chart
 				{
 					if (xser[j] is double xval && yser[j] is double yval)
 					{
-						xval /= xai.Maximum - xai.Minimum;
-						xval *= clientRect.Width;
-						xval += axisChart.ZeroWidth;
-
-						yval /= yai.Minimum - yai.Maximum;
-						yval *= clientRect.Height;
-						yval += axisChart.ZeroHeight;
-
-						g.DrawEllipse(style.LineColor, (RGFloat)xval - shift, (RGFloat)yval - shift, width, width);
+						g.DrawEllipse(style.LineColor,
+							(RGFloat)(zeroWidth + xval * scaleX - shift),
+							(RGFloat)(zeroHeight - yval * scaleY - shift),
+							width, width);
 					}
 				}
 			}

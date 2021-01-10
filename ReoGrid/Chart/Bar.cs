@@ -134,7 +134,7 @@ namespace unvell.ReoGrid.Chart
 		/// <param name="dc">Platform no-associated drawing context instance.</param>
 		protected override void OnPaint(DrawingContext dc)
 		{
-			var clientRect = this.ClientBounds;
+			var clientRect = ClientBounds;
 			var availableHeight = clientRect.Height * 0.7;
 
 			if (availableHeight < 20)
@@ -142,8 +142,7 @@ namespace unvell.ReoGrid.Chart
 				return;
 			}
 
-			var axisChart = base.Chart as AxisChart;
-			if (axisChart == null) return;
+			var axisChart = Chart as AxisChart;
 
 			var ds = Chart.DataSource;
 
@@ -155,6 +154,8 @@ namespace unvell.ReoGrid.Chart
 			var singleColumnHeight = groupColumnWidth / rows;
 
 			var ai = axisChart.PrimaryAxisInfo;
+			double scaleX = clientRect.Width / (ai.Maximum - ai.Minimum);
+			var zeroWidth = (RGFloat)(-ai.Minimum * scaleX);
 
 			double y = groupColumnSpace / 2;
 
@@ -164,18 +165,16 @@ namespace unvell.ReoGrid.Chart
 			{
 				for (int r = 0; r < rows; r++)
 				{
-					var pt = axisChart.PlotDataPoints[r][c];
-
-					if (pt.hasValue)
+					if (ds[r][c] is double value)
 					{
 						var style = axisChart.DataSerialStyles[r];
-						var rect = pt.value > 0 ?
+						var rect = value > 0 ?
 							new Rectangle(
-								axisChart.ZeroWidth, (RGFloat)y,
-								pt.value, (RGFloat)(singleColumnHeight - 1)) :
+								zeroWidth, (RGFloat)y,
+								(RGFloat)(value * scaleX), (RGFloat)(singleColumnHeight - 1)) :
 							new Rectangle(
-								axisChart.ZeroWidth - pt.value, (RGFloat)y,
-								pt.value, (RGFloat)(singleColumnHeight - 1));
+								zeroWidth - (RGFloat)value, (RGFloat)y,
+								(RGFloat)(value * scaleX), (RGFloat)(singleColumnHeight - 1));
 						rect.Intersect(clientRect);
 						g.DrawAndFillRectangle(rect, style.LineColor, style.FillColor);
 					}

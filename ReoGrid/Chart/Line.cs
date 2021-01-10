@@ -18,6 +18,12 @@
 
 #if DRAWING
 
+ #if WINFORM || ANDROID
+using RGFloat = System.Single;
+#else
+using RGFloat = System.Double;
+#endif // WINFORM
+
 using unvell.ReoGrid.Graphics;
 using unvell.ReoGrid.Rendering;
 
@@ -104,8 +110,7 @@ namespace unvell.ReoGrid.Chart
 		{
 			base.OnPaint(dc);
 
-			var axisChart = base.Chart as AxisChart;
-			if (axisChart == null) return;
+			var axisChart = Chart as AxisChart;
 
 			var ai = axisChart.PrimaryAxisInfo;
 			if (double.IsNaN(ai.Levels) || ai.Levels <= 0)
@@ -118,10 +123,11 @@ namespace unvell.ReoGrid.Chart
 
 			var g = dc.Graphics;
 
-			var clientRect = this.ClientBounds;
-			//var parentClientRect = axisChart.PlotViewContainer.ClientBounds;
-			//var scaleX = clientRect.Width / parentClientRect.Width;
-			//var scaleY = clientRect.Height / parentClientRect.Height;
+			var clientRect = ClientBounds;
+
+			double scaleX = clientRect.Width / ds.CategoryCount;
+			double scaleY = clientRect.Height / (ai.Maximum - ai.Minimum);
+			var zeroHeight = (RGFloat)(ai.Minimum * scaleY + clientRect.Height);
 
 			var columns = new Point[ds.CategoryCount];
 
@@ -132,18 +138,19 @@ namespace unvell.ReoGrid.Chart
 
 				for (int c = 0; c < ds.CategoryCount; c++)
 				{
-					var pt = axisChart.PlotDataPoints[r][c];
-
 					int count = c - lastIndex;
 
-					if (pt.hasValue)
+					bool hasValue = false;
+
+					if (ds[r][c] is double value)
 					{
-						columns[c] = new Point(axisChart.PlotColumnPoints[c]/* * scaleX*/, axisChart.ZeroHeight - pt.value/* * scaleY*/);
+						columns[c] = new Point((RGFloat)((c + 0.5) * scaleX), zeroHeight - (RGFloat)(value * scaleY));
+						hasValue = true;
 					}
 
 					bool last = c >= ds.CategoryCount - 1;
 
-					if ((!pt.hasValue) || (last && count > 0))
+					if ((!hasValue) || (last && count > 0))
 					{
 						if (count > 1 || (last && count > 0))
 						{

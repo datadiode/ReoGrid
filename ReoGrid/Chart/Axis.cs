@@ -220,11 +220,11 @@ namespace unvell.ReoGrid.Chart
 			else if (Orientation == AxisOrientation.Horizontal)
 			{
 				var maxWidth = Math.Max(
-					PlatformUtility.MeasureText(dc.Renderer,
+					PlatformUtility.MeasureText(dc,
 						Math.Round(ai.Minimum, Math.Abs(ai.Scaler)).ToString(),
 						FontName, FontSize, Drawing.Text.FontStyles.Regular
 					).Width,
-					PlatformUtility.MeasureText(dc.Renderer,
+					PlatformUtility.MeasureText(dc,
 						Math.Round(ai.Maximum, Math.Abs(ai.Scaler)).ToString(),
 						FontName, FontSize, Drawing.Text.FontStyles.Regular
 					).Width);
@@ -280,7 +280,7 @@ namespace unvell.ReoGrid.Chart
 
 				if (!string.IsNullOrEmpty(title))
 				{
-					var size = PlatformUtility.MeasureText(dc.Renderer, title, this.FontName, this.FontSize, Drawing.Text.FontStyles.Regular);
+					var size = PlatformUtility.MeasureText(dc, title, FontName, FontSize, Drawing.Text.FontStyles.Regular);
 
 					if (maxWidth < size.Width)
 						maxWidth = size.Width;

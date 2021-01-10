@@ -82,64 +82,15 @@ namespace unvell.ReoGrid.Rendering
 			return null;
 		}
 
-		private static ResourcePoolManager resourcePoolManager;// = new ResourcePoolManager();
-
-		internal static Graphics.Size MeasureText(IRenderer r, string text, string fontName, double fontSize, Drawing.Text.FontStyles style)
+		internal static Graphics.Size MeasureText(DrawingContext dc, string text, string fontName, double fontSize, Drawing.Text.FontStyles style)
 		{
-			ResourcePoolManager resManager;
-			Typeface typeface = null;
+			ResourcePoolManager resManager = dc.Renderer.ResourcePoolManager;
 
-			if (r == null)
-			{
-				if (resourcePoolManager == null) resourcePoolManager = new ResourcePoolManager();
+			FormattedText ft = new FormattedText(text, System.Threading.Thread.CurrentThread.CurrentCulture,
+				 FlowDirection.LeftToRight, resManager.GetTypeface(fontName),
+				 fontSize * PlatformUtility.GetDPI() / 72.0, null);
 
-				resManager = resourcePoolManager;
-			}
-			else
-			{
-				resManager = r.ResourcePoolManager;
-			}
-
-			typeface = resManager.GetTypeface(fontName, FontWeights.Regular, ToWPFFontStyle(style), FontStretches.Normal);
-
-			if (typeface == null)
-			{
-				return Graphics.Size.Zero;
-			}
-
-			//var typeface = new System.Windows.Media.Typeface(
-			//			new System.Windows.Media.FontFamily(fontName),
-			//			PlatformUtility.ToWPFFontStyle(this.fontStyles),
-			//			(this.fontStyles & FontStyles.Bold) == FontStyles.Bold ?
-			//			System.Windows.FontWeights.Bold : System.Windows.FontWeights.Normal,
-			//			System.Windows.FontStretches.Normal);
-
-			System.Windows.Media.GlyphTypeface glyphTypeface;
-
-			double totalWidth = 0;
-
-			if (typeface.TryGetGlyphTypeface(out glyphTypeface))
-			{
-				//fontInfo.Ascent = typeface.FontFamily.Baseline;
-				//fontInfo.LineHeight = typeface.CapsHeight;
-
-				var size = fontSize * 1.33d;
-
-				//this.GlyphIndexes.Capacity = text.Length;
-
-				for (int n = 0; n < text.Length; n++)
-				{
-					ushort glyphIndex = glyphTypeface.CharacterToGlyphMap[text[n]];
-					//GlyphIndexes.Add(glyphIndex);
-
-					double width = glyphTypeface.AdvanceWidths[glyphIndex] * size;
-					//this.TextSizes.Add(width);
-
-					totalWidth += width;
-				}
-			}
-
-			return new Graphics.Size(totalWidth, typeface.CapsHeight);
+			return new Graphics.Size(ft.Width, ft.Height);
 		}
 
 		public static System.Windows.FontStyle ToWPFFontStyle(unvell.ReoGrid.Drawing.Text.FontStyles textStyle)
