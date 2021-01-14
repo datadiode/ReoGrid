@@ -90,9 +90,9 @@ namespace unvell.ReoGrid.Chart
 			};
 		}
 
-		protected override Rectangle GetPlotViewBounds(Rectangle bodyBounds)
+		protected override Rectangle GetPlotViewBounds(DrawingContext dc, Rectangle bodyBounds)
 		{
-			var rect = base.GetPlotViewBounds(bodyBounds);
+			var rect = base.GetPlotViewBounds(dc, bodyBounds);
 
 			RGFloat extraWidth = 0;
 
@@ -102,7 +102,7 @@ namespace unvell.ReoGrid.Chart
 
 				if (!string.IsNullOrEmpty(title))
 				{
-					var size = PlatformUtility.MeasureText(null, title, this.FontName, this.FontSize, Drawing.Text.FontStyles.Regular);
+					var size = PlatformUtility.MeasureText(dc, title, FontName, FontSize, Drawing.Text.FontStyles.Regular);
 					if (extraWidth < size.Width)
 						extraWidth = size.Width;
 				}

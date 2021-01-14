@@ -77,7 +77,7 @@ namespace unvell.ReoGrid.Chart
 		#endregion // Plot view instance
 
 		#region Layout
-		protected override Rectangle GetPlotViewBounds(Rectangle bodyBounds)
+		protected override Rectangle GetPlotViewBounds(DrawingContext dc, Rectangle bodyBounds)
 		{
 			RGFloat minSize = Math.Min(bodyBounds.Width, bodyBounds.Height);
 

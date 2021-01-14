@@ -134,7 +134,7 @@ namespace unvell.ReoGrid.Chart
 
 			if (PlotViewContainer != null)
 			{
-				PlotViewContainer.Bounds = GetPlotViewBounds(bodyBounds);
+				PlotViewContainer.Bounds = GetPlotViewBounds(dc, bodyBounds);
 			}
 
 			if (TitleView != null) TitleView.Bounds = titleBounds;
@@ -180,7 +180,7 @@ namespace unvell.ReoGrid.Chart
 		/// Get default body bounds.
 		/// </summary>
 		/// <returns>Rectangle of body bounds.</returns>
-		protected virtual Rectangle GetPlotViewBounds(Rectangle bodyBounds)
+		protected virtual Rectangle GetPlotViewBounds(DrawingContext dc, Rectangle bodyBounds)
 		{
 			return bodyBounds;
 		}
@@ -705,9 +705,9 @@ namespace unvell.ReoGrid.Chart
 			HorizontalAxisInfoView.Bounds = isTransposed ? vbounds : hbounds;
 		}
 
-		protected override Rectangle GetPlotViewBounds(Rectangle bodyBounds)
+		protected override Rectangle GetPlotViewBounds(DrawingContext dc, Rectangle bodyBounds)
 		{
-			var rect = base.GetPlotViewBounds(bodyBounds);
+			var rect = base.GetPlotViewBounds(dc, bodyBounds);
 
 			const RGFloat spacing = 10;
 
