@@ -23,6 +23,7 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using ICSharpCode.SharpZipLib.Zip;
 
 #if WINFORM || ANDROID
 using RGFloat = System.Single;
@@ -2957,7 +2958,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 #region Excel Document
 	internal partial class Document
 	{
-		private IZipArchive zipArchive;
+		private ZipFile zipArchive;
 
 		public Schema.Workbook Workbook { get; private set; }
 
@@ -2970,7 +2971,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 		public static Document ReadFromStream(Stream stream)
 		{
-			IZipArchive zip = MZipArchiveFactory.OpenOnStream(stream);
+			ZipFile zip = new ZipFile(stream);
 
 			if (zip == null) return null;
 
@@ -2997,7 +2998,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 		{
 			string finalPath = entryFile._path + "_rels/" + name + ".rels";
 
-			if (this.zipArchive.IsFileExist(finalPath))
+			if (zipArchive.FindEntry(finalPath, true) != -1)
 			{
 				entryFile._relationFile = this.LoadObjectFromPath<Relationships>(finalPath, null);
 			}
@@ -3025,14 +3026,14 @@ namespace unvell.ReoGrid.IO.OpenXML
 		{
 			var finalPath = RelativePathUtility.GetRelativePath(path, name);
 
-			var entry = this.zipArchive.GetFile(finalPath);
+			var entry = zipArchive.GetEntry(finalPath);
 
 			if (entry == null)
 			{
 				throw new ExcelFormatException("Resource entry cannot be found: " + path);
 			}
 
-			using (var stream = entry.GetStream())
+			using (var stream = zipArchive.GetInputStream(entry))
 			{
 				if (stream == null)
 				{
@@ -3057,8 +3058,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 		internal Stream GetResourceStream(string path)
 		{
-			var entry = this.zipArchive.GetFile(path);
-			return entry == null ? null : entry.GetStream();
+			var entry = zipArchive.GetEntry(path);
+			return entry == null ? null : zipArchive.GetInputStream(entry);
 		}
 
 #endregion // Load Resources
@@ -3071,7 +3072,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 		public SharedStrings ReadSharedStringTable()
 		{
-			if (this.zipArchive.IsFileExist(this.Workbook._path + sharedStrings_xml_filename))
+			if (this.zipArchive.FindEntry(this.Workbook._path + sharedStrings_xml_filename, true) != -1)
 			{
 				return this.LoadEntryFile<SharedStrings>(this.Workbook._path, sharedStrings_xml_filename);
 			}

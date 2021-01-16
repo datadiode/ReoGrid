@@ -520,21 +520,6 @@
     <Compile Include="WPF\Renderer.cs" />
     <Compile Include="WPF\SheetTabControl.cs" />
     <Compile Include="WPF\Utility.cs" />
-    <Compile Include="Zip\CRC32.cs" />
-    <Compile Include="Zip\Deflate.cs" />
-    <Compile Include="Zip\Events.cs" />
-    <Compile Include="Zip\Exceptions.cs" />
-    <Compile Include="Zip\Inflate.cs" />
-    <Compile Include="Zip\InfTree.cs" />
-    <Compile Include="Zip\OffsetStream.cs" />
-    <Compile Include="Zip\Shared.cs" />
-    <Compile Include="Zip\Zip.cs" />
-    <Compile Include="Zip\ZipEntry.cs" />
-    <Compile Include="Zip\ZipFile.cs" />
-    <Compile Include="Zip\ZipInputStream.cs" />
-    <Compile Include="Zip\ZipOutputStream.cs" />
-    <Compile Include="Zip\ZipSegmentedStream.cs" />
-    <Compile Include="Zip\Zlib.cs" />
     <EmbeddedResource Include="Test\RichTextTestForm.resx">
       <DependentUpon>RichTextTestForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -592,7 +577,6 @@
     <Compile Include="Utility\TestHelper.cs" />
     <Compile Include="Views\Viewport.cs" />
     <Compile Include="IO\XMLFileFormat.cs" />
-    <Compile Include="Utility\ZipFileArchive.cs" />
     <None Include="Resources\seek.dat" />
   </ItemGroup>
   <ItemGroup>
@@ -641,7 +625,12 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SharpZipLib\SharpZipLib.csproj">
+      <Project>{605a1ff5-5d07-44b1-ae56-77ff0d2d39f9}</Project>
+      <Name>SharpZipLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Zoltu.Versioning.1.2.34.0\build\Zoltu.Versioning.targets" Condition="Exists('..\packages\Zoltu.Versioning.1.2.34.0\build\Zoltu.Versioning.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -202,7 +202,7 @@ namespace unvell.ReoGrid
 			var temp = Path.GetTempFileName();
 			try
 			{
-				using (var fs = new FileStream(temp, FileMode.Create, FileAccess.Write))
+				using (var fs = new FileStream(temp, FileMode.Create, FileAccess.ReadWrite))
 				{
 					Save(fs, fileFormat, encoding, arg);
 				}

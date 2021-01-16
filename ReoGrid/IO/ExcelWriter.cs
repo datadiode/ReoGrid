@@ -30,10 +30,34 @@ using RGWorksheet = unvell.ReoGrid.Worksheet;
 using unvell.ReoGrid.DataFormat;
 using unvell.ReoGrid.Rendering;
 using unvell.ReoGrid.Graphics;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace unvell.ReoGrid.IO.OpenXML
 {
 	#region Writer
+
+	internal class StaticStreamDataSource : IStaticDataSource
+	{
+		/// <summary>
+		/// Initialise a new instance of <see cref="StaticDiskDataSource"/>
+		/// </summary>
+		/// <param name="fileName">The name of the file to obtain data from.</param>
+		public StaticStreamDataSource(Stream source)
+		{
+			source_ = source;
+		}
+
+		/// <summary>
+		/// Get a <see cref="Stream"/> providing data.
+		/// </summary>
+		/// <returns>Returns a <see cref="Stream"/> providing data.</returns>
+		public Stream GetSource()
+		{
+			return source_;
+		}
+
+		private readonly Stream source_;
+	}
 
 	internal sealed class ExcelWriter
 	{
@@ -1470,8 +1494,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 		{
 			Document doc = new Document()
 			{
-				//zipArchive = NET35ZipArchiveFactory.OpenOnStream(stream, FileMode.Create, FileAccess.Write, true),
-				zipArchive = MZipArchiveFactory.CreateOnStream(stream),
+				zipArchive = ZipFile.Create(stream),
 				_relationFile = new Relationships("_rels/.rels"),
 			};
 
@@ -1491,6 +1514,8 @@ namespace unvell.ReoGrid.IO.OpenXML
 			doc.CreateCoreProperties();
 
 			doc.CreateAppProperties();
+
+			doc.zipArchive.BeginUpdate();
 
 			return doc;
 		}
@@ -1723,11 +1748,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 				XMLHelper.SaveXML(stream, obj);
 				stream.Position = 0;
 
-				IZipEntry ctEntry = this.zipArchive.AddFile(path, stream);
-
-				//var s = ctEntry.CreateStream();
-				//{
-				//}
+				zipArchive.Add(new StaticStreamDataSource(stream), path);
 			}
 		}
 
@@ -1826,8 +1847,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 							stream.Position = 0;
 
-							IZipEntry ctEntry = this.zipArchive.AddFile("xl/media/" + blip._imageFileName, stream);
-
+							zipArchive.Add(new StaticStreamDataSource(stream), "xl/media/" + blip._imageFileName);
 						}
 					}
 #endregion // Floating Images
@@ -1856,7 +1876,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 			}
 #endregion // AppProperties
 
-			this.zipArchive.Flush();
+			this.zipArchive.CommitUpdate();
 			this.zipArchive.Close();
 		}
 	}
