@@ -51,12 +51,7 @@ namespace unvell.ReoGrid.CellTypes
 		/// <summary>
 		/// Get the cell body bounds. (Relative position to owner cell)
 		/// </summary>
-		Rectangle Bounds { get; set; }
-
-		/// <summary>
-		/// This method invoked when body bounds is changed.
-		/// </summary>
-		void OnBoundsChanged();
+		Rectangle Bounds { get; }
 
 		/// <summary>
 		/// Determine whether or not to allow capture the mouse moving after mouse button pressed inside the body bounds.

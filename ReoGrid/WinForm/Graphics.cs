@@ -686,13 +686,13 @@ namespace unvell.ReoGrid.WinForm
 			{
 				default:
 				case DrawMode.View:
-					textBounds = cell.TextBounds;
+					textBounds = cell.Worksheet.UpdateCellTextBounds(this, cell, drawMode, scale);
 					scaledFont = cell.RenderFont;
 					break;
 
 				case DrawMode.Preview:
 				case DrawMode.Print:
-					textBounds = cell.PrintTextBounds;
+					textBounds = cell.Worksheet.UpdateCellTextBounds(this, cell, drawMode, scale);
 					scaledFont = this.resourceManager.GetFont(cell.RenderFont.Name,
 						cell.InnerStyle.FontSize * scale, cell.RenderFont.Style);
 					break;
@@ -861,11 +861,6 @@ namespace unvell.ReoGrid.WinForm
 					// word break
 					fieldWidth = (int)Math.Round(cellWidth * scale);
 					sf.FormatFlags &= ~StringFormatFlags.NoWrap;
-				}
-
-				if (cell.FontDirty)
-				{
-					sheet.UpdateCellRenderFont(this, cell, drawMode, UpdateFontReason.FontChanged);
 				}
 
 				var g = this.cachedGraphics;

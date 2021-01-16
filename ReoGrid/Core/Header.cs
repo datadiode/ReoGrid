@@ -222,7 +222,7 @@ namespace unvell.ReoGrid
 			SetColumnsWidth(col, count, c => width);
 		}
 
-		internal void SetColumnsWidth(int col, int count, Func<int, int> widthGetter,
+		public void SetColumnsWidth(int col, int count, Func<int, int> widthGetter,
 			bool processOutlines = true, bool updateMaxColumnHeader = true)
 		{
 #if DEBUG
@@ -231,7 +231,6 @@ namespace unvell.ReoGrid
 
 			int applyEndCol = col + count;
 			int offset = 0;
-			RGFloat scaledOffset = 0;
 
 #if OUTLINE
 			var colOutlines = GetOutlines(RowOrColumn.Column);
@@ -245,15 +244,15 @@ namespace unvell.ReoGrid
 			for (int c = col; c < sheetEndCol; c++)
 			{
 				var colhead = this.cols[c];
+				var left = colhead.Left;
+				var right = colhead.Right;
 				colhead.Left += offset;
-
-				int w = colhead.InnerWidth;
-				int width = 0;
-				bool skipped = false;
 
 				if (c < applyEndCol)
 				{
-					width = widthGetter(c);
+					int w = colhead.InnerWidth;
+					int width = widthGetter(c);
+					bool skipped = false;
 
 					// skip this column when width < 0
 					if (width >= 0)
@@ -331,69 +330,35 @@ namespace unvell.ReoGrid
 						// width must be >= zero
 						width = 0;
 					}
-				}
-
-				#region Offset Cells
-				for (int r = 0; r < maxRow; r++)
-				{
-					Cell cell = cells[r, c];
-
-					if (cell != null)
+					if (!skipped)
 					{
-						if (cell.IsEndMergedCell)
-						{
-							Cell mergedStartCell = GetCell(cell.MergeStartPos);
-							UpdateCellBounds(mergedStartCell);
-
-							mergedStartCell.UpdateContentBounds();
-						}
-						else
-						{
-							cell.Left += offset;
-							cell.TextBoundsLeft += scaledOffset;
-
-							// update non-merged cell
-							if (cell.InternalCol < applyEndCol && cell.Colspan == 1 && cell.Rowspan == 1)
-							{
-								cell.Width = width + 1;
-								UpdateCellTextBounds(cell);
-							}
-
-							cell.UpdateContentBounds();
-						}
-					}
-				}
-				#endregion
-
-				if (c < applyEndCol && !skipped)
-				{
-					offset += width - w;
-					scaledOffset = offset * this.renderScaleFactor;
-				}
-			}
-
-			#region Offset Floating Objects
+						offset += width -= w;
+						#region Offset Floating Objects
 #if DRAWING
-			if (this.drawingCanvas.drawingObjects != null && this.drawingCanvas.drawingObjects.Count > 0)
-			{
-				var left = this.cols[col].Left;
-				var right = this.cols[col + count - 1].Right;
-
-				foreach (var obj in this.drawingCanvas.drawingObjects)
-				{
-					// below
-					if (obj.Left > left)
-					{
-						obj.X += offset;
-					}
-					else if (obj.Right > left)
-					{
-						obj.Width += offset;
+						if (drawingCanvas.drawingObjects != null && drawingCanvas.drawingObjects.Count > 0)
+						{
+							if (width < 0)
+							{
+								left = colhead.Left;
+								right = colhead.Right;
+							}
+							foreach (var obj in drawingCanvas.drawingObjects)
+							{
+								if (obj.Left >= right)
+								{
+									obj.X += width;
+								}
+								else if (obj.Right >= right)
+								{
+									obj.Width += width;
+								}
+							}
+						}
+#endif // DRAWING
+						#endregion // Offset Floating Objects
 					}
 				}
 			}
-#endif // DRAWING
-			#endregion // Offset Floating Objects
 
 			UpdateViewportController();
 
@@ -408,7 +373,7 @@ namespace unvell.ReoGrid
 				}
 			}
 
-			this.ColumnsWidthChanged?.Invoke(this, new ColumnsWidthChangedEventArgs(col, count, widthGetter(col)));
+			this.ColumnsWidthChanged?.Invoke(this, new ColumnsWidthChangedEventArgs(col, count, widthGetter));
 
 #if DEBUG
 			watch.Stop();
@@ -426,12 +391,12 @@ namespace unvell.ReoGrid
 		/// <param name="row">Start row index to set</param>
 		/// <param name="count">Number of rows to set</param>
 		/// <param name="height">Height value of row</param>
-		public void SetRowsHeight(int row, int count, ushort height, Func<int, int> heightGetter = null)
+		public void SetRowsHeight(int row, int count, ushort height)
 		{
-			SetRowsHeight(row, count, heightGetter != null ? heightGetter : r => height, true);
+			SetRowsHeight(row, count, r => height);
 		}
 
-		internal void SetRowsHeight(int row, int count, Func<int, int> heightGetter, bool processOutlines)
+		public void SetRowsHeight(int row, int count, Func<int, int> heightGetter, bool processOutlines = true)
 		{
 #if DEBUG
 			Stopwatch watch = Stopwatch.StartNew();
@@ -439,7 +404,6 @@ namespace unvell.ReoGrid
 
 			int applyEndRow = row + count;
 			int offset = 0;
-			RGFloat scaledOffset = 0;
 #if OUTLINE
 			var rowOutlines = GetOutlines(RowOrColumn.Row);
 #endif // OUTLINE
@@ -452,15 +416,15 @@ namespace unvell.ReoGrid
 			for (int r = row; r < sheetEndRow; r++)
 			{
 				var rowhead = rows[r];
+				var top = rowhead.Top;
+				var bottom = rowhead.Bottom;
 				rowhead.Top += offset;
-
-				int h = rowhead.InnerHeight;
-				int height = 0;
-				bool skiped = false;
 
 				if (r < applyEndRow)
 				{
-					height = heightGetter(r);
+					int h = rowhead.InnerHeight;
+					int height = heightGetter(r);
+					bool skipped = false;
 
 					// skip this row when height < 0
 					if (height >= 0)
@@ -469,7 +433,7 @@ namespace unvell.ReoGrid
 						// then skip adjusting row height
 						if (height == 0 && rowhead.InnerHeight <= 0)
 						{
-							skiped = true;
+							skipped = true;
 						}
 						else
 						{
@@ -538,67 +502,35 @@ namespace unvell.ReoGrid
 						// height must be >= zero
 						height = 0;
 					}
-				}
-
-				#region Offset Cells
-				for (int c = 0; c < maxCol; c++)
-				{
-					Cell cell = cells[r, c];
-
-					if (cell != null)
+					if (!skipped)
 					{
-						if (cell.IsEndMergedCell)
-						{
-							Cell mergedStartCell = GetCell(cell.MergeStartPos);
-							UpdateCellBounds(mergedStartCell);
-						}
-						else
-						{
-							cell.Top += offset;
-							cell.TextBoundsTop += scaledOffset;
-
-							// update unmerged cell
-							if (cell.InternalRow < applyEndRow && cell.Colspan == 1 && cell.Rowspan == 1)
-							{
-								cell.Height = height + 1;
-								UpdateCellTextBounds(cell);
-							}
-
-							cell.UpdateContentBounds();
-						}
-					}
-				}
-				#endregion
-
-				if (r < applyEndRow && !skiped)
-				{
-					offset += height - h;
-					scaledOffset = offset * this.renderScaleFactor;
-				}
-			}
-
-			#region Offset Floating Objects
+						offset += height -= h;
+						#region Offset Floating Objects
 #if DRAWING
-			if (this.drawingCanvas.drawingObjects != null && this.drawingCanvas.drawingObjects.Count > 0)
-			{
-				var top = this.rows[row].Top;
-				var bottom = this.rows[row + count - 1].Bottom;
-
-				foreach (var obj in this.drawingCanvas.drawingObjects)
-				{
-					// below
-					if (obj.Top > top)
-					{
-						obj.Y += offset;
-					}
-					else if (obj.Bottom > top)
-					{
-						obj.Height += offset;
+						if (drawingCanvas.drawingObjects != null && drawingCanvas.drawingObjects.Count > 0)
+						{
+							if (height < 0)
+							{
+								top = rowhead.Top;
+								bottom = rowhead.Bottom;
+							}
+							foreach (var obj in drawingCanvas.drawingObjects)
+							{
+								if (obj.Top >= bottom)
+								{
+									obj.Y += height;
+								}
+								else if (obj.Bottom >= bottom)
+								{
+									obj.Height += height;
+								}
+							}
+						}
+#endif // DRAWING
+						#endregion // Offset Floating Objects
 					}
 				}
 			}
-#endif // DRAWING
-			#endregion // Offset Floating Objects
 
 			UpdateViewportController();
 
@@ -613,7 +545,7 @@ namespace unvell.ReoGrid
 				}
 			}
 
-			this.RowsHeightChanged?.Invoke(this, new RowsHeightChangedEventArgs(row, count, heightGetter(row), heightGetter));
+			this.RowsHeightChanged?.Invoke(this, new RowsHeightChangedEventArgs(row, count, heightGetter));
 
 #if DEBUG
 			watch.Stop();
@@ -655,70 +587,16 @@ namespace unvell.ReoGrid
 			return rows[row].InnerHeight;
 		}
 
-		#region Obsoleted
-		/// <summary>
-		/// Disable auto-row-height adjust on specified row
-		/// </summary>
-		/// <param name="row">row to be disable auto-row-height</param>
-		/// <returns></returns>
-		[Obsolete("use Worksheet.RowHeaders.IsAutoHeight instead")]
-		public bool DisableAutoRowHeight(int row)
-		{
-			if (row >= 0 && row < this.rows.Count)
-			{
-				this.rows[row].IsAutoHeight = false;
-				return true;
-			}
-			else
-				return false;
-		}
-
-		/// <summary>
-		/// Disable auto-row-height adjust on specified row
-		/// </summary>
-		/// <param name="row">row to be disable auto-row-height</param>
-		/// <returns></returns>
-		[Obsolete("use Worksheet.RowHeaders.IsAutoHeight instead")]
-		public bool EnableAutoRowHeight(int row)
-		{
-			if (row >= 0 && row < this.rows.Count)
-			{
-				this.rows[row].IsAutoHeight = true;
-				return true;
-			}
-			else
-				return false;
-		}
-
-		/// <summary>
-		/// Disable auto-row-height adjust on specified row
-		/// </summary>
-		/// <param name="row">row to be disable auto-row-height</param>
-		/// <returns></returns>
-		[Obsolete("use Worksheet.RowHeaders.IsAutoHeight instead")]
-		public bool IsAutoRowHeight(int row)
-		{
-			return (row >= 0 && row < this.rows.Count) ? this.rows[row].IsAutoHeight : false;
-		}
-		#endregion // Obsoleted
-
 		internal bool ExpandRowHeightToFitCell(Cell cell)
 		{
-			if (!cell.IsValidCell) return false;
-
-			if (cell.FontDirty)
+			if (cell.IsValidCell && !string.IsNullOrEmpty(cell.DisplayText))
 			{
-				UpdateCellFont(cell);
-			}
+				double textHeight = Math.Ceiling(cell.TextBounds.Height / renderScaleFactor);
+				ushort targetHeight = (ushort)Math.Min(textHeight, ushort.MaxValue);
 
-			if (!string.IsNullOrEmpty(cell.DisplayText))
-			{
-				int textHeight = (int)Math.Ceiling(cell.TextBounds.Height / renderScaleFactor);
-				if (textHeight > 65535) textHeight = 65535;
-
-				if (cell.Height < textHeight)
+				if (GetRowHeight(cell.InternalRow) < targetHeight)
 				{
-					SetRowsHeight(cell.InternalRow, 1, (ushort)(textHeight));
+					SetRowsHeight(cell.InternalRow, 1, targetHeight);
 					return true;
 				}
 			}
@@ -728,22 +606,14 @@ namespace unvell.ReoGrid
 
 		internal bool ExpandColumnWidthFitToCell(Cell cell)
 		{
-			if (!cell.IsValidCell) return false;
-
-			if (cell.FontDirty)
+			if (cell.IsValidCell && !string.IsNullOrEmpty(cell.DisplayText))
 			{
-				UpdateCellFont(cell);
-			}
+				double textWidth = Math.Ceiling(cell.TextBounds.Width / renderScaleFactor);
+				ushort targetWidth = (ushort)Math.Min(textWidth, ushort.MaxValue);
 
-			if (!string.IsNullOrEmpty(cell.DisplayText))
-			{
-
-				int textWidth = (int)Math.Ceiling(cell.TextBounds.Width / renderScaleFactor);
-				if (textWidth > 65535) textWidth = 65535;
-
-				if (cell.Width < textWidth)
+				if (GetColumnWidth(cell.InternalCol) < targetWidth)
 				{
-					SetColumnsWidth(cell.InternalCol, 1, (ushort)textWidth);
+					SetColumnsWidth(cell.InternalCol, 1, targetWidth);
 					return true;
 				}
 			}
@@ -766,54 +636,26 @@ namespace unvell.ReoGrid
 				throw new ArgumentOutOfRangeException("row");
 			}
 
-			RGFloat maxHeight = 0;
+			double maxHeight = 0;
 
-			for (int c = 0; c <= this.MaxContentCol; c++)
+			for (int c = 0; c <= MaxContentCol; c++)
 			{
-				Cell cell = this.cells[row, c];
+				Cell cell = cells[row, c];
 
 				if (cell != null && cell.Rowspan == 1)
 				{
-					if (cell.FontDirty)
+					double textHeight = Math.Ceiling(cell.TextBounds.Height) / renderScaleFactor;
+
+					if (maxHeight < textHeight)
 					{
-						this.UpdateCellFont(cell);
+						maxHeight = textHeight;
 					}
-
-#if DRAWING
-					var rt = cell.Data as Drawing.RichText;
-
-					if (rt != null)
-					{
-						var rtHeight = rt.TextSize.Height;
-
-						if (maxHeight < rtHeight)
-						{
-							maxHeight = rtHeight;
-						}
-					}
-					else
-					{
-#endif // DRAWING
-						RGFloat textHeight = cell.TextBounds.Height / this.renderScaleFactor;
-
-						if (maxHeight < textHeight)
-						{
-							maxHeight = textHeight;
-						}
-
-#if DRAWING
-					}
-#endif // DRAWING
-
 				}
 			}
 
 			if (maxHeight > 0)
 			{
-				if (maxHeight < 0) maxHeight = 0;
-				if (maxHeight > ushort.MaxValue - 2) maxHeight = ushort.MaxValue - 2;
-
-				ushort targetHeight = (ushort)(maxHeight + 2);
+				ushort targetHeight = (ushort)Math.Min(maxHeight, ushort.MaxValue);
 
 				if (byAction)
 				{
@@ -847,55 +689,26 @@ namespace unvell.ReoGrid
 				throw new ArgumentOutOfRangeException("col");
 			}
 
-			RGFloat maxWidth = 0;
+			double maxWidth = 0;
 
 			for (int r = 0; r <= this.MaxContentRow; r++)
 			{
 				Cell cell = this.cells[r, col];
 
-				if (cell != null
-					&& cell.Colspan == 1)
+				if (cell != null && cell.Colspan == 1)
 				{
-					if (cell.FontDirty)
+					double textWidth = Math.Ceiling(cell.TextBounds.Width) / renderScaleFactor;
+
+					if (maxWidth < textWidth)
 					{
-						this.UpdateCellFont(cell);
+						maxWidth = textWidth;
 					}
-
-#if DRAWING
-					var rt = cell.Data as Drawing.RichText;
-
-					if (rt != null)
-					{
-						var rtWidth = rt.TextSize.Width;
-
-						if (maxWidth < rtWidth)
-						{
-							maxWidth = rtWidth;
-						}
-					}
-					else
-					{
-#endif // DRAWING
-
-						RGFloat textWidth = cell.TextBounds.Width / this.renderScaleFactor;
-
-						if (maxWidth < textWidth)
-						{
-							maxWidth = textWidth;
-						}
-
-#if DRAWING
-					}
-#endif // DRAWING
 				}
 			}
 
 			if (maxWidth > 0)
 			{
-				if (maxWidth < 0) maxWidth = 0;
-				if (maxWidth > ushort.MaxValue - 2) maxWidth = ushort.MaxValue - 2;
-
-				ushort targetWidth = (ushort)(maxWidth + 2);
+				ushort targetWidth = (ushort)Math.Min(maxWidth, ushort.MaxValue);
 
 				if (byAction)
 				{
@@ -917,16 +730,6 @@ namespace unvell.ReoGrid
 		#endregion // Width & Height
 
 		#region Append
-
-		/// <summary>
-		/// Append specified columns at right of spreadsheet
-		/// </summary>
-		/// <param name="count">number of columns</param>
-		[Obsolete("Use <code>AppendColumns</code> instead")]
-		public void AppendCols(int count)
-		{
-			AppendColumns(count);
-		}
 
 		/// <summary>
 		/// Append specified columns at right of spreadsheet
@@ -1163,8 +966,6 @@ namespace unvell.ReoGrid
 					if (cell != null)
 					{
 						cell.InternalRow += count;
-						cell.Top += totalHeight;
-						cell.TextBoundsTop += totalHeight;
 
 						// move start pos
 						if (!cell.MergeStartPos.IsEmpty && cell.MergeStartPos.Row >= row)
@@ -1322,7 +1123,6 @@ namespace unvell.ReoGrid
 						{
 							Cell startCell = GetCell(cell.MergeStartPos);
 							startCell.Rowspan += (short)count;
-							startCell.Height += totalHeight;
 						}
 					}
 					else
@@ -1494,8 +1294,6 @@ namespace unvell.ReoGrid
 					if (cell != null)
 					{
 						cell.InternalCol += count;
-						cell.Left += totalWidth;
-						cell.TextBoundsLeft += totalWidth;
 
 						// move start pos
 						if (!cell.MergeStartPos.IsEmpty && cell.MergeStartPos.Col >= col)
@@ -1606,7 +1404,6 @@ namespace unvell.ReoGrid
 						{
 							Cell startCell = GetCell(cell.MergeStartPos);
 							startCell.Colspan += (short)count;
-							startCell.Width += totalWidth;
 						}
 					}
 					else
@@ -1779,10 +1576,6 @@ namespace unvell.ReoGrid
 							mergedStartCell.Rowspan -= (short)span;
 
 							Debug.Assert(mergedStartCell.Rowspan > 0);
-
-							mergedStartCell.Height =
-								this.rows[mergedStartCell.InternalRow + mergedStartCell.Rowspan - 1].Bottom -
-								this.rows[mergedStartCell.InternalRow].Top;
 						}
 
 						// update merge-end-col for range
@@ -1865,13 +1658,6 @@ namespace unvell.ReoGrid
 						if (cell.MergeStartPos.Row >= endrow)
 						{
 							cell.MergeStartPos = cell.MergeStartPos.Offset(-count, 0);
-							cell.Top -= totalHeight;
-							cell.TextBoundsTop -= scaledTotalHeight;
-						}
-						else if (cell.InternalRow >= endrow && cell.IsValidCell)
-						{
-							cell.Top -= totalHeight;
-							cell.TextBoundsTop -= scaledTotalHeight;
 						}
 
 						// Case:
@@ -1896,8 +1682,6 @@ namespace unvell.ReoGrid
 								// create a new merged cell
 								cell.Rowspan = (short)(startCell.Rowspan - endrow + cell.MergeStartPos.Row);
 								cell.Colspan = (short)(cell.MergeEndPos.Col - cell.MergeStartPos.Col + 1);
-
-								cell.Bounds = GetRangeBounds(cell.MergeStartPos.Row, c, cell.Rowspan, cell.Colspan);
 
 								// copy cell content
 								CellUtility.CopyCellContent(cell, startCell);
@@ -2279,10 +2063,6 @@ namespace unvell.ReoGrid
 							int span = Math.Min(count, cell.MergeEndPos.Col - col + 1);
 							mergedStartCell.Colspan -= (short)span;
 
-							mergedStartCell.Width =
-								this.cols[mergedStartCell.InternalCol + mergedStartCell.Colspan - 1].Right -
-								this.cols[mergedStartCell.InternalCol].Left;
-
 #if DEBUG
 							Debug.Assert(mergedStartCell.Colspan > 0);
 #endif
@@ -2366,13 +2146,6 @@ namespace unvell.ReoGrid
 						if (cell.MergeStartPos.Col >= endcol)
 						{
 							cell.MergeStartPos = cell.MergeStartPos.Offset(0, -count);
-							cell.Left -= totalWidth;
-							cell.TextBoundsLeft -= scaledTotalWidth;
-						}
-						else if (cell.InternalCol >= endcol && cell.IsValidCell)
-						{
-							cell.Left -= totalWidth;
-							cell.TextBoundsLeft -= scaledTotalWidth;
 						}
 
 						// Case:
@@ -2397,8 +2170,6 @@ namespace unvell.ReoGrid
 								// create a new merged cell
 								cell.Rowspan = (short)(cell.MergeEndPos.Row - cell.MergeStartPos.Row + 1);
 								cell.Colspan = (short)(startCell.Colspan - endcol + cell.MergeStartPos.Col);
-
-								cell.Bounds = GetRangeBounds(r, cell.MergeStartPos.Col, cell.Rowspan, cell.Colspan);
 
 								// copy cell content
 								CellUtility.CopyCellContent(cell, startCell);
@@ -3125,17 +2896,7 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Get the right position of column header. (in pixel)
 		/// </summary>
-		public int Right
-		{
-			get { return this.Left + this.InnerWidth; }
-
-			internal set
-			{
-				int width = value - Left;
-				if (width < 0) width = 0;
-				this.InnerWidth = (ushort)width;
-			}
-		}
+		public int Right => Left + InnerWidth;
 
 		internal WorksheetRangeStyle InnerStyle { get; set; }
 
@@ -3241,10 +3002,7 @@ namespace unvell.ReoGrid
 
 		internal void RaiseWidthChangedEvent()
 		{
-			if (WidthChanged != null)
-			{
-				WidthChanged(this, new ColumnsWidthChangedEventArgs(this.Col, 1, this.InnerWidth));
-			}
+			WidthChanged?.Invoke(this, new ColumnsWidthChangedEventArgs(Col, 1, c => InnerWidth));
 		}
 	}
 
@@ -3284,17 +3042,7 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Get the bottom position of header. (in pixel)
 		/// </summary>
-		public int Bottom
-		{
-			get { return this.Top + this.InnerHeight; }
-
-			internal set
-			{
-				int height = value - Top;
-				if (height < 0) height = 0;
-				this.InnerHeight = (ushort)height;
-			}
-		}
+		public int Bottom => Top + InnerHeight;
 
 		internal int Row { get; set; }
 
@@ -3441,10 +3189,7 @@ namespace unvell.ReoGrid
 
 		internal void RaiseHeightChangedEvent()
 		{
-			if (this.HeightChanged != null)
-			{
-				this.HeightChanged(this, new RowsHeightChangedEventArgs(this.Row, 1, this.InnerHeight));
-			}
+			HeightChanged?.Invoke(this, new RowsHeightChangedEventArgs(Row, 1, r => InnerHeight));
 		}
 	}
 

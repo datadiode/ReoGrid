@@ -647,6 +647,16 @@ namespace unvell.ReoGrid
 			{
 				this._scaleFactor = factor;
 
+				for (int r = 0; r < rows.Count; r++)
+				{
+					for (int c = 0; c < cols.Count; c++)
+					{
+						var cell = cells[r, c];
+						if (cell != null)
+							cell.FontDirty = true;
+					}
+				}
+
 				if (this.controlAdapter == null)
 				{
 					this.renderScaleFactor = this._scaleFactor;
@@ -890,7 +900,6 @@ namespace unvell.ReoGrid
 				InternalCol = col,
 				Colspan = 1,
 				Rowspan = 1,
-				Bounds = GetGridBounds(row, col),
 			};
 
 			StyleUtility.UpdateCellParentStyle(this, cell);
@@ -936,9 +945,6 @@ namespace unvell.ReoGrid
 			{
 				// update render align
 				StyleUtility.UpdateCellRenderAlign(this, cell);
-
-				// update font of cell
-				UpdateCellFont(cell);
 			}
 
 			return cell;
@@ -2087,6 +2093,38 @@ namespace unvell.ReoGrid
 			}
 		}
 
+		/// <summary>
+		/// Expand rows and columns to content.
+		/// </summary>
+		internal void ExpandToContent()
+		{
+			var entireRange = new RangePosition(0, 0, MaxContentRow + 1, MaxContentCol + 1);
+
+			IterateCells(entireRange, (row, col, cell) =>
+			{
+				if (settings.Has(WorksheetSettings.Edit_AutoExpandRowHeight))
+				{
+					var rowHeader = rows[cell.Row];
+
+					if (rowHeader.IsVisible && rowHeader.IsAutoHeight)
+					{
+						ExpandRowHeightToFitCell(cell);
+					}
+				}
+
+				if (settings.Has(WorksheetSettings.Edit_AutoExpandColumnWidth))
+				{
+					var colHeader = cols[cell.Column];
+
+					if (colHeader.IsVisible && colHeader.IsAutoWidth)
+					{
+						ExpandColumnWidthFitToCell(cell);
+					}
+				}
+
+				return true;
+			});
+		}
 		#endregion // Internal Utilites
 
 		#region Pick Range & Style Brush

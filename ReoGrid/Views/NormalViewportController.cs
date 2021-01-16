@@ -344,48 +344,6 @@ namespace unvell.ReoGrid.Views
 		{
 			var oldVisible = viewport.VisibleRegion;
 			viewport.VisibleRegion = range;
-
-			UpdateNewVisibleRegionTexts(viewport.VisibleRegion, oldVisible);
-		}
-
-		// TODO: Need performance improvement
-		private void UpdateNewVisibleRegionTexts(GridRegion region, GridRegion oldVisibleRegion)
-		{
-#if DEBUG
-			Stopwatch sw = Stopwatch.StartNew();
-#endif
-
-			// TODO: Need performance improvement
-			//       do not perform this during visible region updating
-			//
-			// end of visible region updating
-			this.worksheet.cells.Iterate(region.startRow, region.startCol, region.Rows, region.Cols, true, (r, c, cell) =>
-			{
-				var rowHeader = this.worksheet.rows[r];
-				if (rowHeader.InnerHeight <= 0) return region.Cols;
-
-				int cspan = cell.Colspan;
-				if (cspan <= 0) return 1;
-
-				if (cell.RenderScaleFactor != this.ScaleFactor
-						&& !string.IsNullOrEmpty(cell.DisplayText))
-				{
-					worksheet.UpdateCellFont(cell, Core.UpdateFontReason.ScaleChanged);
-					cell.RenderScaleFactor = this.ScaleFactor;
-				}
-
-				return (cspan <= 0) ? 1 : cspan;
-			});
-
-#if DEBUG
-			sw.Stop();
-			long ms = sw.ElapsedMilliseconds;
-
-			if (ms > 10)
-			{
-				Debug.WriteLine("update new visible region text takes " + ms + " ms.");
-			}
-#endif // DEBUG
 		}
 
 		#region Visible Region Update

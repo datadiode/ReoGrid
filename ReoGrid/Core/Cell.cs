@@ -104,10 +104,8 @@ namespace unvell.ReoGrid
 				throw new ArgumentOutOfRangeException("col",
 					"Number of column is out of maximum columns, use either AppendCols or Resize to expend this worksheet.");
 
-			if (data is Array)
+			if (data is Array arr)
 			{
-				var arr = (Array)data;
-
 				if (arr.Rank == 1)
 				{
 					for (int c = col; c < Math.Min(col + arr.Length, this.cols.Count); c++)
@@ -124,10 +122,8 @@ namespace unvell.ReoGrid
 				else
 					throw new ArgumentException("Array with more than 2 ranks is not supported.");
 			}
-			else if (data is IEnumerable<object>)
+			else if (data is IEnumerable<object> elements)
 			{
-				var elements = (IEnumerable<object>)data;
-
 				int c = col;
 				foreach (var ele in elements)
 				{
@@ -136,16 +132,13 @@ namespace unvell.ReoGrid
 					if (c >= this.cols.Count) break;
 				}
 			}
-			else if (data is PartialGrid)
+			else if (data is PartialGrid subgrid)
 			{
-				var subgrid = (PartialGrid)data;
-
 				var range = new RangePosition(row, col, subgrid.Rows, subgrid.Columns);
 				SetPartialGrid(range, subgrid);
 			}
-			else if (data is System.Data.DataTable)
+			else if (data is System.Data.DataTable dt)
 			{
-				var dt = (System.Data.DataTable)data;
 				SetRangeData(new RangePosition(row, col, dt.Rows.Count, dt.Columns.Count), dt);
 			}
 			else
@@ -314,15 +307,10 @@ namespace unvell.ReoGrid
 		private void AfterCellDataUpdate(Cell cell)
 		{
 #if DRAWING
-			if (cell.Data is Drawing.RichText)
+			if (cell.Data is Drawing.RichText rt)
 			{
-				var rt = (Drawing.RichText)cell.Data;
-
-				rt.SuspendUpdateText();
 				rt.Size = cell.Bounds.Size;
 				rt.TextWrap = cell.InnerStyle.TextWrapMode;
-				rt.ResumeUpdateText();
-				rt.UpdateText();
 			}
 			else
 #endif // DRAWING
@@ -407,16 +395,6 @@ namespace unvell.ReoGrid
 		internal void SetCellBody(Cell cell, ICellBody body)
 		{
 			cell.Body = body;
-
-			//if (body != null)
-			//{
-			//	body.OnSetup(cell);
-
-			//	// why?
-			//	UpdateCellFont(cell);
-			//}
-
-			//cell.UpdateContentBounds();
 
 			RequestInvalidate();
 		}
@@ -765,49 +743,25 @@ namespace unvell.ReoGrid
 
 #region Location & Size
 
-		[NonSerialized]
-		private Rectangle bounds;
-
+		internal RGFloat Width => Bounds.Width;
+		internal RGFloat Height => Bounds.Height;
+		internal RGFloat Top => Bounds.Top;
+		internal RGFloat Left => Bounds.Left;
+		internal RGFloat Right => Bounds.Right;
+		internal RGFloat Bottom => Bounds.Bottom;
 		internal Rectangle Bounds
 		{
-			get { return bounds; }
-			set { bounds = value; }
-		}
-
-		internal RGFloat Width
-		{
-			get { return bounds.Width; }
-			set { bounds.Width = value; }
-		}
-
-		internal RGFloat Height
-		{
-			get { return bounds.Height; }
-			set { bounds.Height = value; }
-		}
-
-		internal RGFloat Top
-		{
-			get { return bounds.Y; }
-			set { bounds.Y = value; }
-		}
-
-		internal RGFloat Left
-		{
-			get { return bounds.X; }
-			set { bounds.X = value; }
-		}
-
-		internal RGFloat Right
-		{
-			get { return bounds.Right; }
-			set { bounds.Width += bounds.Right - value; }
-		}
-
-		internal RGFloat Bottom
-		{
-			get { return bounds.Bottom; }
-			set { bounds.Height += bounds.Bottom - value; }
+			get
+			{
+				if (IsMergedCell)
+				{
+					return Worksheet.GetRangeBounds(InternalPos.Row, InternalPos.Col, Rowspan, Colspan);
+				}
+				else
+				{
+					return Worksheet.GetRangeBounds(InternalPos.Row, InternalPos.Col, 1, 1);
+				}
+			}
 		}
 #endregion // Location & Size
 
@@ -1102,24 +1056,6 @@ namespace unvell.ReoGrid
 			}
 		}
 
-		/// <summary>
-		/// Determines whether or not this cell is visible. (Cells on hidden rows or columns will become invisibility)
-		/// </summary>
-		[Obsolete("use !IsVisible instead")]
-		public bool IsHidden
-		{
-			get
-			{
-				return !this.IsVisible;
-			}
-		}
-
-		// todo: support multi-lines
-		private RGFloat distributedIndentSpacing;
-		internal RGFloat DistributedIndentSpacing { get { return distributedIndentSpacing; } set { distributedIndentSpacing = value; } }
-		private RGFloat distributedIndentSpacingPrint;
-		internal RGFloat DistributedIndentSpacingPrint { get { return distributedIndentSpacingPrint; } set { distributedIndentSpacingPrint = value; } }
-
 #endregion // Style
 
 #region Border Wraps
@@ -1143,22 +1079,6 @@ namespace unvell.ReoGrid
 #endregion // Border Wraps
 
 #region Cell Body
-		internal void UpdateContentBounds()
-		{
-			if (this.body != null)
-			{
-				Rectangle cb = new Rectangle(this.InnerStyle.Padding.Left, this.InnerStyle.Padding.Top,
-					bounds.Width - 1 - this.InnerStyle.Padding.Left - this.InnerStyle.Padding.Right,
-					bounds.Height - 1 - this.InnerStyle.Padding.Top - this.InnerStyle.Padding.Bottom);
-
-				if (this.body.Bounds != cb)
-				{
-					this.body.Bounds = cb;
-					this.body.OnBoundsChanged();
-				}
-			}
-		}
-
 		/// <summary>
 		/// Get or set the user data attaching to this cell.
 		/// </summary>
@@ -1187,8 +1107,6 @@ namespace unvell.ReoGrid
 							((CellBody)this.body).InnerCell = this;
 						}
 					}
-
-					UpdateContentBounds();
 
 					if (this.Worksheet != null) this.Worksheet.RequestInvalidate();
 				}
@@ -1290,7 +1208,6 @@ namespace unvell.ReoGrid.Utility
 			toCell.Colspan = fromCell.Colspan;
 			toCell.MergeStartPos = fromCell.MergeStartPos;
 			toCell.MergeEndPos = fromCell.MergeEndPos;
-			toCell.Bounds = fromCell.Bounds;
 			toCell.DiffFlag = fromCell.DiffFlag;
 
 			// content
@@ -1307,10 +1224,8 @@ namespace unvell.ReoGrid.Utility
 			// style & render
 			toCell.InnerStyle = new WorksheetRangeStyle(fromCell.InnerStyle);
 			toCell.StyleParentKind = fromCell.StyleParentKind;
-			toCell.TextBounds = fromCell.TextBounds;
 			toCell.RenderHorAlign = fromCell.RenderHorAlign;
 			toCell.RenderColor = fromCell.RenderColor;
-			toCell.DistributedIndentSpacing = fromCell.DistributedIndentSpacing;
 
 #if WINFORM
 			toCell.RenderFont = fromCell.RenderFont;

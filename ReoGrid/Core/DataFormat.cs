@@ -120,8 +120,6 @@ namespace unvell.ReoGrid
 			DataFormatterManager.Instance.FormatCell(cell, cell.Worksheet.Culture);
 
 			unvell.ReoGrid.Utility.StyleUtility.UpdateCellRenderAlign(this, cell);
-			UpdateCellTextBounds(cell);
-
 #if FORMULA
 			if (formulaDirtyCells != null)
 			{
@@ -212,9 +210,6 @@ namespace unvell.ReoGrid
 
 							// update cell render alignemnt (Number aligned to right might be restored to left)
 							unvell.ReoGrid.Utility.StyleUtility.UpdateCellRenderAlign(this, cell);
-
-							// update text bounds
-							UpdateCellTextBounds(cell);
 
 							c += cell.Colspan > 1 ? cell.Colspan : 1;
 						}

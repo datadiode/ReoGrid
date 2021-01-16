@@ -915,7 +915,7 @@ namespace unvell.ReoGrid.Editor
 			{
 				var worksheet = sender != grid1.CurrentWorksheet ? grid1.CurrentWorksheet : grid2.CurrentWorksheet;
 				worksheet.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
-				worksheet.SetColumnsWidth(e.Index, e.Count, (ushort)e.Width);
+				worksheet.SetColumnsWidth(e.Index, e.Count, e.WidthGetter);
 				worksheet.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
 			}
 		}
@@ -926,7 +926,7 @@ namespace unvell.ReoGrid.Editor
 			{
 				var worksheet = sender != grid1.CurrentWorksheet ? grid1.CurrentWorksheet : grid2.CurrentWorksheet;
 				worksheet.RowsHeightChanged -= worksheet_RowsHeightChanged;
-				worksheet.SetRowsHeight(e.Row, e.Count, (ushort)e.Height, e.HeightGetter);
+				worksheet.SetRowsHeight(e.Row, e.Count, e.HeightGetter);
 				worksheet.RowsHeightChanged += worksheet_RowsHeightChanged;
 			}
 		}
@@ -1700,6 +1700,8 @@ namespace unvell.ReoGrid.Editor
 		{
 			var sheet1 = grid1.CurrentWorksheet;
 			var sheet2 = grid2.CurrentWorksheet;
+			sheet1.SuspendUIUpdates();
+			sheet2.SuspendUIUpdates();
 			int o, n, m;
 			if (roi == RangePosition.EntireRange)
 			{
@@ -1713,28 +1715,15 @@ namespace unvell.ReoGrid.Editor
 				sheet2.ColumnsWidthChanged -= worksheet_ColumnsWidthChanged;
 				sheet1.RowsHeightChanged -= worksheet_RowsHeightChanged;
 				sheet2.RowsHeightChanged -= worksheet_RowsHeightChanged;
-				// Align column widths on both sides
-				for (var i = 0; i < m; ++i)
-				{
-					var colhdr1 = sheet1.GetColumnHeader(i);
-					var colhdr2 = sheet2.GetColumnHeader(i);
-					if (colhdr1.Width < colhdr2.Width)
-						colhdr1.Width = colhdr2.Width;
-					else if (colhdr2.Width < colhdr1.Width)
-						colhdr2.Width = colhdr1.Width;
-				}
-				// Align row heights on both sides and clear row differences
+				// Align column widths and row heights on both sides
+				sheet1.SetColumnsWidth(0, m, c => Math.Max(sheet1.GetColumnWidth(c), sheet2.GetColumnWidth(c)));
+				sheet1.SetRowsHeight(0, n, r => Math.Max(sheet1.GetRowHeight(r), sheet2.GetRowHeight(r)));
+				// Clear row differences
 				rowDiffCount = 0;
 				for (var i = 0; i < n; ++i)
 				{
-					var rowhdr1 = sheet1.GetRowHeader(i);
-					var rowhdr2 = sheet2.GetRowHeader(i);
-					if (rowhdr1.Height < rowhdr2.Height)
-						rowhdr1.Height = rowhdr2.Height;
-					else if (rowhdr2.Height < rowhdr1.Height)
-						rowhdr2.Height = rowhdr1.Height;
-					rowhdr1.TextColor = Graphics.SolidColor.Transparent;
-					rowhdr2.TextColor = Graphics.SolidColor.Transparent;
+					sheet1.GetRowHeader(i).TextColor = Graphics.SolidColor.Transparent;
+					sheet2.GetRowHeader(i).TextColor = Graphics.SolidColor.Transparent;
 				}
 				sheet1.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
 				sheet2.ColumnsWidthChanged += worksheet_ColumnsWidthChanged;
@@ -1789,8 +1778,8 @@ namespace unvell.ReoGrid.Editor
 			grid1.ScrollCurrentWorksheet(ViewLeft - sheet1.ViewLeft, ViewTop - sheet1.ViewTop);
 			grid2.ScrollCurrentWorksheet(ViewLeft - sheet2.ViewLeft, ViewTop - sheet2.ViewTop);
 			inScrolling = false;
-			sheet1.RequestInvalidate();
-			sheet2.RequestInvalidate();
+			sheet1.ResumeUIUpdates();
+			sheet2.ResumeUIUpdates();
 			return rowDiffCount != 0;
 		}
 

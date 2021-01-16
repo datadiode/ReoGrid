@@ -784,7 +784,8 @@ namespace unvell.ReoGrid.Views
 				}
 			#endregion // Determine clip region
 
-				var rtBounds = cell.Bounds * this.scaleFactor;
+				cell.Worksheet.UpdateCellTextBounds(dc.Renderer, cell, dc.DrawMode, scaleFactor);
+				var rtBounds = cell.Bounds * scaleFactor;
 
 				//if (!needWidthClip)
 				//{
@@ -840,11 +841,6 @@ namespace unvell.ReoGrid.Views
 					textColor = SolidColor.Black;
 				}
 
-				if (cell.FontDirty)
-				{
-					sheet.UpdateCellFont(cell);
-				}
-
 				#endregion // Determine text color
 
 				#region Determine clip region
@@ -894,7 +890,7 @@ namespace unvell.ReoGrid.Views
 				}
 				else
 				{
-					needWidthClip = cell.TextBoundsHeight > cellScaledHeight;
+					needWidthClip = cell.TextBounds.Height > cellScaledHeight;
 				}
 
 				if (needWidthClip)

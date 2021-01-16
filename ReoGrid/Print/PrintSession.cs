@@ -261,7 +261,7 @@ namespace unvell.ReoGrid.Print
 			// refresh cells text boundary
 			sheet.IterateCells(gr.ToRange(), (_unused_r, _unused_c, cell) =>
 			{
-				sheet.UpdateCellTextBounds(ig, cell, DrawMode.Print, this.CurrentPrintSettings.PageScaling, Core.UpdateFontReason.ScaleChanged);
+				sheet.UpdateCellTextBounds(ig, cell, DrawMode.Print, this.CurrentPrintSettings.PageScaling);
 				return true;
 			});
 

@@ -22,6 +22,7 @@ using System.Linq;
 using System.Text;
 using unvell.ReoGrid.Core;
 using unvell.ReoGrid.Graphics;
+using unvell.ReoGrid.Rendering;
 
 #if WINFORM || ANDROID
 using RGFloat = System.Single;
@@ -33,27 +34,15 @@ using RGFloat = System.Double;
 
 namespace unvell.ReoGrid
 {
-	partial class Worksheet
-	{
-	}
-
 	partial class Cell
 	{
 		internal bool FontDirty { get; set; }
 
-		private Rectangle textBounds;
-
 		/// <summary>
 		/// text boundary for display
 		/// </summary>
-		internal Rectangle TextBounds { get { return this.textBounds; } set { this.textBounds = value; } }
-
-		internal RGFloat TextBoundsTop { get { return textBounds.Y; } set { this.textBounds.Y = value; } }
-		internal RGFloat TextBoundsLeft { get { return textBounds.X; } set { this.textBounds.X = value; } }
-		internal RGFloat TextBoundsWidth { get { return textBounds.Width; } set { this.textBounds.Width = value; } }
-		internal RGFloat TextBoundsHeight { get { return textBounds.Height; } set { this.textBounds.Height = value; } }
-
-		internal Rectangle PrintTextBounds { get; set; }
+		internal Rectangle TextBounds =>
+			Worksheet.UpdateCellTextBounds(null, this, DrawMode.View, Worksheet.renderScaleFactor);
 
 		/// <summary>
 		/// Horizontal alignement for display
@@ -73,10 +62,6 @@ namespace unvell.ReoGrid
 		/// To change text color, set cell style with text color by call SetRangeStyles method, or change the Cell.Style.TextColor property.
 		/// </summary>
 		public SolidColor RenderColor { get; internal set; }
-
-		//public SolidColor? GetRenderColor() { return renderColor; }
-
-		internal RGFloat RenderScaleFactor { get; set; }
 
 	}
 }

@@ -365,25 +365,10 @@ namespace unvell.ReoGrid.WinForm
 				rect.Inflate(-5, -5);
 
 				int hh = rect.Top + rect.Height / 2;
-				//if (grid.RangeIsCell(range))
-				//{
-				//  ReoGridCell cell = grid.GetCell(range.Row, range.Col);
-
-				//}
-				//else
-				//{
-				//}
-				RectangleF cellBounds;
 
 				Cell cell = grid.GetCell(range.Row,range.Col);
-				if (cell == null)
+				if (cell != null)
 				{
-					cellBounds = grid.GetGridBounds(range.Row, range.Col);
-				}
-				else
-				{
-					cell.Bounds = cell.Bounds;
-
 					using (StringFormat sf = new StringFormat(StringFormat.GenericTypographic))
 					{
 						//float maxSpace = 1;

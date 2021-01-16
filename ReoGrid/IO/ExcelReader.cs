@@ -647,12 +647,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 						rgCell = rgSheet.CreateCell(pos.Row, pos.Col);
 						rgSheet.cells[pos.Row, pos.Col] = rgCell;
 					}
-					else
-					{
-						//var rowHeader = rgSheet.rows[pos.Row];
-						rgCell.Top = rowHeader.Top;
-						rgCell.Height = rowHeader.InnerHeight + 1;
-					}
 
 #if DEBUG
 					Debug.Assert(rgCell.Height == rgSheet.GetRowHeader(pos.Row).InnerHeight + 1);

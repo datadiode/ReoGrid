@@ -61,15 +61,15 @@ namespace unvell.ReoGrid.CellTypes
 		/// <summary>
 		/// Get cell body bounds rectangle.
 		/// </summary>
-		public virtual Rectangle Bounds { get; set; }
+		public virtual Rectangle Bounds =>
+			new Rectangle(cell.InnerStyle.Padding.Left, cell.InnerStyle.Padding.Top,
+				cell.Width - 1 - cell.InnerStyle.Padding.Left - cell.InnerStyle.Padding.Right,
+				cell.Height - 1 - cell.InnerStyle.Padding.Top - cell.InnerStyle.Padding.Bottom);
 
 		/// <summary>
 		/// Determines whether or not become disable when owner cell is set as read-only. (Default is True)
 		/// </summary>
-		public virtual bool DisableWhenCellReadonly
-		{
-			get { return true; }
-		}
+		public virtual bool DisableWhenCellReadonly => true;
 
 		/// <summary>
 		/// Invoked when body boundary has been changed.
@@ -208,12 +208,11 @@ namespace unvell.ReoGrid.CellTypes
 		}
 
 		/// <summary>
-		/// Handles when bounds changed.
+		/// Paint cell body.
 		/// </summary>
-		public override void OnBoundsChanged()
+		/// <param name="dc">Platform independency graphics context.</param>
+		public override void OnPaint(CellDrawingContext dc)
 		{
-			base.OnBoundsChanged();
-
 			var contentRect = new Rectangle(new Point(0, 0), this.GetContentSize());
 
 			if (this.Cell != null)
@@ -259,14 +258,7 @@ namespace unvell.ReoGrid.CellTypes
 			}
 
 			this.ContentBounds = contentRect;
-		}
 
-		/// <summary>
-		/// Paint cell body.
-		/// </summary>
-		/// <param name="dc">Platform independency graphics context.</param>
-		public override void OnPaint(CellDrawingContext dc)
-		{
 			dc.DrawCellBackground();
 
 			if (this.ContentBounds.Width > 0 || this.ContentBounds.Height > 0)

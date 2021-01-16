@@ -613,13 +613,11 @@ namespace unvell.ReoGrid.Events
 		/// <summary>
 		/// The new height that has been changed for rows.
 		/// </summary>
-		public int Height { get; private set; }
 		public Func<int, int> HeightGetter { get; private set; }
 
-		internal RowsHeightChangedEventArgs(int index, int count, int height, Func<int, int> heightGetter = null)
+		internal RowsHeightChangedEventArgs(int index, int count, Func<int, int> heightGetter)
 			: base(index, count)
 		{
-			this.Height = height;
 			this.HeightGetter = heightGetter;
 		}
 	}
@@ -689,12 +687,12 @@ namespace unvell.ReoGrid.Events
 		/// <summary>
 		/// The new width changed for columns.
 		/// </summary>
-		public int Width { get; private set; }
+		public Func<int, int> WidthGetter { get; private set; }
 
-		internal ColumnsWidthChangedEventArgs(int index, int count, int width)
+		internal ColumnsWidthChangedEventArgs(int index, int count, Func<int, int> widthGetter)
 			: base(index, count)
 		{
-			this.Width = width;
+			this.WidthGetter = widthGetter;
 		}
 	}
 

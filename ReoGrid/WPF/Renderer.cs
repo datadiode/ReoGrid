@@ -571,11 +571,6 @@ namespace unvell.ReoGrid.Rendering
 
 			if (sheet == null) return;
 
-			//if (cell.formattedText == null)
-			//{
-			//	sheet.UpdateCellFont(cell);
-			//}
-
 			if (cell.InnerStyle.RotationAngle != 0)
 			{
 				System.Windows.Media.Matrix m = System.Windows.Media.Matrix.Identity;

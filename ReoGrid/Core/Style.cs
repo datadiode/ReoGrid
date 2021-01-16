@@ -386,14 +386,14 @@ namespace unvell.ReoGrid
 				StyleUtility.CopyStyle(style, cell.InnerStyle);
 
 				// auto remove fill pattern when pattern color is empty
-				if ((cell.InnerStyle.Flag & PlainStyleFlag.FillPattern) == PlainStyleFlag.FillPattern
+				if ((cell.InnerStyle.Flag & PlainStyleFlag.FillPattern) != 0
 					&& cell.InnerStyle.FillPatternColor.ToArgb() == 0)
 				{
 					cell.InnerStyle.Flag &= ~PlainStyleFlag.FillPattern;
 				}
 
 				// auto remove background color when backcolor is empty
-				if ((cell.InnerStyle.Flag & PlainStyleFlag.BackColor) == PlainStyleFlag.BackColor
+				if ((cell.InnerStyle.Flag & PlainStyleFlag.BackColor) != 0
 					&& cell.InnerStyle.BackColor.ToArgb() == 0)
 				{
 					cell.InnerStyle.Flag &= ~PlainStyleFlag.BackColor;
@@ -401,7 +401,7 @@ namespace unvell.ReoGrid
 			}
 			else
 			{
-				cell.InnerStyle = parentStyle != null ? parentStyle : style;
+				cell.InnerStyle = parentStyle ?? style;
 				cell.StyleParentKind = parentKind;
 			}
 
@@ -413,40 +413,8 @@ namespace unvell.ReoGrid
 				// when font changed, cell's scaled font need be updated.
 				if (style.Flag.HasAny(PlainStyleFlag.FontAll))
 				{
-					// update cell font and text's bounds
-					UpdateCellFont(cell);
+					cell.FontDirty = true;
 				}
-				// when font is not changed but alignment is changed, only update the bounds of text
-				else if (style.Flag.HasAny(PlainStyleFlag.HorizontalAlign
-					| PlainStyleFlag.VerticalAlign
-					| PlainStyleFlag.TextWrap
-					| PlainStyleFlag.Indent
-					| PlainStyleFlag.RotationAngle))
-				{
-					UpdateCellTextBounds(cell);
-				}
-#if WPF
-				else if (style.Flag.Has(PlainStyleFlag.TextColor))
-				{
-					UpdateCellFont(cell, UpdateFontReason.TextColorChanged);
-				}
-#endif // WPF
-			}
-			//else
-			//{
-			//	cell.RenderFont = null;
-			//}
-
-			// update cell bounds
-			if (style.Flag.Has(PlainStyleFlag.Padding))
-			{
-				cell.UpdateContentBounds();
-			}
-
-			// update cell body alignment
-			if (cell.body != null && style.Flag.HasAny(PlainStyleFlag.AlignAll))
-			{
-				cell.body.OnBoundsChanged();
 			}
 		}
 
@@ -802,82 +770,7 @@ namespace unvell.ReoGrid
 		}
 		#endregion
 
-		#region UpdateCellBounds
-		private void UpdateCellBounds(Cell cell)
-		{
-#if DEBUG
-			Debug.Assert(cell.Rowspan >= 1 && cell.Colspan >= 1);
-#else
-			if (cell.Rowspan < 1 || cell.Colspan < 1) return;
-#endif
-			cell.Bounds = GetRangeBounds(cell.InternalRow, cell.InternalCol, cell.Rowspan, cell.Colspan);
-			UpdateCellTextBounds(cell);
-			cell.UpdateContentBounds();
-		}
-		#endregion // UpdateCellBounds
-
 		#region Update Font & Text
-
-		internal void UpdateCellFont(Cell cell, UpdateFontReason reason = UpdateFontReason.FontChanged)
-		{
-			UpdateCellRenderFont(null, cell, DrawMode.View, reason);
-		}
-
-		internal void UpdateCellRenderFont(IRenderer ir, Cell cell, DrawMode drawMode, UpdateFontReason reason)
-		{
-			if (this.controlAdapter == null || cell.InnerStyle == null)
-			{
-				return;
-			}
-
-			// cell doesn't contain any text, clear font dirty flag and return
-			if (string.IsNullOrEmpty(cell.InnerDisplay))
-			{
-				// can't use below sentence, that makes RenderFont property null due to unknown reasons
-				//cell.FontDirty = false;
-				return;
-			}
-
-#if DRAWING
-			// rich text object doesn't need update font
-			if (!(cell.Data is Drawing.RichText))
-			{
-#endif // DRAWING
-
-				if (ir == null) ir = this.controlAdapter.Renderer;
-
-				ir.UpdateCellRenderFont(cell, reason);
-
-#if DRAWING
-			}
-#endif // DRAWING
-
-			cell.FontDirty = false;
-
-			UpdateCellTextBounds(ir, cell, drawMode, reason);
-		}
-
-		/// <summary>
-		/// Update Cell Text Bounds for View/Edit mode
-		/// </summary>
-		/// <param name="cell"></param>
-		/// <param name="updateRowHeight"></param>
-		internal void UpdateCellTextBounds(Cell cell)
-		{
-			if (cell.FontDirty)
-			{
-				this.UpdateCellFont(cell);
-			}
-			else
-			{
-				this.UpdateCellTextBounds(null, cell, DrawMode.View, UpdateFontReason.FontChanged);
-			}
-		}
-
-		internal void UpdateCellTextBounds(IRenderer ig, Cell cell, DrawMode drawMode, UpdateFontReason reason)
-		{
-			this.UpdateCellTextBounds(ig, cell, drawMode, this.renderScaleFactor, reason);
-		}
 
 		/// <summary>
 		/// Update cell text bounds. 
@@ -889,27 +782,24 @@ namespace unvell.ReoGrid
 		/// <param name="cell">The target cell will be updated.</param>
 		/// <param name="drawMode">Draw mode</param>
 		/// <param name="scaleFactor">Scale factor of current worksheet</param>
-		internal void UpdateCellTextBounds(IRenderer ig, Cell cell, DrawMode drawMode, RGFloat scaleFactor, UpdateFontReason reason)
+		internal Rectangle UpdateCellTextBounds(IRenderer ig, Cell cell, DrawMode drawMode, RGFloat scaleFactor)
 		{
-			if (cell == null || string.IsNullOrEmpty(cell.DisplayText)) return;
+			if (cell == null || string.IsNullOrEmpty(cell.DisplayText)) return new Rectangle(0, 0, 0, 0);
 
 			if (ig == null && this.controlAdapter != null)
 			{
 				ig = this.controlAdapter.Renderer;
 			}
 
-			if (ig == null) return;
+			if (ig == null) return new Rectangle(0, 0, 0, 0);
 
-			Size oldSize;
 			Size size;
+			RGFloat x = 0;
+			RGFloat y = 0;
 
 #if DRAWING
-			if (cell.Data is Drawing.RichText)
+			if (cell.Data is Drawing.RichText rt)
 			{
-				var rt = (Drawing.RichText)cell.Data;
-
-				oldSize = rt.TextSize;
-
 				rt.TextWrap = cell.InnerStyle.TextWrapMode;
 				rt.DefaultHorizontalAlignment = cell.Style.HAlign;
 				rt.VerticalAlignment = cell.Style.VAlign;
@@ -917,27 +807,38 @@ namespace unvell.ReoGrid
 				rt.Size = new Size(cell.Width - cell.InnerStyle.Indent, cell.Height);
 
 				size = rt.TextSize;
-				return;
 			}
 			else
 			{
 #endif // DRAWING
+				#region Plain Text Measure Size
 
-			oldSize = cell.TextBounds.Size;
+				if (cell.FontDirty && cell.InnerStyle != null)
+				{
+#if DRAWING
+					// rich text object doesn't need update font
+					if (!(cell.Data is Drawing.RichText))
+					{
+#endif // DRAWING
+						ig.UpdateCellRenderFont(cell, UpdateFontReason.FontChanged);
+#if DRAWING
+					}
+#endif // DRAWING
+					cell.FontDirty = false;
+				}
 
-			#region Plain Text Measure Size
-			size = ig.MeasureCellText(cell, drawMode, scaleFactor);
+				size = ig.MeasureCellText(cell, drawMode, scaleFactor);
 
-			if (size.Width <= 0 || size.Height <= 0) return;
+				if (size.Width <= 0 || size.Height <= 0) return new Rectangle(0, 0, 0, 0);
 
-			// TODO: need fix: get incorrect size if CJK fonts
-			size.Width += 2;
-			size.Height += 1;
-			#endregion // Plain Text Measure Size
+				// TODO: need fix: get incorrect size if CJK fonts
+				size.Width += 2;
+				size.Height += 1;
+				#endregion // Plain Text Measure Size
 
-			Rectangle cellBounds = cell.Bounds;
+				Rectangle cellBounds = cell.Bounds;
 
-			RGFloat cellWidth = cellBounds.Width * scaleFactor;
+				RGFloat cellWidth = cellBounds.Width * scaleFactor;
 
 #if WINFORM
 
@@ -945,112 +846,61 @@ namespace unvell.ReoGrid
 				{
 					size.Width--;
 
-					if (drawMode == DrawMode.View)
-					{
-						cell.DistributedIndentSpacing = ((cellWidth - size.Width - 3) / (cell.DisplayText.Length - 1)) - 1;
-						if (cell.DistributedIndentSpacing < 0) cell.DistributedIndentSpacing = 0;
-					}
-					else
-					{
-						cell.DistributedIndentSpacingPrint = ((cellWidth - size.Width - 3) / (cell.DisplayText.Length - 1)) - 1;
-						if (cell.DistributedIndentSpacingPrint < 0) cell.DistributedIndentSpacingPrint = 0;
-					}
-
 					cell.RenderHorAlign = ReoGridRenderHorAlign.Center;
 					if (size.Width < cellWidth - 1) size.Width = (float)(Math.Round(cellWidth - 1));
 				}
 
 #elif WPF
 
-			if (cell.InnerStyle.TextWrapMode != TextWrapMode.NoWrap)
-			{
-				cell.formattedText.MaxTextWidth = cellWidth;
-			}
+				if (cell.InnerStyle.TextWrapMode != TextWrapMode.NoWrap)
+				{
+					cell.formattedText.MaxTextWidth = cellWidth;
+				}
 
 #endif // WPF
 
-			#region Update Text Size Cache
-			RGFloat x = 0;
-			RGFloat y = 0;
+				#region Update Text Size Cache
 
-			float indent = cell.InnerStyle.Indent;
+				float indent = cell.InnerStyle.Indent;
 
-			switch (cell.RenderHorAlign)
-			{
-				default:
-				case ReoGridRenderHorAlign.Left:
-					x = cellBounds.Left * scaleFactor + 2 + (indent * this.indentSize);
-					break;
+				switch (cell.RenderHorAlign)
+				{
+					default:
+					case ReoGridRenderHorAlign.Left:
+						x = cellBounds.Left * scaleFactor + 2 + (indent * this.indentSize);
+						break;
 
-				case ReoGridRenderHorAlign.Center:
-					x = (cellBounds.Left * scaleFactor + cellWidth / 2 - size.Width / 2);
-					break;
+					case ReoGridRenderHorAlign.Center:
+						x = (cellBounds.Left * scaleFactor + cellWidth / 2 - size.Width / 2);
+						break;
 
-				case ReoGridRenderHorAlign.Right:
-					x = cellBounds.Right * scaleFactor - 3 - size.Width - (indent * this.indentSize);
-					break;
-			}
+					case ReoGridRenderHorAlign.Right:
+						x = cellBounds.Right * scaleFactor - 3 - size.Width - (indent * this.indentSize);
+						break;
+				}
 
-			switch (cell.InnerStyle.VAlign)
-			{
-				case ReoGridVerAlign.Top:
-					y = cellBounds.Top * scaleFactor + 1;
-					break;
+				switch (cell.InnerStyle.VAlign)
+				{
+					case ReoGridVerAlign.Top:
+						y = cellBounds.Top * scaleFactor + 1;
+						break;
 
-				case ReoGridVerAlign.Middle:
-					y = (cellBounds.Top * scaleFactor + (cellBounds.Height * scaleFactor) / 2 - (size.Height) / 2);
-					break;
+					case ReoGridVerAlign.Middle:
+						y = (cellBounds.Top * scaleFactor + (cellBounds.Height * scaleFactor) / 2 - (size.Height) / 2);
+						break;
 
-				default:
-				case ReoGridVerAlign.General:
-				case ReoGridVerAlign.Bottom:
-					y = cellBounds.Bottom * scaleFactor - 1 - size.Height;
-					break;
-			}
-
-			switch (drawMode)
-			{
-				default:
-				case DrawMode.View:
-					cell.TextBounds = new Rectangle(x, y, size.Width, size.Height);
-					break;
-
-				case DrawMode.Preview:
-				case DrawMode.Print:
-					cell.PrintTextBounds = new Rectangle(x, y, size.Width, size.Height);
-					break;
-			}
+					default:
+					case ReoGridVerAlign.General:
+					case ReoGridVerAlign.Bottom:
+						y = cellBounds.Bottom * scaleFactor - 1 - size.Height;
+						break;
+				}
 			#endregion // Update Text Size Cache
 
 #if DRAWING
 			}
 #endif // DRAWING
-
-			if (drawMode == DrawMode.View 
-				&& reason != UpdateFontReason.ScaleChanged)
-			{
-				if (size.Height > oldSize.Height 
-					&& this.settings.Has(WorksheetSettings.Edit_AutoExpandRowHeight))
-				{
-					var rowHeader = this.rows[cell.Row];
-
-					if (rowHeader.IsVisible && rowHeader.IsAutoHeight)
-					{
-						cell.ExpandRowHeight();
-					}
-				}
-
-				if (size.Width > oldSize.Width
-					&& this.settings.Has(WorksheetSettings.Edit_AutoExpandColumnWidth))
-				{
-					var colHeader = this.cols[cell.Column];
-
-					if (colHeader.IsVisible && colHeader.IsAutoWidth)
-					{
-						cell.ExpandColumnWidth();
-					}
-				}
-			}
+			return new Rectangle(x, y, size.Width, size.Height);
 		}
 
 		/// <summary>

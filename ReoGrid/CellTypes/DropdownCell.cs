@@ -81,7 +81,7 @@ namespace unvell.ReoGrid.CellTypes
 		public virtual bool DropdownButtonAutoHeight
 		{
 			get { return this.dropdownButtonAutoHeight; }
-			set { this.dropdownButtonAutoHeight = value; OnBoundsChanged(); }
+			set { this.dropdownButtonAutoHeight = value; }
 		}
 
 		private Rectangle dropdownButtonRect = new Rectangle(0, 0, 20, 20);
@@ -151,10 +151,14 @@ namespace unvell.ReoGrid.CellTypes
 		}
 
 		/// <summary>
-		/// Process boundary changes.
+		/// Paint the dropdown button inside cell.
 		/// </summary>
-		public override void OnBoundsChanged()
+		/// <param name="dc">Platform no-associated drawing context instance.</param>
+		public override void OnPaint(CellDrawingContext dc)
 		{
+			// call base to draw cell background and text
+			base.OnPaint(dc);
+
 			this.dropdownButtonRect.Width = this.dropdownButtonSize.Width;
 
 			if (this.dropdownButtonRect.Width > Bounds.Width)
@@ -200,16 +204,6 @@ namespace unvell.ReoGrid.CellTypes
 					this.dropdownButtonRect.Y = Bounds.Top + (Bounds.Height - this.dropdownButtonRect.Height) / 2 + 1;
 					break;
 			}
-		}
-
-		/// <summary>
-		/// Paint the dropdown button inside cell.
-		/// </summary>
-		/// <param name="dc">Platform no-associated drawing context instance.</param>
-		public override void OnPaint(CellDrawingContext dc)
-		{
-			// call base to draw cell background and text
-			base.OnPaint(dc);
 
 			// draw button surface
 			this.OnPaintDropdownButton(dc, this.dropdownButtonRect);

@@ -146,9 +146,6 @@ namespace unvell.ReoGrid
 			startCell.Rowspan = (short)fixedRange.Rows;
 			startCell.Colspan = (short)fixedRange.Cols;
 
-			// update content bounds
-			UpdateCellBounds(startCell);
-
 			// fix selection
 			if (this.selectionRange.IntersectWith(fixedRange))
 			{
@@ -237,7 +234,6 @@ namespace unvell.ReoGrid
 					cell.MergeEndPos = CellPosition.Empty;
 					cell.Colspan = 1;
 					cell.Rowspan = 1;
-					UpdateCellBounds(cell);
 
 					if (r != source.InternalRow) hBorders[r, c] = null;
 					if (c != source.InternalCol) vBorders[r, c] = null;

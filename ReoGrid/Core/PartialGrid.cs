@@ -576,12 +576,6 @@ namespace unvell.ReoGrid
 								tocell.Colspan = 0;
 								tocell.Rowspan = 0;
 
-								if (tocell.IsEndMergedCell)
-								{
-									fromMergedStart.Bounds = GetRangePhysicsBounds(new RangePosition(
-										fromMergedStart.InternalPos, fromMergedStart.MergeEndPos));
-								}
-
 								processed = true;
 
 							}
@@ -619,12 +613,8 @@ namespace unvell.ReoGrid
 									tocell.Rowspan = (short)(tocell.MergeEndPos.Row - tocell.MergeStartPos.Row + 1);
 									tocell.Colspan = (short)(tocell.MergeEndPos.Col - tocell.MergeStartPos.Col + 1);
 
-									tocell.Bounds = GetRangeBounds(tocell.InternalPos, tocell.MergeEndPos);
-
 									// copy cell content
 									CellUtility.CopyCellContent(tocell, fromCell);
-
-									UpdateCellFont(tocell);
 								}
 								else
 								{
@@ -659,11 +649,6 @@ namespace unvell.ReoGrid
 								tocell.MergeEndPos = new CellPosition(tr, fromCell.MergeEndPos.Col);
 								tocell.Rowspan = 0;
 								tocell.Colspan = 0;
-
-								if (tocell.IsEndMergedCell)
-								{
-									mergedStartCell.Bounds = GetRangeBounds(mergedStartCell.InternalPos, mergedStartCell.MergeEndPos);
-								}
 
 								processed = true;
 							}
@@ -700,12 +685,8 @@ namespace unvell.ReoGrid
 									tocell.Rowspan = (short)(tocell.MergeEndPos.Row - tocell.MergeStartPos.Row + 1);
 									tocell.Colspan = (short)(tocell.MergeEndPos.Col - tocell.MergeStartPos.Col + 1);
 
-									tocell.Bounds = GetRangeBounds(tocell.InternalPos, tocell.MergeEndPos);
-
 									// copy cell content
 									CellUtility.CopyCellContent(tocell, fromCell);
-
-									UpdateCellFont(tocell);
 								}
 								else
 								{
@@ -796,10 +777,6 @@ namespace unvell.ReoGrid
 #endif
 									}
 								}
-								else
-								{
-									UpdateCellFont(toCell);
-								}
 								#endregion // Copy Merged info
 
 								#region Cell Styles
@@ -828,18 +805,6 @@ namespace unvell.ReoGrid
 									}
 								}
 								#endregion // Cell Styles
-
-								if (toCell.IsEndMergedCell)
-								{
-									Cell cell = GetCell(toCell.MergeStartPos);
-									Debug.Assert(cell != null);
-
-									UpdateCellBounds(cell);
-								}
-								else if (toCell.Rowspan == 1 && toCell.Colspan == 1)
-								{
-									UpdateCellFont(toCell);
-								}
 							}
 							else
 							{

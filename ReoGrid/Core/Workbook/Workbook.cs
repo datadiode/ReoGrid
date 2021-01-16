@@ -71,6 +71,12 @@ namespace unvell.ReoGrid
 				worksheet.Recalculate();
 		}
 
+		internal void ExpandToContent()
+		{
+			foreach (var worksheet in worksheets)
+				worksheet.ExpandToContent();
+		}
+
 		public ReoGridControl ControlInstance { get { return (ReoGridControl)this.controlAdapter.ControlInstance; } }
 
 		#region Readonly
@@ -321,6 +327,7 @@ namespace unvell.ReoGrid
 			{
 				ret = provider.Load(this, stream, encoding, arg);
 				Recalculate();
+				ExpandToContent();
 			}
 			finally
 			{
