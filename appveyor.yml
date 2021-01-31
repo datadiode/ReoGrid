@@ -1,0 +1,29 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+
+configuration:
+- Debug
+- Release
+
+platform: Any CPU
+
+environment:
+  EnableNuGetPackageRestore: true
+
+before_build:
+- nuget restore
+
+build:
+  verbosity: normal
+  project: Demo.sln
+
+after_build:
+- ps: $env:PRODUCT_VERSION=(Get-Command "$env:APPVEYOR_BUILD_FOLDER\ReoGrid\bin\$env:CONFIGURATION\unvell.ReoGrid.dll").FileVersionInfo.ProductVersion
+
+artifacts:
+- path: Compare\bin\$(configuration)
+  name: ReoGridCompare_$(PRODUCT_VERSION)-$(configuration)
+- path: Editor\bin\$(configuration)
+  name: ReoGridEditor_$(PRODUCT_VERSION)-$(configuration)
+- path: Demo\bin\$(configuration)
+  name: ReoGridDemo_$(PRODUCT_VERSION)-$(configuration)
