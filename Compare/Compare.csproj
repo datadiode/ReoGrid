@@ -99,6 +99,7 @@
     <Compile Include="DefineNamedRangeDialog.Designer.cs">
       <DependentUpon>DefineNamedRangeDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Diff.cs" />
     <Compile Include="FormulaBarControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -557,6 +557,8 @@ namespace unvell.ReoGrid.Editor
 				}
 			};
 
+			colAlignByLCSToolStripMenuItem.Click += alignByLCSToolStripMenuItem_Click;
+
 			rowCutToolStripMenuItem.Click += cutRangeToolStripMenuItem_Click;
 			rowCopyToolStripMenuItem.Click += copyRangeToolStripMenuItem_Click;
 			rowPasteToolStripMenuItem.Click += pasteRangeToolStripMenuItem_Click;
@@ -1411,16 +1413,10 @@ namespace unvell.ReoGrid.Editor
 						borderColorPickToolStripItem.SolidColor = Color.Black;
 					}
 
-					var canUndo = undoStack.Count() != 0;
-					var canRedo = redoStack.Count() != 0;
+					UpdateUndoRedoCmdUI();
 
-					undoToolStripButton.Enabled = canUndo;
-					undoToolStripMenuItem.Enabled = canUndo;
-
-					redoToolStripButton.Enabled = canRedo;
-					redoToolStripMenuItem.Enabled = canRedo;
-
-					repeatLastActionToolStripMenuItem.Enabled = canUndo || canRedo;
+					var canAlign = KeepSheetsInSync;
+					colAlignByLCSToolStripMenuItem.Enabled = canAlign;
 
 					cutToolStripButton.Enabled =
 						cutToolStripMenuItem.Enabled =
@@ -1826,6 +1822,20 @@ namespace unvell.ReoGrid.Editor
 			bool dirty = header1.Dirty || header2.Dirty;
 			saveToolStripMenuItem.Enabled = dirty;
 			saveToolStripButton.Enabled = dirty;
+		}
+
+		private void UpdateUndoRedoCmdUI()
+		{
+			var canUndo = undoStack.Count() != 0;
+			var canRedo = redoStack.Count() != 0;
+
+			undoToolStripButton.Enabled = canUndo;
+			undoToolStripMenuItem.Enabled = canUndo;
+
+			redoToolStripButton.Enabled = canRedo;
+			redoToolStripMenuItem.Enabled = canRedo;
+
+			repeatLastActionToolStripMenuItem.Enabled = canUndo || canRedo;
 		}
 
 		/// <summary>
@@ -2598,6 +2608,65 @@ namespace unvell.ReoGrid.Editor
 		}
 #endif // DEBUG
 		#endregion // Debug Form
+
+		#region LCS alignment
+		private void alignByLCSToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			AlignByLCS();
+		}
+
+		private void AlignByLCS()
+		{
+			var range = CurrentSelectionRange;
+			var sheet1 = grid1.CurrentWorksheet;
+			var sheet2 = grid2.CurrentWorksheet;
+			var lines1 = new string[range.Rows];
+			var lines2 = new string[range.Rows];
+			for (int r = range.Row; r <= range.EndRow; r++)
+			{
+				for (int c = range.Col; c <= range.EndCol; c++)
+				{
+					Cell cell;
+
+					if (lines1[r] == null)
+						lines1[r] = string.Empty;
+					else
+						lines1[r] += "\t";
+					if ((cell = sheet1.Cells[r, c]) != null)
+						if (!string.IsNullOrEmpty(cell.DisplayText))
+							lines1[r] += cell.DisplayText;
+
+					if (lines2[r] == null)
+						lines2[r] = string.Empty;
+					else
+						lines2[r] += "\t";
+					if ((cell = sheet2.Cells[r, c]) != null)
+						if (!string.IsNullOrEmpty(cell.DisplayText))
+							lines2[r] += cell.DisplayText;
+				}
+			}
+			var items = my.utils.Diff.DiffText(lines1, lines2);
+			var i = items.Length;
+			if (i != 0)
+			{
+				// Undo/redo across LCS alignment is currently unsupported
+				grid1.ClearActionHistory();
+				grid2.ClearActionHistory();
+				undoStack.Clear();
+				redoStack.Clear();
+				UpdateUndoRedoCmdUI();
+				do
+				{
+					var item = items[--i];
+					if (item.deletedA > item.insertedB)
+						sheet2.InsertRows(item.StartB, item.deletedA - item.insertedB);
+					if (item.insertedB > item.deletedA)
+						sheet1.InsertRows(item.StartA, item.insertedB - item.deletedA);
+				} while (i > 0);
+				Rescan(RangePosition.EntireRange);
+			}
+		}
+		#endregion
 
 		#region Editing
 		private void cutRangeToolStripMenuItem_Click(object sender, EventArgs e)

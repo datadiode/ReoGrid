@@ -139,6 +139,8 @@ namespace unvell.ReoGrid.Editor
 			this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
 			this.showDebugFormToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.columnContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.colAlignByLCSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem43 = new System.Windows.Forms.ToolStripSeparator();
 			this.colCutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.colCopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.colPasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1255,6 +1257,8 @@ namespace unvell.ReoGrid.Editor
 			// columnContextMenuStrip
 			// 
 			this.columnContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.colAlignByLCSToolStripMenuItem,
+			this.toolStripMenuItem43,
 			this.colCutToolStripMenuItem,
 			this.colCopyToolStripMenuItem,
 			this.colPasteToolStripMenuItem,
@@ -1281,6 +1285,12 @@ namespace unvell.ReoGrid.Editor
 			this.colFormatCellsToolStripMenuItem});
 			this.columnContextMenuStrip.Name = "columnContextMenuStrip";
 			this.columnContextMenuStrip.Size = new System.Drawing.Size(193, 436);
+			// 
+			// colAlignByLCSToolStripMenuItem
+			// 
+			this.colAlignByLCSToolStripMenuItem.Name = "colAlignByLCSToolStripMenuItem";
+			this.colAlignByLCSToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+			this.colAlignByLCSToolStripMenuItem.Text = "Align by LCS";
 			// 
 			// colCutToolStripMenuItem
 			// 
@@ -3661,6 +3671,8 @@ namespace unvell.ReoGrid.Editor
 		private System.Windows.Forms.ToolStripMenuItem chartToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem40;
 		private System.Windows.Forms.ToolStripMenuItem rectangleToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem colAlignByLCSToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem43;
 		private System.Windows.Forms.ToolStripMenuItem colCutToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem colCopyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem colPasteToolStripMenuItem;
