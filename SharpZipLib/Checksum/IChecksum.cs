@@ -7,7 +7,7 @@ namespace ICSharpCode.SharpZipLib.Checksum
 	/// </summary>
 	static class MethodImplOptions
 	{
-		public const short AggressiveInlining = 0; // Introduced in .NET Framework 4.5
+		public const short AggressiveInlining = 256; // Introduced in .NET Framework 4.5
 		public const short NoInlining = (short)System.Runtime.CompilerServices.MethodImplOptions.NoInlining;
 	}
 
