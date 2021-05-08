@@ -98,7 +98,7 @@ namespace unvell.ReoGrid.Demo.WorksheetDemo
 
 		public void SelectRow(int row, bool rowChecked)
 		{
-			var rowRange = new RangePosition(row, 0, 1, worksheet.Columns);
+			var rowRange = new RangePosition(row, 0, 1, worksheet.ColumnCount);
 
 			// 行の背景色を設定
 			worksheet.SetRangeStyles(rowRange, new WorksheetRangeStyle
