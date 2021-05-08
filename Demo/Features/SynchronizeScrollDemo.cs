@@ -33,7 +33,7 @@ namespace unvell.ReoGrid.Demo.Features
 			// such as data, styles, borders, formula and etc, RGF file can 
 			// be saved and loaded by ReoGrid and ReoGridEditor.
 			//
-			// http://reogrid.net/document/rgf-format
+			// https://reogrid.net/document/rgf-format
 			// 
 			reoGridControl1.CurrentWorksheet.LoadRGF("_Templates\\RGF\\order_sample.rgf");
 			reoGridControl2.CurrentWorksheet.LoadRGF("_Templates\\RGF\\order_sample.rgf");

@@ -20,7 +20,6 @@ using System;
 
 namespace unvell.ReoGrid
 {
-	#region Settings
 	/// <summary>
 	/// Workbook Control Settings
 	/// </summary>
@@ -105,6 +104,4 @@ namespace unvell.ReoGrid
 		Formula_AutoUpdateReferenceCell = 0x100000000L,
 		#endregion // Formula
 	}
-
-	#endregion
 }

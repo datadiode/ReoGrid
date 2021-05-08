@@ -74,7 +74,7 @@ namespace unvell.ReoGrid.Demo.CustomCells
 			worksheet.MergeRange(12, 0, 1, 7);
 			worksheet[11, 0] = "More info about Custom Cell:";
 			worksheet[12, 0] = new HyperlinkCell(
-				"http://reogrid.net/document/Custom%20Cell", true);
+				"https://reogrid.net/document/Custom%20Cell", true);
 		}
 	}
 

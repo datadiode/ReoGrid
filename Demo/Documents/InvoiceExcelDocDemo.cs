@@ -36,7 +36,7 @@ namespace unvell.ReoGrid.Demo.Documents
 			var filename = "_Templates\\Excel\\simple-invoice.xlsx";
 
 			// load tepmlate from Excel file.
-			// http://reogrid.net/document/excel-file-format
+			// https://reogrid.net/document/excel-file-format
 			// 
 			reoGridControl.Load(filename);
 
@@ -45,7 +45,7 @@ namespace unvell.ReoGrid.Demo.Documents
 			worksheet.Ranges["K16:L16"].Merge();
 
 			var button = new CellTypes.ButtonCell("Open in Excel");
-			button.Click += (s, e) => System.Diagnostics.Process.Start(filename);
+			button.Click += (s, e) => RGUtility.OpenFileOrLink(filename);
 
 			worksheet["K16"] = button;
 		}

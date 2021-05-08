@@ -2,7 +2,7 @@
  * 
  * ReoGrid - .NET Spreadsheet Control
  * 
- * http://reogrid.net/
+ * https://reogrid.net/
  *
  * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
  * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
@@ -11,7 +11,7 @@
  *
  * ReoGrid is open source software released under MIT license.
  *
- * Copyright (c) 2012-2016 Jing <lujing at unvell.com>
+ * Copyright (c) 2012-2021 Jing Lu <jingwood at unvell.com>
  * Copyright (c) 2012-2016 unvell.com, all rights reserved.
  * 
  ****************************************************************************/
@@ -257,12 +257,6 @@ namespace unvell.ReoGrid.Events
 		/// Event source associated mouse position
 		/// </summary>
 		public Point RelativePosition { get; set; }
-
-		/// <summary>
-		/// Event source associated mouse position
-		/// </summary>
-		[Obsolete("use RelativePosition instead, will be removed from 0.8.8")]
-		public Point CursorPosition { get; set; }
 
 		/// <summary>
 		/// Event source unassociated mouse position (Position to control)

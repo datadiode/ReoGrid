@@ -78,7 +78,7 @@ namespace unvell.ReoGrid.Demo.CustomCells
 			worksheet.MergeRange(12, 0, 1, 7);
 			worksheet[11, 0] = "More info about Custom Cell:";
 			worksheet[12, 0] = new unvell.ReoGrid.CellTypes.HyperlinkCell(
-				"http://reogrid.net/document/Custom%20Cell", true);
+				"https://reogrid.net/document/Custom%20Cell", true);
 		}
 	}
 
@@ -97,8 +97,7 @@ namespace unvell.ReoGrid.Demo.CustomCells
 		public override void OnPaint(CellDrawingContext dc)
 		{
 			// try getting the cell value
-			float value = 0;
-			float.TryParse(dc.Cell.DisplayText, out value);
+			float.TryParse(dc.Cell.DisplayText, out float value);
 
 			// retrieve graphics object
 			var g = dc.Graphics;
