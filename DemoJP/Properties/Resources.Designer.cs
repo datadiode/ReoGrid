@@ -19,7 +19,7 @@ namespace unvell.ReoGrid.DemoJP.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -85,7 +85,7 @@ namespace unvell.ReoGrid.DemoJP.Properties {
         ///
         ///.csharpcode .str { color: #a31515; }
         ///
-        ///.csharp [rest of string was truncated]&quot;;.
+        ///.csharpcode .op { color: #0000c [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AddingObjectDemo_src {
             get {
@@ -189,7 +189,7 @@ namespace unvell.ReoGrid.DemoJP.Properties {
         ////*****************************************************************************
         /// * 
         /// * ReoGrid - .NET 表計算スプレッドシートコンポーネント
-        /// * http://reogrid.net/jp
+        /// * https://reogrid.net/jp
         /// *
         /// * ReoGrid 日本語版デモプロジェクトは MIT ライセンスでリリースされています。
         /// * 
@@ -197,10 +197,11 @@ namespace unvell.ReoGrid.DemoJP.Properties {
         /// * 著作権者は補償を含むあらゆる責任を負いません。 
         /// * 
         /// * Copyright (c) 2012-2016 unvell.com, All Rights Reserved.
-        /// * http://www.unvell.com/jp
+        /// * https://www.unvell.com/jp
         /// * 
         /// ****************************************************************************/
-        /// [rest of string was truncated]&quot;;.
+        ///--&gt;
+        ///&lt;Demo Base [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DemoCategory {
             get {

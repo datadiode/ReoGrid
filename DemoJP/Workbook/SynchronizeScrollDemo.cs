@@ -31,7 +31,7 @@ namespace unvell.ReoGrid.Demo.WorkbookDemo
 			//
 			// RGF はワークシートのテンプレートファイルフォーマットで、ReoGrid/ReoGridEditor で作成、編集できます。
 			// 詳しくは、以下の URL をご覧ください。
-			// http://reogrid.net/jp/document/rgf-format
+			// https://reogrid.net/jp/document/rgf-format
 			// 
 			reoGridControl1.CurrentWorksheet.LoadRGF("_Templates\\RGF\\order_sample.rgf");
 			reoGridControl2.CurrentWorksheet.LoadRGF("_Templates\\RGF\\order_sample.rgf");
