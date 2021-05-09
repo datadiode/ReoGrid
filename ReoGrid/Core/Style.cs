@@ -85,12 +85,6 @@ namespace unvell.ReoGrid
 	{
 		#region Set Style
 
-		[Obsolete("use SetRangeStyles instead")]
-		public void SetRangeStyle(string addressOrName, WorksheetRangeStyle style)
-		{
-			this.SetRangeStyles(addressOrName, style);
-		}
-
 		/// <summary>
 		/// Set styles to each cells inside specified range
 		/// </summary>
@@ -113,12 +107,6 @@ namespace unvell.ReoGrid
 				throw new InvalidAddressException(addressOrName);
 		}
 
-		[Obsolete("use SetRangeStyles instead")]
-		public void SetRangeStyle(int row, int col, int rows, int cols, WorksheetRangeStyle style)
-		{
-			this.SetRangeStyles(row, col, rows, cols, style);
-		}
-
 		/// <summary>
 		/// Set styles to each cells inside specified range
 		/// </summary>
@@ -130,12 +118,6 @@ namespace unvell.ReoGrid
 		public void SetRangeStyles(int row, int col, int rows, int cols, WorksheetRangeStyle style)
 		{
 			this.SetRangeStyles(new RangePosition(row, col, rows, cols), style);
-		}
-
-		[Obsolete("use SetRangeStyles instead")]
-		public void SetRangeStyle(RangePosition range, WorksheetRangeStyle style)
-		{
-			this.SetRangeStyles(range, style);
 		}
 
 		/// <summary>
@@ -427,12 +409,6 @@ namespace unvell.ReoGrid
 
 		#region Remove Style
 
-		[Obsolete("use RemoveRangeStyles instead")]
-		public void RemoveRangeStyle(string addressOrName, PlainStyleFlag flags)
-		{
-			this.RemoveRangeStyles(addressOrName, flags);
-		}
-
 		/// <summary>
 		/// Remove specified styles from a range specified by address or name
 		/// </summary>
@@ -440,24 +416,16 @@ namespace unvell.ReoGrid
 		/// <param name="flags">Styles specified by this flags to be removed</param>
 		public void RemoveRangeStyles(string addressOrName, PlainStyleFlag flags)
 		{
-			NamedRange namedRange;
-
 			if (RangePosition.IsValidAddress(addressOrName))
 			{
 				this.RemoveRangeStyles(new RangePosition(addressOrName), flags);
 			}
-			else if (this.registeredNamedRanges.TryGetValue(addressOrName, out namedRange))
+			else if (this.registeredNamedRanges.TryGetValue(addressOrName, out var namedRange))
 			{
 				this.RemoveRangeStyles(namedRange, flags);
 			}
 			else
 				throw new InvalidAddressException(addressOrName);
-		}
-
-		[Obsolete("use RemoveRangeStyles instead")]
-		public void RemoveRangeStyle(RangePosition range, PlainStyleFlag flags)
-		{
-			this.RemoveRangeStyles(range, flags);
 		}
 
 		/// <summary>
@@ -667,11 +635,6 @@ namespace unvell.ReoGrid
 		#endregion // Remove Style
 
 		#region Get Style
-		[Obsolete("use GetRangeStyles instead")]
-		public WorksheetRangeStyle GetRangeStyle(RangePosition range)
-		{
-			return this.GetRangeStyles(range);
-		}
 
 		/// <summary>
 		/// Get style of specified range.
@@ -691,12 +654,6 @@ namespace unvell.ReoGrid
 			return GetCellStyleItem(row, col, flag);
 		}
 
-		[Obsolete("use GetCellStyle instead")]
-		public WorksheetRangeStyle GetCellStyle(string address)
-		{
-			return this.GetCellStyles(address);
-		}
-
 		/// <summary>
 		/// Get style from cell by specified position.
 		/// </summary>
@@ -712,12 +669,6 @@ namespace unvell.ReoGrid
 			return this.GetCellStyles(new CellPosition(address));
 		}
 
-		[Obsolete("use GetCellStyle instead")]
-		public WorksheetRangeStyle GetCellStyle(CellPosition pos)
-		{
-			return this.GetCellStyles(pos);
-		}
-
 		/// <summary>
 		/// Get style of single cell.
 		/// </summary>
@@ -726,12 +677,6 @@ namespace unvell.ReoGrid
 		public WorksheetRangeStyle GetCellStyles(CellPosition pos)
 		{
 			return GetCellStyles(pos.Row, pos.Col);
-		}
-
-		[Obsolete("use GetCellStyles instead")]
-		public WorksheetRangeStyle GetCellStyle(int row, int col)
-		{
-			return this.GetCellStyles(row, col);
 		}
 
 		/// <summary>
@@ -831,7 +776,7 @@ namespace unvell.ReoGrid
 
 				if (size.Width <= 0 || size.Height <= 0) return new Rectangle(0, 0, 0, 0);
 
-				// TODO: need fix: get incorrect size if CJK fonts
+				// FIXME: get incorrect size if CJK fonts
 				size.Width += 2;
 				size.Height += 1;
 				#endregion // Plain Text Measure Size
@@ -1311,10 +1256,6 @@ namespace unvell.ReoGrid
 	#endregion
 
 	#region WorksheetRangeStyle
-	[Obsolete("use WorksheetRangeStyle instead")]
-	public class ReoGridStyleObject : WorksheetRangeStyle
-	{
-	}
 
 	/// <summary>
 	/// Styles of range or cells. By specifying PlainStyleFlag to determine 
@@ -1566,13 +1507,6 @@ namespace unvell.ReoGrid
 		}
 	}
 
-	/// <summary>
-	/// Obsoleted range style object, changed to ReoGridStyleObject.
-	/// </summary>
-	[Obsolete("Use WorksheetRangeStyle instead")]
-	public class ReoGridRangeStyle : WorksheetRangeStyle
-	{
-	}
 	#endregion // ReoGridStyleObject
 
 	#region ReferenceStyle
@@ -2728,13 +2662,6 @@ namespace unvell.ReoGrid
 					Padding = value,
 				});
 			}
-		}
-
-		[Obsolete("use RotationAngle instead")]
-		public int RotateAngle
-		{
-			get { return (int)this.RotationAngle; }
-			set { this.RotationAngle = value; }
 		}
 
 		/// <summary>

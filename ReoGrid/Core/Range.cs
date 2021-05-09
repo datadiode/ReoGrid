@@ -28,6 +28,7 @@ using unvell.ReoGrid.Script;
 using unvell.ReoGrid.Core;
 using unvell.ReoGrid.Events;
 using unvell.ReoGrid.Graphics;
+using unvell.ReoGrid.Views;
 
 namespace unvell.ReoGrid
 {
@@ -144,13 +145,11 @@ namespace unvell.ReoGrid
 		/// <param name="data">Data to be set.</param>
 		public void SetRangeData(string addressOrName, object data)
 		{
-			NamedRange refRange;
-
 			if (RangePosition.IsValidAddress(addressOrName))
 			{
 				this.SetRangeData(new RangePosition(addressOrName), data);
 			}
-			else if (this.registeredNamedRanges.TryGetValue(addressOrName, out refRange))
+			else if (this.registeredNamedRanges.TryGetValue(addressOrName, out var refRange))
 			{
 				this.SetRangeData(refRange, data);
 			}
@@ -494,13 +493,11 @@ namespace unvell.ReoGrid
 		/// <param name="addressOrName">address or name to locate a range</param>
 		public void ScrollToRange(string addressOrName)
 		{
-			NamedRange refRange;
-
 			if (RangePosition.IsValidAddress(addressOrName))
 			{
 				this.ScrollToRange(new RangePosition(addressOrName));
 			}
-			else if (this.registeredNamedRanges.TryGetValue(addressOrName, out refRange))
+			else if (this.registeredNamedRanges.TryGetValue(addressOrName, out var refRange))
 			{
 				this.ScrollToRange(refRange);
 			}
@@ -538,9 +535,7 @@ namespace unvell.ReoGrid
 		/// <param name="basePos">Base point to scroll views</param>
 		public void ScrollToRange(RangePosition range, CellPosition basePos)
 		{
-			var svc = this.viewportController as unvell.ReoGrid.Views.IScrollableViewportController;
-
-			if (svc != null)
+			if (this.viewportController is IScrollableViewportController svc)
 			{
 				svc.ScrollToRange(this.FixRange(range), basePos);
 			}

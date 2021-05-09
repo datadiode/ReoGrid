@@ -110,7 +110,7 @@ namespace unvell.ReoGrid
 		/// <param name="targetRange">The range used to fill loaded CSV data.</param>
 		public void LoadCSV(Stream s, Encoding encoding, RangePosition targetRange)
 		{
-			LoadCSV(s, encoding, targetRange, targetRange.IsEntire ? true : false, 256);
+			LoadCSV(s, encoding, targetRange, targetRange.IsEntire, 256);
 		}
 
 		/// <summary>
@@ -167,13 +167,11 @@ namespace unvell.ReoGrid
 		/// <param name="encoding">Text encoding during output text in CSV format.</param>
 		public void ExportAsCSV(string path, string addressOrName, Encoding encoding = null, object arg = null)
 		{
-			NamedRange namedRange;
-
 			if (RangePosition.IsValidAddress(addressOrName))
 			{
 				ExportAsCSV(path, new RangePosition(addressOrName), encoding, arg);
 			}
-			else if (this.TryGetNamedRange(addressOrName, out namedRange))
+			else if (this.TryGetNamedRange(addressOrName, out var namedRange))
 			{
 				ExportAsCSV(path, namedRange, encoding, arg);
 			}
@@ -217,13 +215,11 @@ namespace unvell.ReoGrid
 		/// <param name="encoding">Text encoding during output text in CSV format.</param>
 		public void ExportAsCSV(Stream s, string addressOrName, Encoding encoding = null, object arg = null)
 		{
-			NamedRange namedRange;
-
 			if (RangePosition.IsValidAddress(addressOrName))
 			{
 				ExportAsCSV(s, new RangePosition(addressOrName), encoding);
 			}
-			else if (this.TryGetNamedRange(addressOrName, out namedRange))
+			else if (this.TryGetNamedRange(addressOrName, out var namedRange))
 			{
 				ExportAsCSV(s, namedRange, encoding);
 			}

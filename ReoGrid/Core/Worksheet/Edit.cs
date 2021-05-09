@@ -180,9 +180,7 @@ namespace unvell.ReoGrid
 			if (cell.DataFormat == CellDataFormatFlag.Percent
 				&& this.HasSettings(WorksheetSettings.Edit_FriendlyPercentInput))
 			{
-				double val;
-
-				if (double.TryParse(editText, out val))
+				if (double.TryParse(editText, out var val))
 				{
 					editText = (newText == null ? (val * 100) : val) + "%";
 				}
@@ -349,16 +347,6 @@ namespace unvell.ReoGrid
 			get { return this.currentEditingCell; }
 		}
 
-		/// <summary>
-		/// Get position of cell that currently is in edit mode
-		/// </summary>
-		/// <returns>position of cell which is editing</returns>
-		[Obsolete("use EditingCell property instead")]
-		public CellPosition GetEditingCell()
-		{
-			return currentEditingCell == null ? CellPosition.Empty : currentEditingCell.InternalPos;
-		}
-
 		private bool endEditProcessing = false;
 
 		/// <summary>
@@ -432,14 +420,12 @@ namespace unvell.ReoGrid
 						}
 						else
 						{
-							double numericValue = 0;
-
 							// convert data into cell data format
 							switch (currentEditingCell.DataFormat)
 							{
 								case CellDataFormatFlag.Number:
 								case CellDataFormatFlag.Currency:
-									if (double.TryParse(datastr, out numericValue))
+									if (double.TryParse(datastr, out var numericValue))
 									{
 										data = numericValue;
 									}
@@ -448,8 +434,7 @@ namespace unvell.ReoGrid
 								case CellDataFormatFlag.Percent:
 									if (datastr.EndsWith("%"))
 									{
-										double val;
-										if (double.TryParse(datastr.Substring(0, datastr.Length - 1), out val))
+										if (double.TryParse(datastr.Substring(0, datastr.Length - 1), out var val))
 										{
 											data = val / 100;
 										}
@@ -462,8 +447,7 @@ namespace unvell.ReoGrid
 
 								case CellDataFormatFlag.DateTime:
 									{
-										DateTime dt = DateTime.Now;
-										if (DateTime.TryParse(datastr, out dt))
+										if (DateTime.TryParse(datastr, out var dt))
 										{
 											data = dt;
 										}

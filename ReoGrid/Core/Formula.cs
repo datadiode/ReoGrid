@@ -44,9 +44,7 @@ namespace unvell.ReoGrid
 				return;
 			}
 
-			NamedRange range;
-
-			if (this.registeredNamedRanges.TryGetValue(addressOrName, out range))
+			if (this.registeredNamedRanges.TryGetValue(addressOrName, out var range))
 			{
 				this.SetCellFormula(range.StartPos, formula);
 			}
@@ -287,8 +285,7 @@ namespace unvell.ReoGrid
 			}
 			else
 			{
-				NamedRange namedRange;
-				if (this.TryGetNamedRange(addressOrName, out namedRange))
+				if (this.TryGetNamedRange(addressOrName, out var namedRange))
 				{
 					if (namedRange.IsMergedCell)
 					{
@@ -447,9 +444,7 @@ namespace unvell.ReoGrid
 		/// <returns>a list of referenced cell</returns>
 		public List<ReferenceRange> GetCellFormulaReferenceRanges(Cell cell)
 		{
-			List<ReferenceRange> referencedRangeList = null;
-
-			if (this.formulaRanges.TryGetValue(cell, out referencedRangeList))
+			if (this.formulaRanges.TryGetValue(cell, out var referencedRangeList))
 			{
 				return referencedRangeList;
 			}
@@ -475,8 +470,7 @@ namespace unvell.ReoGrid
 				return GetCellFormula(new CellPosition(addressOrName));
 			}
 
-			NamedRange namedRange;
-			if (this.registeredNamedRanges.TryGetValue(addressOrName, out namedRange))
+			if (this.registeredNamedRanges.TryGetValue(addressOrName, out var namedRange))
 			{
 				return GetCellFormula(namedRange.StartPos);
 			}
@@ -764,9 +758,7 @@ namespace unvell.ReoGrid
 				return false;
 			}
 
-			List<Cell> lines = null;
-
-			if (traceDependentArrows.TryGetValue(fromCell, out lines))
+			if (traceDependentArrows.TryGetValue(fromCell, out var lines))
 			{
 				var traceLine = lines.FirstOrDefault(l => l.InternalPos == toCell.InternalPos);
 				if (traceLine != null)

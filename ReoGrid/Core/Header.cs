@@ -382,7 +382,7 @@ namespace unvell.ReoGrid
 			{
 				Debug.WriteLine(string.Format("columns width change takes {0} ms.", watch.ElapsedMilliseconds));
 			}
-#endif
+#endif // DEBUG
 		}
 
 		/// <summary>
@@ -1724,7 +1724,9 @@ namespace unvell.ReoGrid
 				if (row == 0 || !IsInsideSameMergedCell(row - 1, c, row, c))
 				{
 					if (hBorders[row, c] != null && hBorders[row, c].Span == 0)
+					{
 						hBorders[row, c] = null;
+					}
 				}
 			}
 			#endregion // move columns
@@ -1953,7 +1955,7 @@ namespace unvell.ReoGrid
 			{
 				this.FreezePos = new CellPosition(this.FreezePos.Row - count, this.FreezePos.Col);
 			}
-			#endregion
+			#endregion // Update frozen rows
 
 			SelectionRange = FixRange(selectionRange);
 
@@ -1966,16 +1968,10 @@ namespace unvell.ReoGrid
 			{
 				Debug.WriteLine("delete rows takes " + ms + " ms.");
 			}
-#endif
+#endif // DEBUG
 
 			// raise column deleted event
-			if (RowsDeleted != null) RowsDeleted(this, new RowsDeletedEventArgs(row, count));
-		}
-
-		[Obsolete("use DeleteColumns instead")]
-		public void DeleteCols(int col, int count)
-		{
-			this.DeleteColumns(col, count);
+			RowsDeleted?.Invoke(this, new RowsDeletedEventArgs(row, count));
 		}
 
 		/// <summary>
@@ -2452,10 +2448,7 @@ namespace unvell.ReoGrid
 #endif
 
 			// raise column deleted event
-			if (ColumnsDeleted != null)
-			{
-				ColumnsDeleted(this, new ColumnsDeletedEventArgs(col, count));
-			}
+			ColumnsDeleted?.Invoke(this, new ColumnsDeletedEventArgs(col, count));
 		}
 
 		#endregion // Delete
@@ -2540,32 +2533,6 @@ namespace unvell.ReoGrid
 		{
 			if (col < 0 || col >= this.ColumnCount) return false;
 			return this.cols[col].IsVisible;
-		}
-
-		/// <summary>
-		/// Check whether an entire row is hidden
-		/// </summary>
-		/// <param name="row">number of row to be checked</param>
-		/// <returns>true if the entire row is hidden, otherwise return false</returns>
-		[Obsolete("use IsRowVisible instead")]
-		public bool IsHiddenRow(int row)
-		{
-			return !IsRowVisible(row);
-			//if (row < 0 || row >= this.RowCount) return false;
-			//return this.rows[row].Visible;
-		}
-
-		/// <summary>
-		/// Check whether an entire column is hidden
-		/// </summary>
-		/// <param name="col">number of column to be checked</param>
-		/// <returns>true if the entire column is hidden, otherwise return false</returns>
-		[Obsolete("use IsColumnVisible instead")]
-		public bool IsHiddenColumn(int col)
-		{
-			return !this.IsColumnVisible(col);
-			//if (col < 0 || col >= this.ColumnCount) return false;
-			//return this.cols[col].Visible;
 		}
 
 		#endregion // Visible
@@ -2944,16 +2911,6 @@ namespace unvell.ReoGrid
 			}
 		}
 
-		/// <summary>
-		/// Get or set the visibility for this column.
-		/// </summary>
-		[Obsolete("use IsVisible instead")]
-		public bool IsHidden
-		{
-			get { return !this.IsVisible; }
-			set { this.IsVisible = !value; }
-		}
-
 		private void VerifyWorksheet()
 		{
 			if (this.Worksheet == null)
@@ -3136,16 +3093,6 @@ namespace unvell.ReoGrid
 					this.Worksheet.HideRows(this.Row, 1);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Get or set the visibility for this row.
-		/// </summary>
-		[Obsolete("use IsVisible instead")]
-		public bool IsHidden
-		{
-			get { return !this.IsVisible; }
-			set { this.IsVisible = !value; }
 		}
 
 		private void VerifyWorksheet()
