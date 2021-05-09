@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ReoGrid Demo")]
-[assembly: AssemblyDescription(".NET Spreadsheet Control")]
+[assembly: AssemblyDescription("Opensource .NET Spreadsheet Control")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("unvell.com")]
+[assembly: AssemblyCompany("unvell")]
 [assembly: AssemblyProduct("ReoGrid")]
-[assembly: AssemblyCopyright("Copyright © 2012-2016 unvell.com, All Rights Seserved.")]
+[assembly: AssemblyCopyright("Copyright © 2012-2021 Jingwood & unvell, all rights reserved.")]
 [assembly: AssemblyTrademark("ReoGrid.NET")]
 [assembly: AssemblyCulture("")]
 

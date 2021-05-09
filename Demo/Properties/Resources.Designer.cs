@@ -19,7 +19,7 @@ namespace unvell.ReoGrid.Demo.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -85,7 +85,7 @@ namespace unvell.ReoGrid.Demo.Properties {
         ///
         ///.csharpcode .str { color: #a31515; }
         ///
-        ///.csharpcode .op { color: #0000c [rest of string was truncated]&quot;;.
+        ///.csharp [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AddingObjectDemo_src {
             get {
@@ -121,7 +121,7 @@ namespace unvell.ReoGrid.Demo.Properties {
         /// * 
         /// * ReoGrid - .NET Spreadsheet Control
         /// 
-        /// * http://reogrid.net
+        /// * https://reogrid.net
         /// *
         /// * THIS CODE AND INFORMATION IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTY OF ANY
         /// * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
@@ -130,7 +130,7 @@ namespace unvell.ReoGrid.Demo.Properties {
         /// *
         /// * ReoGrid Demo project released under MIT license.
         /// *
-        /// * Copyright (c) 2012-2016 Jing [rest of string was truncated]&quot;;.
+        /// * Copyright (c [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DemoCategory {
             get {
