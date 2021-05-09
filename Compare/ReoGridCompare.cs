@@ -92,8 +92,8 @@ namespace unvell.ReoGrid.Editor
 		/// Flag to avoid scroll two controls recursively
 		/// </summary>
 		private bool inScrolling = false;
-		private float ScrollViewLeft = 0;
-		private float ScrollViewTop = 0;
+		private float ScrollX = 0;
+		private float ScrollY = 0;
 		private object arg1;
 		private object arg2;
 		private LinkedList<IAction> undoStack = new LinkedList<IAction>();
@@ -206,8 +206,8 @@ namespace unvell.ReoGrid.Editor
 				{
 					inScrolling = true;
 					var grid = s as ReoGridControl;
-					ScrollViewLeft = grid.CurrentWorksheet.ScrollViewLeft;
-					ScrollViewTop = grid.CurrentWorksheet.ScrollViewTop;
+					ScrollX = grid.CurrentWorksheet.ScrollX;
+					ScrollY = grid.CurrentWorksheet.ScrollY;
 					if (KeepSheetsInSync)
 						grid2.ScrollCurrentWorksheet(e.X, e.Y);
 					inScrolling = false;
@@ -221,8 +221,8 @@ namespace unvell.ReoGrid.Editor
 				{
 					inScrolling = true;
 					var grid = s as ReoGridControl;
-					ScrollViewLeft = grid.CurrentWorksheet.ScrollViewLeft;
-					ScrollViewTop = grid.CurrentWorksheet.ScrollViewTop;
+					ScrollX = grid.CurrentWorksheet.ScrollX;
+					ScrollY = grid.CurrentWorksheet.ScrollY;
 					if (KeepSheetsInSync)
 						grid1.ScrollCurrentWorksheet(e.X, e.Y);
 					inScrolling = false;
@@ -1771,8 +1771,8 @@ namespace unvell.ReoGrid.Editor
 				}
 			}
 			inScrolling = true;
-			grid1.ScrollCurrentWorksheet(ScrollViewLeft, ScrollViewTop);
-			grid2.ScrollCurrentWorksheet(ScrollViewLeft, ScrollViewTop);
+			grid1.ScrollCurrentWorksheet(ScrollX, ScrollY);
+			grid2.ScrollCurrentWorksheet(ScrollX, ScrollY);
 			inScrolling = false;
 			sheet1.ResumeUIUpdates();
 			sheet2.ResumeUIUpdates();
