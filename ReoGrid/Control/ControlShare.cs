@@ -177,13 +177,10 @@ namespace unvell.ReoGrid
 					HideVerScrollBar();
 				}
 
-				if (this.SettingsChanged != null)
-				{
-					this.SettingsChanged(this, null);
-				}
+				this.SettingsChanged?.Invoke(this, null);
 			};
 
-			this.workbook.ExceptionHappened += workbook_ErrorHappened;
+			this.workbook.ExceptionHappened += Workbook_ErrorHappened;
 
 			#endregion // Workbook Event Attach
 
@@ -788,9 +785,9 @@ namespace unvell.ReoGrid
 
 			this.actionManager.DoAction(action);
 
-			if (action is WorksheetReusableAction)
+			if (action is WorksheetReusableAction reusableAction)
 			{
-				this.lastReusableAction = (WorksheetReusableAction)action;
+				this.lastReusableAction = reusableAction;
 			}
 
 			if (this.currentWorksheet != sheet)
@@ -825,16 +822,12 @@ namespace unvell.ReoGrid
 				{
 					// seems nothing to do
 				}
-				else if (action is BaseWorksheetAction)
+				else if (action is BaseWorksheetAction worksheetAction)
 				{
-					var worksheetAction = (BaseWorksheetAction)action;
-
 					var sheet = worksheetAction.Worksheet;
 
-					if (action is WorksheetReusableAction)
+					if (action is WorksheetReusableAction reusableAction)
 					{
-						var reusableAction = (WorksheetReusableAction)action;
-
 						if (sheet != null)
 						{
 							sheet.SelectRange(reusableAction.Range);
@@ -848,7 +841,7 @@ namespace unvell.ReoGrid
 					}
 				}
 
-				if (Undid != null) Undid(this, new ActionEventArgs(action, ActionBehavior.Undo));
+				Undid?.Invoke(this, new ActionEventArgs(action, ActionBehavior.Undo));
 			}
 		}
 
@@ -869,15 +862,13 @@ namespace unvell.ReoGrid
 
 			if (action != null)
 			{
-				if (action is BaseWorksheetAction)
+				if (action is BaseWorksheetAction worksheetAction)
 				{
-					var worksheetAction = (BaseWorksheetAction)action;
-
 					var sheet = worksheetAction.Worksheet;
 
-					if (action is WorksheetReusableAction)
+					if (action is WorksheetReusableAction reusableAction)
 					{
-						this.lastReusableAction = (WorksheetReusableAction)action;
+						this.lastReusableAction = reusableAction;
 
 						if (sheet != null)
 						{
@@ -976,9 +967,6 @@ namespace unvell.ReoGrid
 		public void ClearActionHistoryForWorksheet(Worksheet sheet)
 		{
 			List<IUndoableAction> undoActions = this.actionManager.UndoStack;
-
-			int totalActions = 0;
-
 			for (int i = 0; i < undoActions.Count;)
 			{
 				var action = undoActions[i];
@@ -994,8 +982,7 @@ namespace unvell.ReoGrid
 				i++;
 			}
 
-			totalActions = undoActions.Count;
-
+			int totalActions = undoActions.Count;
 			var redoActions = new List<IUndoableAction>(this.actionManager.RedoStack);
 
 			for (int i = 0; i < redoActions.Count;)
@@ -1154,12 +1141,9 @@ namespace unvell.ReoGrid
 		/// </summary>
 		public event EventHandler<ExceptionHappenEventArgs> ExceptionHappened;
 
-		void workbook_ErrorHappened(object sender, ExceptionHappenEventArgs e)
+		void Workbook_ErrorHappened(object sender, ExceptionHappenEventArgs e)
 		{
-			if (this.ExceptionHappened != null)
-			{
-				this.ExceptionHappened(this, e);
-			}
+			this.ExceptionHappened?.Invoke(this, e);
 		}
 
 		/// <summary>
@@ -1195,7 +1179,7 @@ namespace unvell.ReoGrid
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Cursor CellsSelectionCursor
 		{
-			get { return this.customCellsSelectionCursor == null ? this.builtInCellsSelectionCursor : this.customCellsSelectionCursor; }
+			get { return this.customCellsSelectionCursor ?? this.builtInCellsSelectionCursor; }
 			set
 			{
 				this.customCellsSelectionCursor = value;
@@ -1223,7 +1207,7 @@ namespace unvell.ReoGrid
 
 		private static Cursor LoadCursorFromResource(byte[] res)
 		{
-			using (System.IO.MemoryStream ms = new System.IO.MemoryStream(res))
+			using (var ms = new MemoryStream(res))
 			{
 				return new Cursor(ms);
 			}
@@ -1273,8 +1257,7 @@ namespace unvell.ReoGrid
 		{
 			this.currentWorksheet.EndPickRange();
 
-			this.internalCurrentCursor = (this.customCellsSelectionCursor != null ?
-				this.customCellsSelectionCursor : this.builtInCellsSelectionCursor);
+			this.internalCurrentCursor = (this.customCellsSelectionCursor ?? this.builtInCellsSelectionCursor);
 		}
 #endif // WINFORM || WPF
 		#endregion // Pick Range
@@ -1298,7 +1281,9 @@ namespace unvell.ReoGrid
 			set
 			{
 				if (value == null)
+				{
 					throw new ArgumentNullException("ControlStyle", "cannot set ControlStyle to null");
+				}
 
 				this.controlStyle = value;
 				//workbook.SetControlStyle(value);
@@ -1314,7 +1299,7 @@ namespace unvell.ReoGrid
 
 			}
 		}
-		#endregion // App
+		#endregion // Appearance
 
 		#region Mouse
 		private void OnWorksheetMouseDown(RGPointF location, MouseButtons buttons)
@@ -1326,39 +1311,24 @@ namespace unvell.ReoGrid
 				// if currently control is in editing mode, make the input fields invisible
 				if (sheet.currentEditingCell != null)
 				{
-					var editableAdapter = this.adapter as IEditableControlAdapter;
-
-					if (editableAdapter != null)
+					if (this.adapter is IEditableControlAdapter editableAdapter)
 					{
 						sheet.EndEdit(editableAdapter.GetEditControlText());
 					}
 				}
 
-				if (sheet.ViewportController != null)
-				{
-					sheet.ViewportController.OnMouseDown(location, buttons);
-				}
+				sheet.ViewportController?.OnMouseDown(location, buttons);
 			}
 		}
 
 		private void OnWorksheetMouseMove(RGPointF location, MouseButtons buttons)
 		{
-			var sheet = this.currentWorksheet;
-
-			if (sheet != null && sheet.ViewportController != null)
-			{
-				sheet.ViewportController.OnMouseMove(location, buttons);
-			}
+			this.currentWorksheet?.ViewportController?.OnMouseMove(location, buttons);
 		}
 
 		private void OnWorksheetMouseUp(RGPointF location, MouseButtons buttons)
 		{
-			var sheet = this.currentWorksheet;
-
-			if (sheet != null && sheet.ViewportController != null)
-			{
-				sheet.ViewportController.OnMouseUp(location, buttons);
-			}
+			this.currentWorksheet?.ViewportController?.OnMouseUp(location, buttons);
 		}
 		#endregion // Mouse
 
