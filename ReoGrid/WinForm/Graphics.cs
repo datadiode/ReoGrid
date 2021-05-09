@@ -564,12 +564,12 @@ namespace unvell.ReoGrid.WinForm
 		public void BeginCappedLine(LineCapStyles startStyle, Graphics.Size startSize,
 			LineCapStyles endStyle, Graphics.Size endSize, SolidColor color, float width)
 		{
-			lineCap.startStyle = startStyle;
-			lineCap.startSize = startSize;
-			lineCap.endStyle = endStyle;
-			lineCap.endSize = endSize;
-			lineCap.startColor = color;
-			lineCap.endColor = color;
+			lineCap.StartStyle = startStyle;
+			lineCap.StartSize = startSize;
+			lineCap.EndStyle = endStyle;
+			lineCap.EndSize = endSize;
+			lineCap.StartColor = color;
+			lineCap.EndColor = color;
 
 			if ((startStyle == LineCapStyles.None && endStyle == LineCapStyles.None))
 			{
@@ -590,7 +590,7 @@ namespace unvell.ReoGrid.WinForm
 
 			if (startStyle == LineCapStyles.Arrow)
 			{
-				CreateArrowCap(ref this.cappedStartArrowCap, this.lineCap.startSize);
+				CreateArrowCap(ref this.cappedStartArrowCap, this.lineCap.StartSize);
 				cappedLinePen.CustomStartCap = this.cappedStartArrowCap;
 			}
 			else
@@ -600,7 +600,7 @@ namespace unvell.ReoGrid.WinForm
 
 			if (endStyle == LineCapStyles.Arrow)
 			{
-				CreateArrowCap(ref this.cappedEndArrowCap, this.lineCap.endSize);
+				CreateArrowCap(ref this.cappedEndArrowCap, this.lineCap.EndSize);
 				cappedLinePen.CustomEndCap = this.cappedEndArrowCap;
 			}
 			else
@@ -624,14 +624,14 @@ namespace unvell.ReoGrid.WinForm
 		{
 			PlatformGraphics.DrawLine(this.cappedLinePen, x1, y1, x2, y2);
 
-			if (this.lineCap.startStyle == LineCapStyles.Ellipse)
+			if (this.lineCap.StartStyle == LineCapStyles.Ellipse)
 			{
-				this.DrawEllipseForCappedLine(x1, y1, this.lineCap.startSize);
+				this.DrawEllipseForCappedLine(x1, y1, this.lineCap.StartSize);
 			}
 
-			if (this.lineCap.endStyle == LineCapStyles.Ellipse)
+			if (this.lineCap.EndStyle == LineCapStyles.Ellipse)
 			{
-				this.DrawEllipseForCappedLine(x2, y2, this.lineCap.endSize);
+				this.DrawEllipseForCappedLine(x2, y2, this.lineCap.EndSize);
 			}
 		}
 
