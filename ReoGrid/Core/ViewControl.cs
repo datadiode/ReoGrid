@@ -75,21 +75,21 @@ namespace unvell.ReoGrid
 			set { this.viewportController = value; }
 		}
 
-		public RGFloat ViewLeft
+		public RGFloat ScrollViewLeft
 		{
 			get
 			{
 				NormalViewportController normalViewportController = viewportController as NormalViewportController;
-				return normalViewportController != null ? normalViewportController.mainViewport.ViewLeft : 0;
+				return normalViewportController != null ? normalViewportController.mainViewport.ScrollViewLeft : 0;
 			}
 		}
 
-		public RGFloat ViewTop
+		public RGFloat ScrollViewTop
 		{
 			get
 			{
 				NormalViewportController normalViewportController = viewportController as NormalViewportController;
-				return normalViewportController != null ? normalViewportController.mainViewport.ViewTop : 0;
+				return normalViewportController != null ? normalViewportController.mainViewport.ScrollViewTop : 0;
 			}
 		}
 
