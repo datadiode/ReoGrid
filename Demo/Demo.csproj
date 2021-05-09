@@ -453,18 +453,10 @@
     <Compile Include="Styles\MultiSelectionDemo.Designer.cs">
       <DependentUpon>MultiSelectionDemo.cs</DependentUpon>
     </Compile>
-    <Compile Include="Welcome\V100WhatsNew.cs">
+    <Compile Include="Welcome\WhatsNewDemo.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Welcome\V100WhatsNew.Designer.cs">
-      <DependentUpon>V100WhatsNew.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Welcome\V093WhatsNew.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Welcome\V093WhatsNew.Designer.cs">
-      <DependentUpon>V093WhatsNew.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Welcome\WhatsNewDemo.Designer.cs" />
     <Compile Include="WorksheetForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -697,12 +689,7 @@
     <EmbeddedResource Include="Styles\MultiSelectionDemo.resx">
       <DependentUpon>MultiSelectionDemo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Welcome\V100WhatsNew.resx">
-      <DependentUpon>V100WhatsNew.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Welcome\V093WhatsNew.resx">
-      <DependentUpon>V093WhatsNew.cs</DependentUpon>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Welcome\WhatsNewDemo.resx" />
     <EmbeddedResource Include="WorksheetForm.resx">
       <DependentUpon>WorksheetForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -805,7 +792,7 @@
     <Compile Include="Scripts\RunScriptDemo.Designer.cs">
       <DependentUpon>RunScriptDemo.cs</DependentUpon>
     </Compile>
-    <None Include="_Templates\Excel\welcome-200.xlsx">
+    <None Include="_Templates\Excel\welcome.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="_Templates\RGF\calendar_2008_1.rgf">
