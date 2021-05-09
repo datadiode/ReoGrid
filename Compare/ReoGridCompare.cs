@@ -209,7 +209,7 @@ namespace unvell.ReoGrid.Editor
 					ViewLeft = grid.CurrentWorksheet.ViewLeft;
 					ViewTop = grid.CurrentWorksheet.ViewTop;
 					if (KeepSheetsInSync)
-						grid2.ScrollCurrentWorksheet(e.OffsetX, e.OffsetY);
+						grid2.ScrollCurrentWorksheet(e.X, e.Y);
 					inScrolling = false;
 				}
 			};
@@ -224,7 +224,7 @@ namespace unvell.ReoGrid.Editor
 					ViewLeft = grid.CurrentWorksheet.ViewLeft;
 					ViewTop = grid.CurrentWorksheet.ViewTop;
 					if (KeepSheetsInSync)
-						grid1.ScrollCurrentWorksheet(e.OffsetX, e.OffsetY);
+						grid1.ScrollCurrentWorksheet(e.X, e.Y);
 					inScrolling = false;
 				}
 			};

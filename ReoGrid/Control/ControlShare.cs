@@ -246,6 +246,7 @@ namespace unvell.ReoGrid
 				{
 					this.lastReusableAction = e.Action as WorksheetReusableAction;
 				}
+
 				this.ActionPerformed?.Invoke(this, e);
 			};
 		}
@@ -434,16 +435,12 @@ namespace unvell.ReoGrid
 					this.currentWorksheet.UpdateViewportControllBounds();
 
 					// update bounds for viewport of worksheet
-					var scrollableViewportController = this.currentWorksheet.ViewportController as IScrollableViewportController;
-					if (scrollableViewportController != null)
+					if (this.currentWorksheet.ViewportController is IScrollableViewportController scrollableViewportController)
 					{
 						scrollableViewportController.SynchronizeScrollBar();
 					}
 
-					if (this.CurrentWorksheetChanged != null)
-					{
-						this.CurrentWorksheetChanged(this, null);
-					}
+					this.CurrentWorksheetChanged?.Invoke(this, null);
 
 					this.sheetTab.SelectedIndex = GetWorksheetIndex(this.currentWorksheet);
 					this.sheetTab.ScrollToItem(this.sheetTab.SelectedIndex);
@@ -1409,18 +1406,15 @@ namespace unvell.ReoGrid
 		/// <summary>
 		/// Scroll current active worksheet.
 		/// </summary>
-		/// <param name="offsetX">Scroll value on horizontal direction.</param>
-		/// <param name="offsetY">Scroll value on vertical direction.</param>
-		public void ScrollCurrentWorksheet(RGFloat offsetX, RGFloat offsetY)
+		/// <param name="x">Scroll value on horizontal direction.</param>
+		/// <param name="y">Scroll value on vertical direction.</param>
+		public void ScrollCurrentWorksheet(RGFloat x, RGFloat y)
 		{
-			if (this.currentWorksheet != null)
+			if (this.currentWorksheet?.ViewportController is IScrollableViewportController svc)
 			{
-				IScrollableViewportController svc = this.currentWorksheet.ViewportController as IScrollableViewportController;
+				svc.ScrollViews(ScrollDirection.Both, x, y);
 
-				if (svc != null)
-				{
-					svc.ScrollViews(ScrollDirection.Both, offsetX, offsetY);
-				}
+				svc.SynchronizeScrollBar();
 			}
 		}
 
@@ -1437,14 +1431,11 @@ namespace unvell.ReoGrid
 		/// <param name="y">Scroll value on vertical direction.</param>
 		public void RaiseWorksheetScrolledEvent(Worksheet worksheet, RGFloat x, RGFloat y)
 		{
-			if (this.WorksheetScrolled != null)
+			this.WorksheetScrolled?.Invoke(this, new WorksheetScrolledEventArgs(worksheet)
 			{
-				this.WorksheetScrolled(this, new WorksheetScrolledEventArgs(worksheet)
-				{
-					OffsetX = x,
-					OffsetY = y,
-				});
-			}
+				X = x,
+				Y = y,
+			});
 		}
 
 		private bool showScrollEndSpacing = true;
