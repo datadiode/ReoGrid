@@ -1953,13 +1953,27 @@ namespace unvell.ReoGrid
 			#region Update frozen rows
 			if (row < this.FreezePos.Row)
 			{
-				this.FreezePos = new CellPosition(this.FreezePos.Row - count, this.FreezePos.Col);
+				this.FreezePos = FixPos(new CellPosition(this.FreezePos.Row - count, this.FreezePos.Col));
+
+				// remain the first row to be frozen
+				if (this.FreezePos.Row < 1)
+				{
+					if (this.rows.Count > 1)
+					{
+						this.FreezePos = new CellPosition(1, this.FreezePos.Col);
+					}
+					else
+					{
+						this.FreezePos = new CellPosition(0, this.FreezePos.Col);
+					}
+				}
 			}
 			#endregion // Update frozen rows
 
-			SelectionRange = FixRange(selectionRange);
-
 			UpdateViewportController();
+
+			var selRange = FixRange(selectionRange);
+			ApplyRangeSelection(selRange.StartPos, selRange.EndPos, false);
 
 #if DEBUG
 			sw.Stop();
@@ -2434,9 +2448,30 @@ namespace unvell.ReoGrid
 			}
 			#endregion // Update used range
 
-			SelectionRange = FixRange(selectionRange);
+			#region Update frozen columns
+			if (col < this.FreezePos.Col)
+			{
+				this.FreezePos = FixPos(new CellPosition(this.FreezePos.Col, this.FreezePos.Col - count));
+
+				// remain the first column to be frozen
+				if (this.FreezePos.Col < 1)
+				{
+					if (this.cols.Count > 1)
+					{
+						this.FreezePos = new CellPosition(this.FreezePos.Row, 1);
+					}
+					else
+					{
+						this.FreezePos = new CellPosition(this.FreezePos.Row, 0);
+					}
+				}
+			}
+			#endregion // Update frozen columns
 
 			UpdateViewportController();
+
+			var selRange = FixRange(selectionRange);
+			ApplyRangeSelection(selRange.StartPos, selRange.EndPos, false);
 
 #if DEBUG
 			sw.Stop();

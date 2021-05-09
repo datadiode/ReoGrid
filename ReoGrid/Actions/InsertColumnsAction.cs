@@ -54,7 +54,7 @@ namespace unvell.ReoGrid.Actions
 		{
 			insertedCol = Column;
 			Worksheet.InsertColumns(Column, Count);
-			Range = new RangePosition(0, Column, Worksheet.RowCount, Count);
+			Range = new RangePosition(0, Column, -1, Count);
 		}
 
 		/// <summary>

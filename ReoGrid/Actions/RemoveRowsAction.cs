@@ -74,7 +74,6 @@ namespace unvell.ReoGrid.Actions
 				backupHeights[i - Range.Row] = Worksheet.RetrieveRowHeader(i).InnerHeight;
 			}
 
-			Range = Worksheet.FixRange(Range);
 			backupData = Worksheet.GetPartialGrid(Range);
 			Debug.Assert(backupData != null);
 			Worksheet.DeleteRows(Range.Row, Range.Rows, this);

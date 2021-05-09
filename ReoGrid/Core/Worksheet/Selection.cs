@@ -634,14 +634,17 @@ namespace unvell.ReoGrid
 					// issue #179
 					//&& (this.selectionRange.Rows != this.rows.Count
 					//&& this.selectionRange.Cols != this.cols.Count)
-					&& scrollToSelectionEnd
+					//&& scrollToSelectionEnd
 					)
 				{
 					// skip to scroll if entire worksheet is selected
 					if (!(start.Row == 0 && start.Col == 0
 						&& selEnd.Row == this.rows.Count - 1 && selEnd.Col == this.cols.Count - 1))
 					{
-						this.ScrollToCell(selEnd);
+						if (scrollToSelectionEnd)
+							this.ScrollToCell(selEnd);
+						else
+							this.ScrollToRange(this.selectionRange);
 					}
 				}
 			}
