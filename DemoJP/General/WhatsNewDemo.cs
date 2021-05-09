@@ -29,7 +29,7 @@ namespace unvell.ReoGrid.Demo.Welcome
 			var sheet1 = this.reoGridControl.Worksheets[0];
 
 			// iterate to set hyperlink cells type
-			sheet1.IterateCells("C15:J23", (row, col, cell) =>
+			sheet1.IterateCells("B8:N17", (row, col, cell) =>
 			{
 				if (cell.DisplayText.StartsWith("http:", System.StringComparison.CurrentCultureIgnoreCase)
 					|| cell.DisplayText.StartsWith("https:", System.StringComparison.CurrentCultureIgnoreCase)
