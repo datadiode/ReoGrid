@@ -494,7 +494,7 @@ namespace unvell.ReoGrid
 				}
 				#endregion // Each Operation Status
 
-				this.ApplyRangeSelection(startpos, endpos, true);
+				this.ApplyRangeSelection(startpos, endpos);
 			}
 		}
 		#endregion // Mouse Select
@@ -582,13 +582,18 @@ namespace unvell.ReoGrid
 			return new RangePosition(minr, minc, rows, cols);
 		}
 
-		private void ApplyRangeSelection(CellPosition start, CellPosition end, bool appendSelect, bool noScroll = false)
+		private void MoveRangeSelection(CellPosition start, CellPosition end, bool appendSelect, bool scrollToSelectionEnd = true)
 		{
 			if (!appendSelect)
 			{
 				start = end;
 			}
 
+			this.ApplyRangeSelection(start, end, scrollToSelectionEnd: scrollToSelectionEnd);
+		}
+
+		private void ApplyRangeSelection(CellPosition start, CellPosition end, bool scrollToSelectionEnd = true)
+		{
 			bool processed = false;
 
 			switch (this.operationStatus)
@@ -624,15 +629,16 @@ namespace unvell.ReoGrid
 			if (processed)
 			{
 				if (this.HasSettings(WorksheetSettings.Behavior_ScrollToFocusCell)
-					// commented out before the case of entire row or column 
+					// commented out before the case of entire row or column
 					// is checked inside NormalViewportController.ScrollToRange method
 					// issue #179
 					//&& (this.selectionRange.Rows != this.rows.Count
 					//&& this.selectionRange.Cols != this.cols.Count)
+					&& scrollToSelectionEnd
 					)
 				{
 					// skip to scroll if entire worksheet is selected
-					if (!(noScroll || start.Row == 0 && start.Col == 0
+					if (!(start.Row == 0 && start.Col == 0
 						&& selEnd.Row == this.rows.Count - 1 && selEnd.Col == this.cols.Count - 1))
 					{
 						this.ScrollToCell(selEnd);
@@ -780,11 +786,11 @@ namespace unvell.ReoGrid
 		{
 			if (range.IsEmpty || this.selectionMode == WorksheetSelectionMode.None) return;
 
-			bool noScroll = range.Rows == -1 || range.Cols == -1;
+			bool scrollToSelectionEnd = range.Rows != -1 && range.Cols != -1;
 			range = this.FixRange(range);
 
 			// submit to select a range 
-			ApplyRangeSelection(range.StartPos, range.EndPos, true, noScroll);
+			ApplyRangeSelection(range.StartPos, range.EndPos, scrollToSelectionEnd);
 		}
 
 		/// <summary>
@@ -1196,8 +1202,7 @@ namespace unvell.ReoGrid
 
 				if (this.rows[row].InnerHeight > 0)
 				{
-					//selEnd.Row = row;
-					ApplyRangeSelection(selStart, new CellPosition(row, selEnd.Col), appendSelect);
+					MoveRangeSelection(selStart, new CellPosition(row, selEnd.Col), appendSelect);
 					break;
 				}
 			}
@@ -1232,8 +1237,7 @@ namespace unvell.ReoGrid
 
 				if (this.rows[row].InnerHeight > 0)
 				{
-					//selEnd.Row = row;
-					ApplyRangeSelection(this.selStart, new CellPosition(row, selEnd.Col), appendSelect);
+					MoveRangeSelection(this.selStart, new CellPosition(row, selEnd.Col), appendSelect);
 					break;
 				}
 			}
@@ -1269,7 +1273,7 @@ namespace unvell.ReoGrid
 				if (this.cols[col].InnerWidth > 0)
 				{
 					//selEnd.Col = col;
-					ApplyRangeSelection(this.selStart, new CellPosition(selEnd.Row, col), appendSelect);
+					MoveRangeSelection(this.selStart, new CellPosition(selEnd.Row, col), appendSelect);
 					break;
 				}
 			}
@@ -1304,8 +1308,7 @@ namespace unvell.ReoGrid
 
 				if (this.cols[col].InnerWidth > 0)
 				{
-					//selEnd.Col = col;
-					ApplyRangeSelection(selStart, new CellPosition(this.selEnd.Row, col), appendSelect);
+					MoveRangeSelection(selStart, new CellPosition(this.selEnd.Row, col), appendSelect);
 					break;
 				}
 			}
@@ -1338,7 +1341,7 @@ namespace unvell.ReoGrid
 
 			if (endpos != this.selEnd)
 			{
-				ApplyRangeSelection(this.selStart, endpos, appendSelect);
+				MoveRangeSelection(this.selStart, endpos, appendSelect);
 			}
 		}
 
@@ -1369,7 +1372,7 @@ namespace unvell.ReoGrid
 
 			if (endpos != this.selEnd)
 			{
-				ApplyRangeSelection(this.selStart, endpos, appendSelect);
+				MoveRangeSelection(this.selStart, endpos, appendSelect);
 			}
 		}
 
@@ -1408,7 +1411,7 @@ namespace unvell.ReoGrid
 				pos = cell.Position;
 			}
 
-			ApplyRangeSelection(this.selStart, pos, appendSelect);
+			MoveRangeSelection(this.selStart, pos, appendSelect);
 		}
 
 		/// <summary>
@@ -1446,7 +1449,7 @@ namespace unvell.ReoGrid
 				pos = cell.Position;
 			}
 
-			ApplyRangeSelection(this.selStart, pos, appendSelect);
+			MoveRangeSelection(this.selStart, pos, appendSelect);
 		}
 
 		#endregion // Keyboard Move
