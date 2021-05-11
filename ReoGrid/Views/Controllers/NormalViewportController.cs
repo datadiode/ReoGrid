@@ -848,11 +848,8 @@ namespace unvell.ReoGrid.Views
 
 			if (x == mainViewport.ScrollX && y == mainViewport.ScrollY) return;
 
-			if (x > scrollHorMax) x = scrollHorMax;
-			else if (x < 0) x = 0;
-
-			if (y > scrollVerMax) y = scrollVerMax;
-			else if (y < 0) y = 0;
+			x = Math.Max(Math.Min(x, scrollHorMax - mainViewport.Width - mainViewport.Left), 0);
+			y = Math.Max(Math.Min(y, scrollVerMax - mainViewport.Height - mainViewport.Top), 0);
 
 			// if Control is in edit mode, it is necessary to finish the edit mode
 			if (worksheet.IsEditing)
@@ -949,6 +946,10 @@ namespace unvell.ReoGrid.Views
 			if (worksheet.cols.Count > 0)
 			{
 				width = worksheet.cols[worksheet.cols.Count - 1].Right * scale + mainViewport.Left;
+				if (currentFreezePos != CellPosition.Zero)
+				{
+					width -= this.topLeftViewport.Width;
+				}
 #if WPF
 				width -= scrollHorLarge;
 #endif // WPF 
@@ -958,10 +959,10 @@ namespace unvell.ReoGrid.Views
 			{
 				height = worksheet.rows[worksheet.rows.Count - 1].Bottom * scale + mainViewport.Top;
 
-				//if (currentFreezePos != CellPosition.Zero)
-				//{
-				//	height -= this.topLeftViewport.Height;
-				//}
+				if (currentFreezePos != CellPosition.Zero)
+				{
+					height -= this.topLeftViewport.Height;
+				}
 #if WPF
 				height -= scrollVerLarge;
 #endif // WPF
