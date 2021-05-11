@@ -149,7 +149,7 @@ namespace unvell.ReoGrid.Views
 							sheet.controlAdapter.ChangeCursor(CursorStyle.ChangeColumnWidth);
 							sheet.RequestInvalidate();
 
-							this.headerAdjustBackup = sheet.headerAdjustNewValue = sheet.cols[sheet.currentColWidthChanging].InnerWidth;
+							this.headerAdjustBackup = sheet.headerAdjustNewValue = PointToController(location).X;
 							this.SetFocus();
 
 							isProcessed = true;
@@ -183,7 +183,7 @@ namespace unvell.ReoGrid.Views
 								&& sheet.selectionRange.ContainsColumn(col));
 
 							// select whole column
-							if ((!isFullColSelected || buttons == MouseButtons.Left))
+							if (!isFullColSelected || buttons == MouseButtons.Left)
 							{
 								sheet.operationStatus = OperationStatus.FullColumnSelect;
 								sheet.controlAdapter.ChangeCursor(CursorStyle.FullColumnSelect);
@@ -215,12 +215,9 @@ namespace unvell.ReoGrid.Views
 			switch (sheet.operationStatus)
 			{
 				case OperationStatus.AdjustColumnWidth:
-					if (sheet.currentColWidthChanging >= 0
-					&& buttons == MouseButtons.Left)
+					if (buttons == MouseButtons.Left && sheet.currentColWidthChanging >= 0)
 					{
-						ColumnHeader colHeader = sheet.cols[sheet.currentColWidthChanging];
-						sheet.headerAdjustNewValue = location.X - colHeader.Left;
-						if (sheet.headerAdjustNewValue < 0) sheet.headerAdjustNewValue = 0;
+						sheet.headerAdjustNewValue = PointToController(location).X;
 
 						this.sheet.controlAdapter.ChangeCursor(CursorStyle.ChangeColumnWidth);
 						this.sheet.RequestInvalidate();
@@ -288,7 +285,7 @@ namespace unvell.ReoGrid.Views
 			switch (sheet.operationStatus)
 			{
 				case OperationStatus.AdjustColumnWidth:
-					if (sheet.currentColWidthChanging > -1)
+					if (sheet.currentColWidthChanging >= 0)
 					{
 						SetColumnsWidthAction setColsWidthAction;
 
@@ -296,9 +293,11 @@ namespace unvell.ReoGrid.Views
 							&& sheet.selectionRange.Rows == sheet.rows.Count
 							&& sheet.selectionRange.ContainsColumn(sheet.currentColWidthChanging));
 
-						ushort targetWidth = (ushort)sheet.headerAdjustNewValue;
+						ColumnHeader colHeader = sheet.cols[sheet.currentColWidthChanging];
+						var delta = (sheet.headerAdjustNewValue - this.headerAdjustBackup) / scaleFactor;
+						ushort targetWidth = (ushort)Math.Max(delta + colHeader.InnerWidth, 0);
 
-						if (targetWidth != this.headerAdjustBackup)
+						if (targetWidth != colHeader.InnerWidth)
 						{
 							if (isFullColSelected)
 							{

@@ -153,7 +153,7 @@ namespace unvell.ReoGrid.Views
 							sheet.controlAdapter.ChangeCursor(CursorStyle.ChangeRowHeight);
 							sheet.RequestInvalidate();
 
-							this.headerAdjustBackup = sheet.headerAdjustNewValue = sheet.rows[sheet.currentRowHeightChanging].InnerHeight;
+							this.headerAdjustBackup = sheet.headerAdjustNewValue = PointToController(location).Y;
 							this.SetFocus();
 
 							isProcessed = true;
@@ -165,7 +165,7 @@ namespace unvell.ReoGrid.Views
 								&& sheet.selectionRange.Cols == sheet.cols.Count
 								&& sheet.selectionRange.ContainsRow(row));
 
-							if ((!isFullRowSelected || buttons == MouseButtons.Left))
+							if (!isFullRowSelected || buttons == MouseButtons.Left)
 							{
 								sheet.operationStatus = OperationStatus.FullRowSelect;
 								sheet.controlAdapter.ChangeCursor(CursorStyle.FullRowSelect);
@@ -208,12 +208,9 @@ namespace unvell.ReoGrid.Views
 					break;
 
 				case OperationStatus.AdjustRowHeight:
-					if (buttons == MouseButtons.Left
-						&& sheet.currentRowHeightChanging >= 0)
+					if (buttons == MouseButtons.Left && sheet.currentRowHeightChanging >= 0)
 					{
-						RowHeader rowHeader = sheet.rows[sheet.currentRowHeightChanging];
-						sheet.headerAdjustNewValue = location.Y - rowHeader.Top;
-						if (sheet.headerAdjustNewValue < 0) sheet.headerAdjustNewValue = 0;
+						sheet.headerAdjustNewValue = PointToController(location).Y;
 
 						sheet.controlAdapter.ChangeCursor(CursorStyle.ChangeRowHeight);
 						sheet.RequestInvalidate();
@@ -239,7 +236,7 @@ namespace unvell.ReoGrid.Views
 			switch (sheet.operationStatus)
 			{
 				case OperationStatus.AdjustRowHeight:
-					if (sheet.currentRowHeightChanging > -1)
+					if (sheet.currentRowHeightChanging >= 0)
 					{
 						SetRowsHeightAction setRowsHeightAction;
 
@@ -247,9 +244,11 @@ namespace unvell.ReoGrid.Views
 							&& sheet.selectionRange.Cols == sheet.cols.Count
 							&& sheet.selectionRange.ContainsRow(sheet.currentRowHeightChanging));
 
-						ushort targetHeight = (ushort)sheet.headerAdjustNewValue;
+						RowHeader rowHeader = sheet.rows[sheet.currentRowHeightChanging];
+						var delta = (sheet.headerAdjustNewValue - this.headerAdjustBackup) / scaleFactor;
+						var targetHeight = (ushort)Math.Max(delta + rowHeader.InnerHeight, 0);
 
-						if (targetHeight != this.headerAdjustBackup)
+						if (targetHeight != rowHeader.InnerHeight)
 						{
 							if (isFullRowSelected)
 							{

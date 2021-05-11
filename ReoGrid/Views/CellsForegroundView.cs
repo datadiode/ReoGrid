@@ -75,8 +75,8 @@ namespace unvell.ReoGrid.Views
 					{
 						ColumnHeader col = sheet.cols[sheet.currentColWidthChanging];
 
-						RGFloat left = col.Left * this.scaleFactor;// -ViewLeft * this.scaleFactor;
-						RGFloat right = (col.Left + sheet.headerAdjustNewValue) * this.scaleFactor;// -ViewLeft * this.scaleFactor;
+						RGFloat left = col.Left * this.scaleFactor;
+						RGFloat right = Math.Max(left, PointToView(new Point(sheet.headerAdjustNewValue, 0)).X * this.scaleFactor);
 						RGFloat top = ScrollViewTop * this.scaleFactor;
 						RGFloat bottom = ScrollViewTop * this.scaleFactor + this.Height;
 
@@ -93,7 +93,7 @@ namespace unvell.ReoGrid.Views
 						RowHeader row = sheet.rows[sheet.currentRowHeightChanging];
 
 						RGFloat top = row.Top * this.scaleFactor;
-						RGFloat bottom = (row.Top + sheet.headerAdjustNewValue) * this.scaleFactor;
+						RGFloat bottom = Math.Max(top, PointToView(new Point(0, sheet.headerAdjustNewValue)).Y * this.scaleFactor);
 						RGFloat left = ScrollViewLeft * this.scaleFactor;
 						RGFloat right = ScrollViewLeft * this.scaleFactor + this.Width;
 
