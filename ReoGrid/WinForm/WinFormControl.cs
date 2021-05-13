@@ -57,10 +57,10 @@ namespace unvell.ReoGrid
 	/// </summary>
 
 	//[DefaultProperty("Template")]
-//#if WINFORM
-//	[Designer(typeof(ReoGridControlDesigner))]
-//	[ToolboxItem(typeof(ReoGridControlToolboxItem))]
-//#endif // WINFORM
+	//#if WINFORM
+	//	[Designer(typeof(ReoGridControlDesigner))]
+	//	[ToolboxItem(typeof(ReoGridControlToolboxItem))]
+	//#endif // WINFORM
 
 	public partial class ReoGridControl : System.Windows.Forms.Control, IVisualWorkbook,
 		IRangePickableControl, IContextMenuControl, IPersistenceWorkbook, IActionControl, IWorkbook,
@@ -319,7 +319,7 @@ namespace unvell.ReoGrid
 		/// False to release only unmanaged resources.</param>
 		protected override void Dispose(bool disposing)
 		{
-			var gdiRenderer = (GDIRenderer) renderer;
+			var gdiRenderer = (GDIRenderer)renderer;
 
 			if (gdiRenderer != null)
 			{
@@ -444,7 +444,7 @@ namespace unvell.ReoGrid
 					case CursorStyle.Busy: this.control.Cursor = Cursors.WaitCursor; break;
 					case CursorStyle.Hand: this.control.Cursor = Cursors.Hand; break;
 					case CursorStyle.FullColumnSelect:
-						this.control.Cursor = this.control.FullColumnSelectionCursor!=null ?
+						this.control.Cursor = this.control.FullColumnSelectionCursor != null ?
 							this.control.FullColumnSelectionCursor : this.control.builtInFullColSelectCursor;
 						break;
 					case CursorStyle.FullRowSelect:
@@ -501,7 +501,8 @@ namespace unvell.ReoGrid
 				editTextbox.InitialSize = rect.Size;
 				editTextbox.VAlign = cell.InnerStyle.VAlign;
 				editTextbox.Font = cell.RenderFont;
-				editTextbox.ForeColor = cell.InnerStyle.TextColor;
+				editTextbox.ForeColor = cell.InnerStyle.HasStyle(PlainStyleFlag.TextColor)
+					? cell.InnerStyle.TextColor : this.control.ControlStyle[ControlAppearanceColors.GridText];
 				editTextbox.BackColor = cell.InnerStyle.HasStyle(PlainStyleFlag.BackColor)
 					? cell.InnerStyle.BackColor : this.control.ControlStyle[ControlAppearanceColors.GridBackground];
 				editTextbox.ResumeLayout();
@@ -841,16 +842,16 @@ namespace unvell.ReoGrid
 
 		private void OnHorScroll(object sender, ScrollEventArgs e)
 		{
-			if (this.currentWorksheet.ViewportController is IScrollableViewportController)
+			if (this.currentWorksheet.ViewportController is IScrollableViewportController svc)
 			{
-				((IScrollableViewportController)this.currentWorksheet.ViewportController).HorizontalScroll(e.NewValue);
+				svc.HorizontalScroll(e.NewValue);
 			}
 		}
 		private void OnVerScroll(object sender, ScrollEventArgs e)
 		{
-			if (this.currentWorksheet.ViewportController is IScrollableViewportController)
+			if (this.currentWorksheet.ViewportController is IScrollableViewportController svc)
 			{
-				((IScrollableViewportController)this.currentWorksheet.ViewportController).VerticalScroll(e.NewValue);
+				svc.VerticalScroll(e.NewValue);
 			}
 		}
 
@@ -1343,10 +1344,7 @@ namespace unvell.ReoGrid
 		/// <param name="e">Argument of on-resize event</param>
 		protected override void OnResize(EventArgs e)
 		{
-			if (this.currentWorksheet != null)
-			{
-				this.currentWorksheet.UpdateViewportControllBounds();
-			}
+			this.currentWorksheet?.UpdateViewportControllBounds();
 
 			base.OnResize(e);
 
