@@ -55,6 +55,7 @@ namespace unvell.ReoGrid
 			if (this.suspendingUIUpdates)
 			{
 				this.suspendingUIUpdates = false;
+				this.UpdateViewportController();
 				this.RequestInvalidate();
 			}
 		}
