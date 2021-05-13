@@ -1425,7 +1425,7 @@ namespace unvell.ReoGrid
 		{
 			if (this.currentWorksheet?.ViewportController is IScrollableViewportController svc)
 			{
-				svc.ScrollViews(ScrollDirection.Both, x, y);
+				svc.ScrollViews(ScrollDirection.Both, x * currentWorksheet.ScaleFactor, y * currentWorksheet.ScaleFactor);
 
 				svc.SynchronizeScrollBar();
 			}

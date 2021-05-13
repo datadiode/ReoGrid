@@ -848,8 +848,8 @@ namespace unvell.ReoGrid.Views
 
 			if (x == mainViewport.ScrollX && y == mainViewport.ScrollY) return;
 
-			x = Math.Max(Math.Min(x, scrollHorMax - mainViewport.Width - mainViewport.Left), 0);
-			y = Math.Max(Math.Min(y, scrollVerMax - mainViewport.Height - mainViewport.Top), 0);
+			x = Math.Max(Math.Min(x, scrollHorMax - mainViewport.Width - mainViewport.Left), 0) / ScaleFactor;
+			y = Math.Max(Math.Min(y, scrollVerMax - mainViewport.Height - mainViewport.Top), 0) / ScaleFactor;
 
 			// if Control is in edit mode, it is necessary to finish the edit mode
 			if (worksheet.IsEditing)
