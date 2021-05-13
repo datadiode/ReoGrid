@@ -84,7 +84,7 @@ namespace unvell.ReoGrid.WinForm
 			this.lnkHP.Size = new System.Drawing.Size(102, 13);
 			this.lnkHP.TabIndex = 2;
 			this.lnkHP.TabStop = true;
-			this.lnkHP.Text = "http://ReoGrid.NET";
+			this.lnkHP.Text = "https://reogrid.net";
 			// 
 			// labVersion
 			// 
