@@ -1713,7 +1713,9 @@ namespace unvell.ReoGrid.Editor
 				sheet2.RowsHeightChanged -= worksheet_RowsHeightChanged;
 				// Align column widths and row heights on both sides
 				sheet1.SetColumnsWidth(0, m, c => Math.Max(sheet1.GetColumnWidth(c), sheet2.GetColumnWidth(c)));
+				sheet2.SetColumnsWidth(0, m, c => sheet1.GetColumnWidth(c));
 				sheet1.SetRowsHeight(0, n, r => Math.Max(sheet1.GetRowHeight(r), sheet2.GetRowHeight(r)));
+				sheet2.SetRowsHeight(0, n, r => sheet1.GetRowHeight(r));
 				// Clear row differences
 				rowDiffCount = 0;
 				for (var i = 0; i < n; ++i)
