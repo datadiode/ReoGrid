@@ -474,9 +474,8 @@ namespace unvell.ReoGrid.Formula
 			{
 				case STNodeType.NUMBER:
 					string text = lexer.Input.Substring(start, len);
-					double v = 0;
 					return double.TryParse(text, System.Globalization.NumberStyles.Number,
-						ExcelWriter.EnglishCulture, out v) ? new STNumberNode(v, start, len) : null;
+						ExcelWriter.EnglishCulture, out var v) ? new STNumberNode(v, start, len) : null;
 
 				case STNodeType.IDENTIFIER:
 					return new STIdentifierNode(lexer.Cell == null ? null : lexer.Cell.Worksheet, lexer.Input.Substring(start, len), start, len);

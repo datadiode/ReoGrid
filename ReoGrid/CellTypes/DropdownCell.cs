@@ -317,10 +317,8 @@ namespace unvell.ReoGrid.CellTypes
 
 			sheet = base.Cell == null ? null : (base.Cell.Worksheet);
 
-			Point p;
-
 			if (sheet != null && this.DropdownControl != null
-				&& Views.CellsViewport.TryGetCellPositionToControl(sheet.ViewportController.FocusView, this.Cell.InternalPos, out p))
+				&& Views.CellsViewport.TryGetCellPositionToControl(sheet.ViewportController.FocusView, this.Cell.InternalPos, out var p))
 			{
 				if (this.dropdownPanel == null)
 				{
