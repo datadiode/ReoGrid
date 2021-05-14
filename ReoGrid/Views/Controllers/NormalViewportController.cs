@@ -807,7 +807,7 @@ namespace unvell.ReoGrid.Views
 		{
 			//if (this.mainViewport.ViewLeft != value)
 			//{
-				this.ScrollViews(ScrollDirection.Horizontal, value, -1);
+				this.ScrollViews(ScrollDirection.Horizontal, value / ScaleFactor, -1);
 			//}
 		}
 
@@ -815,7 +815,7 @@ namespace unvell.ReoGrid.Views
 		{
 			//if (this.mainViewport.ViewTop != value)
 			//{
-				this.ScrollViews(ScrollDirection.Vertical, -1, value);
+				this.ScrollViews(ScrollDirection.Vertical, -1, value / ScaleFactor);
 			//}
 		}
 
@@ -843,13 +843,15 @@ namespace unvell.ReoGrid.Views
 			//if (x == 0 && y == 0) return;
 			if (RGFloat.IsNaN(x) || RGFloat.IsNaN(y)) return;
 
-			if ((dir & ScrollDirection.Horizontal) != ScrollDirection.Horizontal) x = scrollHorValue;
-			if ((dir & ScrollDirection.Vertical) != ScrollDirection.Vertical) y = scrollVerValue;
+			if ((dir & ScrollDirection.Horizontal) == 0) x = scrollHorValue;
+			if ((dir & ScrollDirection.Vertical) == 0) y = scrollVerValue;
 
 			if (x == mainViewport.ScrollX && y == mainViewport.ScrollY) return;
 
-			x = Math.Max(Math.Min(x, scrollHorMax - mainViewport.Width - mainViewport.Left), 0) / ScaleFactor;
-			y = Math.Max(Math.Min(y, scrollVerMax - mainViewport.Height - mainViewport.Top), 0) / ScaleFactor;
+			RGFloat scale = this.ScaleFactor;
+
+			x = Math.Max(Math.Min(x, (scrollHorMax - mainViewport.Width - mainViewport.Left) / scale), 0);
+			y = Math.Max(Math.Min(y, (scrollVerMax - mainViewport.Height - mainViewport.Top) / scale), 0);
 
 			// if Control is in edit mode, it is necessary to finish the edit mode
 			if (worksheet.IsEditing)
@@ -891,14 +893,14 @@ namespace unvell.ReoGrid.Views
 				RGFloat scale = this.ScaleFactor;
 
 				double top = view.ScrollViewTop * scale;
-				double bottom = view.ScrollViewTop * scale + view.Height;
+				double bottom = top + view.Height;
 				double left = view.ScrollViewLeft * scale;
-				double right = view.ScrollViewLeft * scale + view.Width;
+				double right = left + view.Width;
 
 				double offsetX = 0, offsetY = 0;
 
 				if (rect.Height < view.Height
-					&& (view.ScrollableDirections & ScrollDirection.Vertical) == ScrollDirection.Vertical)
+					&& (view.ScrollableDirections & ScrollDirection.Vertical) != 0)
 				{
 					// skip to scroll y if entire row is selected
 					if (range.Rows < this.worksheet.rows.Count)
@@ -915,7 +917,7 @@ namespace unvell.ReoGrid.Views
 				}
 
 				if (rect.Width < view.Width
-					&& (view.ScrollableDirections & ScrollDirection.Horizontal) == ScrollDirection.Horizontal)
+					&& (view.ScrollableDirections & ScrollDirection.Horizontal) != 0)
 				{
 					// skip to scroll x if entire column is selected
 					if (range.Cols < this.worksheet.cols.Count)
@@ -1030,8 +1032,10 @@ namespace unvell.ReoGrid.Views
 			this.worksheet.controlAdapter.ScrollBarHorizontalLargeChange = this.scrollHorLarge;
 			this.worksheet.controlAdapter.ScrollBarVerticalLargeChange = this.scrollVerLarge;
 
-			this.worksheet.controlAdapter.ScrollBarHorizontalValue = (RGIntDouble)Math.Round(this.scrollHorValue);
-			this.worksheet.controlAdapter.ScrollBarVerticalValue = (RGIntDouble)Math.Round(this.scrollVerValue);
+			RGFloat scale = this.ScaleFactor;
+
+			this.worksheet.controlAdapter.ScrollBarHorizontalValue = (RGIntDouble)Math.Round(this.scrollHorValue * scale);
+			this.worksheet.controlAdapter.ScrollBarVerticalValue = (RGIntDouble)Math.Round(this.scrollVerValue * scale);
 		}
 #endregion // Scroll
 
