@@ -246,7 +246,7 @@ namespace unvell.ReoGrid
 			//}
 
 #if WINFORM
-			if (width < cell.TextBounds.Width) width = cell.TextBounds.Width;
+			width = Math.Max(width, cell.TextBounds.Width);
 #elif WPF
 			// why + 6 ?
 			if (width < cell.TextBounds.Width) width = cell.TextBounds.Width + 6;

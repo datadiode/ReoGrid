@@ -729,14 +729,20 @@ namespace unvell.ReoGrid
 		/// <param name="scaleFactor">Scale factor of current worksheet</param>
 		internal Rectangle UpdateCellTextBounds(IRenderer ig, Cell cell, DrawMode drawMode, RGFloat scaleFactor)
 		{
-			if (cell == null || string.IsNullOrEmpty(cell.DisplayText)) return new Rectangle(0, 0, 0, 0);
-
 			if (ig == null && this.controlAdapter != null)
 			{
 				ig = this.controlAdapter.Renderer;
 			}
 
-			if (ig == null) return new Rectangle(0, 0, 0, 0);
+			if (cell == null || ig == null) return new Rectangle(0, 0, 0, 0);
+
+			if (cell.FontDirty && cell.InnerStyle != null)
+			{
+				ig.UpdateCellRenderFont(cell, UpdateFontReason.FontChanged);
+				cell.FontDirty = false;
+			}
+
+			if (string.IsNullOrEmpty(cell.DisplayText)) return new Rectangle(0, 0, 0, 0);
 
 			Size size;
 			RGFloat x = 0;
@@ -757,20 +763,6 @@ namespace unvell.ReoGrid
 			{
 #endif // DRAWING
 				#region Plain Text Measure Size
-
-				if (cell.FontDirty && cell.InnerStyle != null)
-				{
-#if DRAWING
-					// rich text object doesn't need update font
-					if (!(cell.Data is Drawing.RichText))
-					{
-#endif // DRAWING
-						ig.UpdateCellRenderFont(cell, UpdateFontReason.FontChanged);
-#if DRAWING
-					}
-#endif // DRAWING
-					cell.FontDirty = false;
-				}
 
 				size = ig.MeasureCellText(cell, drawMode, scaleFactor);
 
