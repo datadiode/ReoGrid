@@ -134,30 +134,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 		private static void ReadNamedRange(RGWorkbook rgBook, Schema.Workbook workbook, Schema.DefinedName defName)
 		{
-			var name = defName.name;
-
-			int index = name.IndexOf('.');
-
-			if (index == 0)
-			{
-				return;
-			}
-			else if (index > 0)
-			{
-				string space = name.Substring(0, index);
-				name = name.Substring(index + 1);
-
-				switch (space)
-				{
-					case "_xlnm":
-
-						break;
-				}
-			}
-			else if (!string.IsNullOrEmpty(defName.address))
+			if (!string.IsNullOrEmpty(defName.address))
 			{
 				// TODO: real workbook scope name
-				ReadNamedRangeAddr(rgBook, name, defName.address, !string.IsNullOrEmpty(defName.localSheetId));
+				ReadNamedRangeAddr(rgBook, defName.name, defName.address, !string.IsNullOrEmpty(defName.localSheetId));
 			}
 		}
 

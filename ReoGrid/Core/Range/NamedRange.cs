@@ -165,13 +165,7 @@ namespace unvell.ReoGrid
 		/// <returns>true if specified name exists and the instance of range has been returned from spreadsheet, otherwise false</returns>
 		public bool TryGetNamedRange(string name, out NamedRange namedRange)
 		{
-			if (!RGUtility.IsValidName(name))
-			{
-				namedRange = null;
-				return false;
-			}
-			else
-				return registeredNamedRanges.TryGetValue(name, out namedRange);
+			return registeredNamedRanges.TryGetValue(name, out namedRange);
 		}
 
 		internal bool TryGetNamedRangePosition(string name, out RangePosition range)

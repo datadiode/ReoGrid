@@ -374,17 +374,6 @@ namespace unvell.ReoGrid.Formula
 
 				return id;
 			}
-			else if (lexer.SkipToken("."))
-			{
-				var id = ReadPrimary(lexer);
-
-				if (id.Type != STNodeType.IDENTIFIER)
-				{
-					throw CreateException(lexer, "expect identifier");
-				}
-
-				return id;
-			}
 			else
 			{
 				return node;
@@ -525,7 +514,7 @@ namespace unvell.ReoGrid.Formula
 			+ "|(?<range>\\$?[A-Z]+\\$?[0-9]*:\\$?[A-Z]+\\$?[0-9]*)"
 			+ "|(?<cell>\\$?[A-Z]+\\$?[0-9]+)"
 			+ "|(?<token>[\\-\\+])|(?<number>\\-?\\d*\\.?\\d+)"
-			+ "|(?<true>(?i)TRUE)|(?<false>(?i)FALSE)|(?<identifier>\\w+|'(?:''|[^'])*')"
+			+ "|(?<true>(?i)TRUE)|(?<false>(?i)FALSE)|(?<identifier>\\w[\\w\\.]*|'(?:''|[^'])*')"
 			+ "|(?<token>\\=\\=|\\<\\>|\\<\\=|\\>\\=|\\<\\>|[\\=\\!\\.\\,\\+\\-\\*\\/\\%\\<\\>\\(\\)\\&\\^]))",
 			RegexOptions.Compiled);
 
