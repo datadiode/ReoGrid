@@ -124,6 +124,17 @@ namespace unvell.ReoGrid.Editor
 			return path;
 		}
 
+		private string OdfConverter()
+		{
+			string path = null;
+			// Assume that OdfConverter.exe is bundled with B2XTranslator
+			if (b2xtranslate != null)
+			{
+				path = Path.Combine(b2xtranslate, "OdfConverter.exe");
+			}
+			return path;
+		}
+
 		public void ParseArguments(IList arguments)
 		{
 			int i;
@@ -1643,6 +1654,27 @@ namespace unvell.ReoGrid.Editor
 								{
 									path = file;
 								}
+								arg = grid.Load(path, IO.FileFormat.Excel2007, Encoding.Default);
+								File.Delete(path);
+								header.Text = Path.ChangeExtension(loadFrom, Path.GetExtension(path));
+							}
+						}
+						else if ((IsFileType(loadFrom, ".ods") ? ".xlsx" : IsFileType(loadFrom, ".ots") ? ".xltx" : null) is string ext)
+						{
+							var exe = OdfConverter();
+							if (exe != null)
+							{
+								var name = Guid.NewGuid().ToString() + ext;
+								var temp = Path.GetTempPath();
+								var path = Path.Combine(temp, name);
+								var psi = new ProcessStartInfo(exe, "/ODS2XLSX /I \"" + loadFrom + "\" /O \"" + path + "\"")
+								{
+									CreateNoWindow = true,
+									UseShellExecute = false,
+								};
+								var process = Process.Start(psi);
+								process.WaitForExit();
+								process.Close();
 								arg = grid.Load(path, IO.FileFormat.Excel2007, Encoding.Default);
 								File.Delete(path);
 								header.Text = Path.ChangeExtension(loadFrom, Path.GetExtension(path));
