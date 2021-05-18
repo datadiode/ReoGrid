@@ -18,12 +18,12 @@ build:
   project: Demo.sln
 
 after_build:
-- ps: $env:PRODUCT_VERSION=(Get-Command "$env:APPVEYOR_BUILD_FOLDER\ReoGrid\bin\$env:CONFIGURATION\unvell.ReoGrid.dll").FileVersionInfo.ProductVersion
+- ps: $env:PRODUCT_VERSION=(Get-Command "$env:APPVEYOR_BUILD_FOLDER\ReoGrid\bin\$env:CONFIGURATION\net40\unvell.ReoGrid.dll").FileVersionInfo.ProductVersion
 
 artifacts:
-- path: Compare\bin\$(configuration)
+- path: Compare\bin\$(configuration)\net40
   name: ReoGridCompare_$(PRODUCT_VERSION)-$(configuration)
-- path: Editor\bin\$(configuration)
+- path: Editor\bin\$(configuration)\net40
   name: ReoGridEditor_$(PRODUCT_VERSION)-$(configuration)
-- path: Demo\bin\$(configuration)
+- path: Demo\bin\$(configuration)\net40
   name: ReoGridDemo_$(PRODUCT_VERSION)-$(configuration)
