@@ -571,6 +571,11 @@ namespace unvell.ReoGrid.Rendering
 
 			if (sheet == null) return;
 
+			if (cell.formattedText == null)
+			{
+				UpdateCellRenderFont(cell, Core.UpdateFontReason.FontChanged);
+			}
+
 			if (cell.InnerStyle.RotationAngle != 0)
 			{
 				System.Windows.Media.Matrix m = System.Windows.Media.Matrix.Identity;
@@ -613,7 +618,7 @@ namespace unvell.ReoGrid.Rendering
 		public void UpdateCellRenderFont(Cell cell, Core.UpdateFontReason reason)
 		{
 			var sheet = cell.Worksheet;
-			if (sheet == null || sheet.controlAdapter == null) return;
+			if (sheet == null || sheet.controlAdapter == null || cell.InnerDisplay == null) return;
 
 			double dpi = PlatformUtility.GetDPI();
 			double fontSize = cell.InnerStyle.FontSize * sheet.renderScaleFactor * dpi / 72.0;
