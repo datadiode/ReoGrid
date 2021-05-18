@@ -129,7 +129,7 @@ namespace unvell.ReoGrid
 				BufferLines = bufferLines,
 				TargetRange = targetRange,
 			};
-			controlAdapter.ChangeCursor(CursorStyle.Busy);
+			this.controlAdapter?.ChangeCursor(CursorStyle.Busy);
 			try
 			{
 				CSVFileFormatProvider csvProvider = new CSVFileFormatProvider();
@@ -138,7 +138,7 @@ namespace unvell.ReoGrid
 			}
 			finally
 			{
-				this.controlAdapter.ChangeCursor(CursorStyle.PlatformDefault);
+				this.controlAdapter?.ChangeCursor(CursorStyle.PlatformDefault);
 			}
 			return arg;
 		}
