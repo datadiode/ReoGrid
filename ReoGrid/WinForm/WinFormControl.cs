@@ -49,6 +49,7 @@ using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
 using WFRect = System.Drawing.Rectangle;
 using unvell.ReoGrid.WinForm;
+using System.Text.RegularExpressions;
 
 namespace unvell.ReoGrid
 {
@@ -518,6 +519,9 @@ namespace unvell.ReoGrid
 
 			public void SetEditControlText(string text)
 			{
+				// Normalize line breaks (https://github.com/PowerShell/platyPS)
+				text = Regex.Replace(text, "\r\n?|\n", "\r\n");
+
 				bool sameBeforeChange = editTextbox.Text == text;
 
 				editTextbox.Text = text;
@@ -531,7 +535,7 @@ namespace unvell.ReoGrid
 
 			public string GetEditControlText()
 			{
-				return editTextbox.Text;
+				return editTextbox.Text.Replace("\r\n", "\n");
 			}
 
 			public void EditControlSelectAll()
