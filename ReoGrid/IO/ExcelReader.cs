@@ -1548,6 +1548,17 @@ namespace unvell.ReoGrid.IO.OpenXML
 				pattern = pattern.Substring(5);
 			}
 
+			if (pattern.StartsWith("\\(") && pattern.EndsWith("\\)"))
+			{
+				// add bracket style
+				arg.NegativeStyle |= NumberDataFormatter.NumberNegativeStyle.Brackets;
+
+				// remove minus symbol
+				arg.NegativeStyle &= ~NumberDataFormatter.NumberNegativeStyle.Minus;
+
+				pattern = pattern.Substring(2, pattern.Length - 4);
+			}
+
 			int i, j;
 			while ((i = pattern.IndexOf('"')) != -1 && (j = pattern.IndexOf('"', i + 1)) != -1)
 			{
@@ -1562,6 +1573,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 						// remove minus symbol
 						arg.NegativeStyle &= ~NumberDataFormatter.NumberNegativeStyle.Minus;
 					}
+					else if (enquoted == "$")
+					{
+						arg.NegativeStyle |= NumberDataFormatter.NumberNegativeStyle.DollarSymbol;
+					}
 					else
 					{
 						arg.CustomNegativePrefix = enquoted;
@@ -1572,17 +1587,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 					arg.CustomNegativePostfix = enquoted;
 				}
 				pattern = pattern.Remove(i, j + 1 - i);
-			}
-
-			if (pattern.StartsWith("(") && pattern.EndsWith(")"))
-			{
-				// add bracket style
-				arg.NegativeStyle |= NumberDataFormatter.NumberNegativeStyle.Brackets;
-
-				// remove minus symbol
-				arg.NegativeStyle &= ~NumberDataFormatter.NumberNegativeStyle.Minus;
-
-				pattern = pattern.Substring(1, pattern.Length - 2);
 			}
 
 			pattern = pattern.Replace("_0", "");
@@ -1728,14 +1732,20 @@ namespace unvell.ReoGrid.IO.OpenXML
 								string enquoted = pattern.Substring(i + 1, j - i - 1);
 								if (enquoted.StartsWith("$-"))
 								{
-									int culture = 0;
-									if (int.TryParse(enquoted.Substring(2), NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out culture))
-										darg.CultureName = (new CultureInfo(culture & 0xFFFF)).IetfLanguageTag;
-
+									if (int.TryParse(enquoted.Substring(2), NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out var culture))
+									{
+										if (culture == 0xF800)
+											darg.Format = "D";
+										else if (culture == 0xF400)
+											darg.Format = "T";
+										else
+											darg.CultureName = (new CultureInfo(culture & 0xFFFF)).IetfLanguageTag;
+									}
 								}
 								pattern = pattern.Remove(i, j + 1 - i);
 							}
-							darg.Format = pattern;
+							if (darg.Format == null)
+								darg.Format = pattern;
 							arg = darg;
 						}
 						else

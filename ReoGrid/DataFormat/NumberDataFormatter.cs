@@ -87,19 +87,11 @@ namespace unvell.ReoGrid.DataFormat
 
 				var numberPart = FormatNumberCellAndGetPattern(cell, ref value, arg);
 
-				string prefix = null;
-				string postfix = null;
-
-				if (arg is NumberFormatArgs nargs)
-				{
-					prefix = nargs.CustomNegativePrefix;
-					postfix = nargs.CustomNegativePostfix;
-				}
-
-				if (arg != null
+				if (value < 0
+					&& arg is NumberFormatArgs nargs
 					&& (arg.NegativeStyle & NumberNegativeStyle.CustomSymbol) == NumberNegativeStyle.CustomSymbol)
 				{
-					numberPart = (value < 0) ? (prefix + numberPart + postfix) : numberPart;
+					numberPart = nargs.CustomNegativePrefix + numberPart + nargs.CustomNegativePostfix;
 				}
 
 				return value.ToString(numberPart);
@@ -130,6 +122,15 @@ namespace unvell.ReoGrid.DataFormat
 				negativeStyle = arg.NegativeStyle;
 			}
 
+			// decimal places
+			string decimalPlacePart = new string('0', decimals);
+
+			// number
+			string numberPart = (useSeparator ? "#,##0." : "0.") + decimalPlacePart;
+			if ((negativeStyle & NumberNegativeStyle.CustomSymbol) == NumberNegativeStyle.DollarSymbol)
+			{
+				numberPart = "$" + numberPart;
+			}
 			if (value < 0)
 			{
 				if ((negativeStyle & NumberNegativeStyle.Red) != 0)
@@ -140,28 +141,19 @@ namespace unvell.ReoGrid.DataFormat
 				{
 					cell.RenderColor = SolidColor.Transparent;
 				}
+				if ((negativeStyle & NumberNegativeStyle.Brackets) != 0)
+				{
+					numberPart = "(" + numberPart + ")";
+				}
+				else if ((negativeStyle & NumberNegativeStyle.Prefix_Sankaku) != 0)
+				{
+					numberPart = "▲ " + numberPart;
+				}
+				if ((negativeStyle & NumberNegativeStyle.Minus) == 0)
+				{
+					value = Math.Abs(value);
+				}
 			}
-
-			// decimal places
-			string decimalPlacePart = new string('0', decimals);
-
-			// number
-			string numberPart = (useSeparator ? "#,##0." : "0.") + decimalPlacePart;
-			if ((negativeStyle & NumberNegativeStyle.Brackets) == NumberNegativeStyle.Brackets)
-			{
-				numberPart = (value < 0) ? ("(" + numberPart + ")") : numberPart;
-			}
-			else if ((negativeStyle & NumberNegativeStyle.Prefix_Sankaku) == NumberNegativeStyle.Prefix_Sankaku)
-			{
-				numberPart = (value < 0) ? ("▲ " + numberPart) : numberPart;
-			}
-
-			// negative
-			if ((negativeStyle & NumberNegativeStyle.Minus) == 0)
-			{
-				value = Math.Abs(value);
-			}
-
 			return numberPart;
 		}
 
@@ -364,6 +356,11 @@ namespace unvell.ReoGrid.DataFormat
 			/// Set custom prefix and/or postfix for negative numbers.
 			/// </summary>
 			CustomSymbol = 0xf0,
+
+			/// <summary>
+			/// Set dollar symbol.
+			/// </summary>
+			DollarSymbol = 0xc0,
 		}
 
 		/// <summary>
