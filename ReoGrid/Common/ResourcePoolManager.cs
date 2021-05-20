@@ -280,15 +280,17 @@ namespace unvell.Common
 
 			if (family == null)
 			{
-				try
+				// https://social.msdn.microsoft.com/Forums/vstudio/en-US/c10e08a0-6dd9-4619-8f1e-c8c81113102c
+				using (var tmpfont = new WFFont(familyName, 10))
 				{
-					family = new System.Drawing.FontFamily(familyName);
-				}
-				catch (ArgumentException ex)
-				{
-					//throw new FontNotFoundException(ex.ParamName);
-					family = System.Drawing.SystemFonts.DefaultFont.FontFamily;
-					Logger.Log("resource pool", "font family error: " + familyName + ": " + ex.Message);
+					if (string.Compare(tmpfont.Name, familyName, StringComparison.InvariantCultureIgnoreCase) == 0)
+					{
+						family = new System.Drawing.FontFamily(familyName);
+					}
+					else
+					{
+						family = System.Drawing.SystemFonts.DefaultFont.FontFamily;
+					}
 				}
 
 				if (!family.IsStyleAvailable(wfs))
