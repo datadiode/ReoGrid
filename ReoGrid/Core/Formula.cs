@@ -354,6 +354,8 @@ namespace unvell.ReoGrid
 				return;
 			}
 
+			cell.InnerData = String.Empty; // protects against circular references
+
 			object value = null;
 
 			if (cell.formulaStatus != FormulaStatus.CircularReference
