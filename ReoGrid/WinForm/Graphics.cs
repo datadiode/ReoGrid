@@ -60,7 +60,7 @@ namespace unvell.ReoGrid.WinForm
 		{
 			this.sf = new StringFormat(StringFormat.GenericTypographic)
 			{
-				FormatFlags = StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.FitBlackBox
+				FormatFlags = StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.FitBlackBox | StringFormatFlags.NoClip
 			};
 		}
 
@@ -746,10 +746,18 @@ namespace unvell.ReoGrid.WinForm
 
 						case ReoGridRenderHorAlign.Center:
 							sf.Alignment = System.Drawing.StringAlignment.Center;
+							if (scaledFont.Italic)
+							{
+								textBounds.X -= scaledFont.Size / 6;
+							}
 							break;
 
 						case ReoGridRenderHorAlign.Right:
 							sf.Alignment = System.Drawing.StringAlignment.Far;
+							if (scaledFont.Italic)
+							{
+								textBounds.X -= scaledFont.Size / 3;
+							}
 							break;
 					}
 
