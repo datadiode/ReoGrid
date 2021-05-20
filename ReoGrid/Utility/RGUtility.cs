@@ -58,6 +58,9 @@ namespace unvell.ReoGrid
 		/// <returns>alphabet of number</returns>
 		public static string GetAlphaChar(long a)
 		{
+			if (a < 0)
+				return null;
+
 			char[] v = new char[10];
 
 			int i = 9;
