@@ -162,7 +162,7 @@ namespace unvell.ReoGrid
 		}
 
 		public ReferenceRange(Worksheet worksheet, CellPosition startPos, CellPosition endPos)
-			: this(worksheet, worksheet.CreateAndGetCell(startPos), worksheet.CreateAndGetCell(endPos))
+			: this(worksheet, worksheet.CreateAndGetCell(worksheet.FixPos(startPos)), worksheet.CreateAndGetCell(worksheet.FixPos(endPos)))
 		{
 		}
 
@@ -173,7 +173,7 @@ namespace unvell.ReoGrid
 		}
 
 		public ReferenceRange(Worksheet worksheet, RangePosition range)
-			: this(worksheet, worksheet.CreateAndGetCell(range.StartPos), worksheet.CreateAndGetCell(range.EndPos))
+			: this(worksheet, range.StartPos, range.EndPos)
 		{
 			// construct from range position
 		}
