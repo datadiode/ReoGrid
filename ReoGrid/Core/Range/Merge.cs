@@ -199,14 +199,14 @@ namespace unvell.ReoGrid
 
 			for (int r = row; r <= torow; r++)
 			{
-				for (int c = col; c <= tocol; c++)
+				for (int c = col; c <= tocol; )
 				{
 					Cell cell = CreateAndGetCell(r, c);
+					c += Math.Max(1, (int)cell.Colspan); // saves some redundant work
 
 					if (cell.Colspan > 1 || cell.Rowspan > 1)
 					{
 						UnmergeCell(cell);
-						c += cell.Colspan;
 					}
 				}
 			}
