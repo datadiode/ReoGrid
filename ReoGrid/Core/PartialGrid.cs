@@ -340,6 +340,19 @@ namespace unvell.ReoGrid
 		}
 
 		/// <summary>
+		/// Copy a part of worksheet from specified range that identified by address value.
+		/// </summary>
+		/// <param name="row">Number of start row.</param>
+		/// <param name="col">Number of start col.</param>
+		/// <param name="rows">Number of rows to be copied.</param>
+		/// <param name="cols">Number of columns to be copied.</param>
+		/// <returns>A part of worksheet that is copied from original worksheet.</returns>
+		public PartialGrid GetPartialGrid(int row, int col, int rows, int cols)
+		{
+			return GetPartialGrid(new RangePosition(row, col, rows, cols));
+		}
+
+		/// <summary>
 		/// Copy a part of worksheet from specified range.
 		/// </summary>
 		/// <param name="range">The range to be copied.</param>
@@ -553,24 +566,21 @@ namespace unvell.ReoGrid
 								// from cell inside existed merged range
 								// these two ranges should be merged
 								// the original range must be expanded
-								Cell fromMergedStart = CreateAndGetCell(fromCell.MergeStartPos);
-								fromMergedStart.MergeEndPos = new CellPosition(fromMergedStart.MergeEndPos.Row, tc);
-								fromMergedStart.Colspan = (short)(tc - fromMergedStart.InternalCol + 1);
+								var mergedStartCell = CreateAndGetCell(fromCell.MergeStartPos);
+								mergedStartCell.Colspan = (short)(tc - mergedStartCell.InternalCol + 1);
 
-								for (int ic = fromMergedStart.InternalCol; ic < fromMergedStart.InternalCol + fromMergedStart.Colspan; ic++)
-								{
-									var insideCell = cells[tr, ic];
-									if (insideCell != null)
-									{
-										insideCell.MergeEndPos = new CellPosition(insideCell.MergeEndPos.Row, tc);
-									}
-								}
-
-								Cell tocell = CreateAndGetCell(tr, tc);
-								tocell.MergeStartPos = fromMergedStart.InternalPos;
-								tocell.MergeEndPos = new CellPosition(fromMergedStart.MergeEndPos.Row, tc);
-								tocell.Colspan = 0;
+								var tocell = CreateAndGetCell(tr, tc);
+								tocell.MergeStartPos = mergedStartCell.InternalPos;
+								tocell.MergeEndPos = new CellPosition(mergedStartCell.MergeEndPos.Row, tc);
 								tocell.Rowspan = 0;
+								tocell.Colspan = 0;
+
+								for (int ic = fromCell.MergeStartPos.Col; ic < tc; ic++)
+								{
+									var existedCell = CreateAndGetCell(tr, ic);
+									existedCell.MergeStartPos = tocell.MergeStartPos;
+									existedCell.MergeEndPos = tocell.MergeEndPos;
+								}
 
 								processed = true;
 
@@ -600,6 +610,7 @@ namespace unvell.ReoGrid
 								{
 									var existedEndCell = CreateAndGetCell(tr, ic);
 									existedEndCell.MergeStartPos = tocell.MergeStartPos;
+									existedEndCell.MergeEndPos = tocell.MergeEndPos;
 									existedEndCell.Rowspan = 0;
 									existedEndCell.Colspan = 0;
 								}
@@ -634,17 +645,18 @@ namespace unvell.ReoGrid
 								var mergedStartCell = CreateAndGetCell(fromCell.MergeStartPos);
 								mergedStartCell.Rowspan = (short)(tr - mergedStartCell.InternalRow + 1);
 
-								for (int ir = fromCell.MergeStartPos.Row; ir < tr; ir++)
-								{
-									var existedCell = CreateAndGetCell(ir, tc);
-									existedCell.MergeEndPos = new CellPosition(tr, fromCell.MergeEndPos.Col);
-								}
-
 								var tocell = CreateAndGetCell(tr, tc);
 								tocell.MergeStartPos = mergedStartCell.InternalPos;
 								tocell.MergeEndPos = new CellPosition(tr, fromCell.MergeEndPos.Col);
 								tocell.Rowspan = 0;
 								tocell.Colspan = 0;
+
+								for (int ir = fromCell.MergeStartPos.Row; ir < tr; ir++)
+								{
+									var existedCell = CreateAndGetCell(ir, tc);
+									existedCell.MergeStartPos = tocell.MergeStartPos;
+									existedCell.MergeEndPos = tocell.MergeEndPos;
+								}
 
 								processed = true;
 							}
@@ -664,17 +676,18 @@ namespace unvell.ReoGrid
 								// need to update existed range at right side
 								int bottomRow = Math.Min(fromCell.MergeEndPos.Row, this.rows.Count - 1);
 
-								for (int ir = toRange.EndRow + 1; ir <= bottomRow; ir++)
-								{
-									var existedEndCell = CreateAndGetCell(ir, tc);
-									existedEndCell.MergeStartPos = new CellPosition(fromCell.MergeStartPos.Row, existedEndCell.MergeStartPos.Col);
-									existedEndCell.Rowspan = 0;
-									existedEndCell.Colspan = 0;
-								}
-
 								Cell tocell = CreateAndGetCell(tr, tc);
 								tocell.MergeStartPos = fromCell.MergeStartPos;
 								tocell.MergeEndPos = new CellPosition(bottomRow, fromCell.MergeEndPos.Col);
+
+								for (int ir = toRange.EndRow + 1; ir <= bottomRow; ir++)
+								{
+									var existedEndCell = CreateAndGetCell(ir, tc);
+									existedEndCell.MergeStartPos = tocell.MergeStartPos;
+									existedEndCell.MergeEndPos = tocell.MergeEndPos;
+									existedEndCell.Rowspan = 0;
+									existedEndCell.Colspan = 0;
+								}
 
 								if (tocell.IsStartMergedCell)
 								{
