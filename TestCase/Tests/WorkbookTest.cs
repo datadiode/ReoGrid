@@ -118,10 +118,12 @@ namespace unvell.ReoGrid.Tests.TestCases
 				AssertSame(wb.Worksheets[1]["B1"], 10);
 
 				wb.Worksheets[0]["A1"] = 20;
+				wb.Recalculate();
 				AssertSame(wb.Worksheets[0]["B1"], 20);
 				AssertSame(wb.Worksheets[1]["B1"], 10);
 
 				wb.Worksheets[1]["A1"] = 30;
+				wb.Recalculate();
 				AssertSame(wb.Worksheets[0]["B1"], 20);
 				AssertSame(wb.Worksheets[1]["B1"], 30);
 			}
@@ -149,10 +151,12 @@ namespace unvell.ReoGrid.Tests.TestCases
 				AssertSame(wb.Worksheets[1]["B1"], 10);
 
 				wb.Worksheets[0]["A1"] = 20;
+				wb.Recalculate();
 				AssertSame(wb.Worksheets[0]["B1"], 20);
 				AssertSame(wb.Worksheets[1]["B1"], 20);
 
 				wb.Worksheets[1]["A1"] = 30;
+				wb.Recalculate();
 				AssertSame(wb.Worksheets[0]["B1"], 20);
 				AssertSame(wb.Worksheets[1]["B1"], 20);
 			}

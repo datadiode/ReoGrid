@@ -48,11 +48,13 @@ namespace unvell.ReoGrid.Tests
 			worksheet["C1"] = 10;
 			worksheet["D1"] = "=C1";
 			worksheet["C1"] = 20;
+			Grid.Recalculate();
 			AssertSame(worksheet["D1"], 20);
 
 			// formula before value
 			worksheet["D1"] = "=E1";
 			worksheet["E1"] = 30;
+			Grid.Recalculate();
 			AssertSame(worksheet["D1"], 30);
 		}
 
@@ -99,6 +101,7 @@ namespace unvell.ReoGrid.Tests
 			worksheet["B1"] = 0.625;
 			worksheet["C1"] = "=FLOOR(SIN(B1)*100000)";
 			worksheet["B1"] = 1.25;
+			Grid.Recalculate();
 			AssertSame(worksheet["C1"], 94898);
 		}
 
@@ -155,14 +158,15 @@ namespace unvell.ReoGrid.Tests
 		[TestCase]
 		void CrossWorksheetReference()
 		{
-			var sheet2 = this.Grid.CreateWorksheet();
-			this.Grid.AddWorksheet(sheet2);
+			var sheet2 = Grid.CreateWorksheet();
+			Grid.AddWorksheet(sheet2);
 
 			sheet2["A1"] = 10;
 			worksheet["K1"] = string.Format("={0}!{1}", sheet2.Name, "A1");
 			AssertSame(worksheet["K1"], 10);
 
 			sheet2["A1"] = 20;
+			Grid.Recalculate();
 			AssertSame(worksheet["K1"], 20);
 		}
 
@@ -266,7 +270,6 @@ namespace unvell.ReoGrid.Tests
 
 			// check result
 			AssertSame(worksheet["F2"], 2);
-
 		}
 
 		[TestCase]
@@ -274,12 +277,12 @@ namespace unvell.ReoGrid.Tests
 		{
 			FormulaExtension.CustomFunctions["CountEvenNumber"] = (cell, args) =>
 			{
-				if (args.Length < 1 || !(args[0] is RangePosition))
+				if (args.Length < 1 || !(args[0] is ReferenceRange))
 				{
 					return null;
 				}
 
-				RangePosition range = (RangePosition)args[0];
+				ReferenceRange range = (ReferenceRange)args[0];
 
 				int count = 0;
 
@@ -304,7 +307,6 @@ namespace unvell.ReoGrid.Tests
 
 			worksheet["G2:K3"] = new object[] { 1, 2, 5, 7, 8, 10, 12, 15, 16, 19 };
 			worksheet["L2"] = "=CountEvenNumber(G2:K3)";
-
 			AssertSame(worksheet["L2"], 5);
 		}
 
@@ -363,6 +365,7 @@ namespace unvell.ReoGrid.Tests
 			AssertSame(cell3.Data, 1000); // 200 * 5 = 1000
 
 			cell2.Data = "5%";
+			Grid.Recalculate();
 			AssertSame(cell3.Data, 10); // 200 * 5% = 200 * 0.05 = 10
 		}
 
@@ -373,9 +376,9 @@ namespace unvell.ReoGrid.Tests
 
 			// This feature is reserved in 0.8.8,
 			// just make sure there is no exceptions happen during parsing formula
-			this.Grid.ExceptionHappened += Grid_ExceptionHappened;
+			Grid.ExceptionHappened += Grid_ExceptionHappened;
 			worksheet["G4"] = "=Sheet1!F4";
-			this.Grid.ExceptionHappened -= Grid_ExceptionHappened;
+			Grid.ExceptionHappened -= Grid_ExceptionHappened;
 
 			// Reserved
 			// AssertSame(worksheet["G4"], 10);
@@ -388,9 +391,9 @@ namespace unvell.ReoGrid.Tests
 
 			// This feature is reserved in 0.8.8,
 			// just make sure there is no exceptions happen during parsing formula
-			this.Grid.ExceptionHappened += Grid_ExceptionHappened;
+			Grid.ExceptionHappened += Grid_ExceptionHappened;
 			worksheet["I4"] = "=SUM(Sheet1!F4:H4)";
-			this.Grid.ExceptionHappened -= Grid_ExceptionHappened;
+			Grid.ExceptionHappened -= Grid_ExceptionHappened;
 
 			// Reserved
 			// AssertSame(worksheet["I4"], 40);
@@ -399,7 +402,7 @@ namespace unvell.ReoGrid.Tests
 		[TestCase]
 		void FunctionNamespaceExtension()
 		{
-			unvell.ReoGrid.Formula.FormulaExtension.CustomFunctions["funcNsEx"] = (cell, args) =>
+			unvell.ReoGrid.Formula.FormulaExtension.CustomFunctions["X.funcNsEx"] = (cell, args) =>
 			{
 				return 1;
 			};

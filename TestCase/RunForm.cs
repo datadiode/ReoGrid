@@ -29,6 +29,7 @@ using unvell.Common;
 using unvell.Common.Win32Lib;
 using unvell.ReoGrid;
 using unvell.ReoGrid.WinForm;
+using System.Threading;
 
 namespace unvell.ReoGrid.Tests
 {
@@ -128,7 +129,7 @@ namespace unvell.ReoGrid.Tests
 				borderDebug.Show();
 				borderDebug.Location = new Point(this.Right + 1, cellDebug.Bottom + 1);
 			}
-			else
+			else if (item.ImageIndex != 2)
 			{
 				item.SubItems[2].Text = "Success";
 				item.ImageIndex = 1;
@@ -260,6 +261,7 @@ namespace unvell.ReoGrid.Tests
 
 		public override void SetUp()
 		{
+			Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
 			if (worksheet != null) worksheet.Reset();
 		}
 

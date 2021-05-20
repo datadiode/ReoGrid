@@ -28,9 +28,7 @@ namespace unvell.ReoGrid.Tests
 	[TestSet]
 	class ExcelInTest : ReoGridTestSet
 	{
-		const string XlsxPath = "..\\..\\xlsx";
-
-		static string GetExcelFileName(string name){return string.Format("{0}\\{1}.xlsx", XlsxPath, name);}
+		static string GetExcelFileName(string name) => $"..\\..\\..\\xlsx\\{name}.xlsx";
 
 		[TestCase]
 		void A01_BasicCellValue()
@@ -84,6 +82,7 @@ namespace unvell.ReoGrid.Tests
 			AssertSame(this.Grid.Worksheets[0]["A10"], 10);
 
 			this.Grid.Worksheets["Sheet2"]["A1"] = 20;
+			this.Grid.Recalculate();
 			AssertSame(this.Grid.Worksheets[0]["A10"], 20);
 			#endregion // cross worksheet reference
 		}

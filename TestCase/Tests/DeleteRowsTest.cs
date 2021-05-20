@@ -269,10 +269,10 @@ namespace unvell.ReoGrid.Tests
 		{
 			SetUp(20, 20);
 
-			worksheet.Rows = 3;
+			worksheet.RowCount = 3;
 			worksheet.SetRangeBorders(RangePosition.EntireRange, BorderPositions.All, RangeBorderStyle.BlackSolid);
 
-			worksheet.Rows = 1;
+			worksheet.RowCount = 1;
 			worksheet.AppendRows(1);
 			worksheet.AppendRows(1);
 			worksheet.AppendRows(1);

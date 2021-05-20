@@ -248,7 +248,7 @@ namespace unvell.ReoGrid.Tests
 			worksheet[8, 2] = pg;
 			AssertTrue(worksheet._Debug_Validate_All());
 			AssertEquals(worksheet.GetCell(8, 2).GetColspan(), (short)4);
-			AssertEquals(worksheet.GetCell(8, 2).GetRowspan(), (short)2);
+			AssertEquals(worksheet.GetCell(8, 2).GetRowspan(), (short)2);/**/
 
 			// single left
 			worksheet.MergeRange(12, 2, 1, 4);
@@ -256,7 +256,7 @@ namespace unvell.ReoGrid.Tests
 			worksheet[12, 2] = pg;
 			AssertTrue(worksheet._Debug_Validate_All());
 			AssertEquals(worksheet.GetCell(12, 2).GetColspan(), (short)4);
-			AssertEquals(worksheet.GetCell(12, 2).GetRowspan(), (short)1);
+			AssertEquals(worksheet.GetCell(12, 2).GetRowspan(), (short)1);/**/
 		}
 
 		[TestCase]
@@ -288,7 +288,7 @@ namespace unvell.ReoGrid.Tests
 			worksheet[2, 8] = pg;
 			AssertTrue(worksheet._Debug_Validate_All());
 			AssertEquals(worksheet.GetCell(2, 8).GetColspan(), (short)2);
-			AssertEquals(worksheet.GetCell(2, 8).GetRowspan(), (short)4);
+			AssertEquals(worksheet.GetCell(2, 8).GetRowspan(), (short)4);/**/
 
 			// single top
 			worksheet.MergeRange(2, 12, 4, 1);
@@ -296,8 +296,7 @@ namespace unvell.ReoGrid.Tests
 			worksheet[2, 12] = pg;
 			AssertTrue(worksheet._Debug_Validate_All());
 			AssertEquals(worksheet.GetCell(2, 12).GetColspan(), (short)1);
-			AssertEquals(worksheet.GetCell(2, 12).GetRowspan(), (short)4);
-
+			AssertEquals(worksheet.GetCell(2, 12).GetRowspan(), (short)4);/**/
 		}
 
 		[TestCase]
