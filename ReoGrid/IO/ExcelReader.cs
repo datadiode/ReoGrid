@@ -776,6 +776,23 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 					#endregion // Cell Style, Border
 
+					#region Data Format
+
+					if (style != null)
+					{
+						int numFormatId = 0;
+
+						if (rgCell.DataFormat == CellDataFormatFlag.General
+							//&& style.applyNumberFormat == "1" 
+							&& !string.IsNullOrEmpty(style.numberFormatId)
+							&& int.TryParse(style.numberFormatId, out numFormatId))
+						{
+							rgCell.DataFormat = SetRGSheetDataFormat(rgSheet, rgCell, numFormatId, styles);
+						}
+					}
+
+					#endregion // Data Format
+
 					#region Cell Value
 #if DEBUG
 					swValue.Start();
@@ -813,7 +830,28 @@ namespace unvell.ReoGrid.IO.OpenXML
 						}
 						else
 						{
-							rgCell.InnerData = cell.value.val;
+							switch (rgCell.DataFormat)
+							{
+								case CellDataFormatFlag.Number:
+								case CellDataFormatFlag.Currency:
+								case CellDataFormatFlag.Percent:
+									if (double.TryParse(cell.value.val, ExcelWriter.Number,
+										ExcelWriter.EnglishCulture, out var numval))
+									{
+										rgCell.InnerData = numval;
+									}
+									break;
+								case CellDataFormatFlag.DateTime:
+									if (double.TryParse(cell.value.val, ExcelWriter.Number,
+										ExcelWriter.EnglishCulture, out numval))
+									{
+										rgCell.InnerData = DateTime.FromOADate(numval);
+									}
+									break;
+								default:
+									rgCell.InnerData = cell.value.val;
+									break;
+							}
 						}
 					}
 
@@ -823,24 +861,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 #endregion // Cell Value
 
-#region Data Format
-
-					if (style != null)
-					{
-						int numFormatId = 0;
-
-						if (rgCell.DataFormat == CellDataFormatFlag.General
-							//&& style.applyNumberFormat == "1" 
-							&& !string.IsNullOrEmpty(style.numberFormatId)
-							&& int.TryParse(style.numberFormatId, out numFormatId))
-						{
-							rgCell.DataFormat = SetRGSheetDataFormat(rgSheet, rgCell, numFormatId, styles);
-						}
-					}
-
 					DataFormatterManager.Instance.FormatCell(rgCell, ExcelWriter.EnglishCulture);
-
-#endregion // Data Format
 
 #region Cell Formula
 #if FORMULA
@@ -1548,7 +1569,16 @@ namespace unvell.ReoGrid.IO.OpenXML
 				pattern = pattern.Substring(5);
 			}
 
-			if (pattern.StartsWith("\\(") && pattern.EndsWith("\\)"))
+			try
+			{
+				pattern = Regex.Unescape(pattern);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
+			}
+
+			if (pattern.StartsWith("(") && pattern.EndsWith(")"))
 			{
 				// add bracket style
 				arg.NegativeStyle |= NumberDataFormatter.NumberNegativeStyle.Brackets;
@@ -1556,14 +1586,15 @@ namespace unvell.ReoGrid.IO.OpenXML
 				// remove minus symbol
 				arg.NegativeStyle &= ~NumberDataFormatter.NumberNegativeStyle.Minus;
 
-				pattern = pattern.Substring(2, pattern.Length - 4);
+				pattern = pattern.Substring(1, pattern.Length - 2);
 			}
 
 			int i, j;
 			while ((i = pattern.IndexOf('"')) != -1 && (j = pattern.IndexOf('"', i + 1)) != -1)
 			{
 				string enquoted = pattern.Substring(i + 1, j - i - 1);
-				if (i == 0)
+				pattern = pattern.Remove(i, j + 1 - i);
+				if (i < pattern.Length)
 				{
 					if (enquoted == "▲ ")
 					{
@@ -1586,7 +1617,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 				{
 					arg.CustomNegativePostfix = enquoted;
 				}
-				pattern = pattern.Remove(i, j + 1 - i);
 			}
 
 			pattern = pattern.Replace("_0", "");
