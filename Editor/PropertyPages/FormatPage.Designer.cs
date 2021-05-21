@@ -200,7 +200,7 @@ namespace unvell.ReoGrid.PropertyPages
 			this.numberPanel.Controls.Add(this.labDecimalPlacesNum);
 			this.numberPanel.Location = new System.Drawing.Point(668, 3);
 			this.numberPanel.Name = "numberPanel";
-			this.numberPanel.Size = new System.Drawing.Size(393, 199);
+			this.numberPanel.Size = new System.Drawing.Size(393, 237);
 			this.numberPanel.TabIndex = 8;
 			// 
 			// chkNumberUseSeparator
@@ -225,7 +225,7 @@ namespace unvell.ReoGrid.PropertyPages
 			this.currencyPanel.Controls.Add(this.labDecimalPlacesCurrency);
 			this.currencyPanel.Location = new System.Drawing.Point(668, 209);
 			this.currencyPanel.Name = "currencyPanel";
-			this.currencyPanel.Size = new System.Drawing.Size(393, 184);
+			this.currencyPanel.Size = new System.Drawing.Size(393, 237);
 			this.currencyPanel.TabIndex = 8;
 			// 
 			// currencySymbolList
@@ -346,7 +346,7 @@ namespace unvell.ReoGrid.PropertyPages
 			this.currencyNegativeStyleList.FormattingEnabled = true;
 			this.currencyNegativeStyleList.Location = new System.Drawing.Point(6, 76);
 			this.currencyNegativeStyleList.Name = "currencyNegativeStyleList";
-			this.currencyNegativeStyleList.Size = new System.Drawing.Size(377, 95);
+			this.currencyNegativeStyleList.Size = new System.Drawing.Size(377, 134);
 			this.currencyNegativeStyleList.TabIndex = 9;
 			// 
 			// numberNegativeStyleList
@@ -355,7 +355,7 @@ namespace unvell.ReoGrid.PropertyPages
 			this.numberNegativeStyleList.FormattingEnabled = true;
 			this.numberNegativeStyleList.Location = new System.Drawing.Point(6, 76);
 			this.numberNegativeStyleList.Name = "numberNegativeStyleList";
-			this.numberNegativeStyleList.Size = new System.Drawing.Size(377, 95);
+			this.numberNegativeStyleList.Size = new System.Drawing.Size(377, 134);
 			this.numberNegativeStyleList.TabIndex = 9;
 			// 
 			// FormatPage

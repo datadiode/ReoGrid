@@ -87,6 +87,20 @@ namespace unvell.ReoGrid.PropertyPages
 				NumberDataFormatter.NumberNegativeStyle.Brackets, (1234.10f).ToString("(###,###.00)"), SystemColors.WindowText));
 			numberNegativeStyleList.Items.Add(new NegativeStyleListItem(
 				NumberDataFormatter.NumberNegativeStyle.RedBrackets, (1234.10f).ToString("(###,###.00)"), Color.Red));
+			numberNegativeStyleList.Items.Add(new NegativeStyleListItem(
+				NumberDataFormatter.NumberNegativeStyle.DollarSymbol |
+				NumberDataFormatter.NumberNegativeStyle.Default, (-1234.10f).ToString("$###,###.00"), SystemColors.WindowText));
+			numberNegativeStyleList.Items.Add(new NegativeStyleListItem(
+				NumberDataFormatter.NumberNegativeStyle.DollarSymbol |
+				NumberDataFormatter.NumberNegativeStyle.Red, (1234.10f).ToString("$###,###.00"), Color.Red));
+			numberNegativeStyleList.Items.Add(new NegativeStyleListItem(
+				NumberDataFormatter.NumberNegativeStyle.DollarSymbol |
+				NumberDataFormatter.NumberNegativeStyle.Brackets, (1234.10f).ToString("($###,###.00)"), SystemColors.WindowText));
+			numberNegativeStyleList.Items.Add(new NegativeStyleListItem(
+				NumberDataFormatter.NumberNegativeStyle.DollarSymbol |
+				NumberDataFormatter.NumberNegativeStyle.RedBrackets, (1234.10f).ToString("($###,###.00)"), Color.Red));
+			numberNegativeStyleList.Items.Add(new NegativeStyleListItem(
+				NumberDataFormatter.NumberNegativeStyle.Prefix_Sankaku, (1234.10f).ToString("▲ ###,###.00"), SystemColors.WindowText));
 
 			if (numberNegativeStyleList.Items.Count > 0) numberNegativeStyleList.SelectedIndex = 0;
 
