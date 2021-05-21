@@ -285,6 +285,13 @@ namespace unvell.ReoGrid.IO.OpenXML
 			#region Decimal Digit Places
 			StringBuilder sbDigits = new StringBuilder();
 
+			switch (arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.CustomSymbol)
+			{
+				case NumberDataFormatter.NumberNegativeStyle.DollarSymbol:
+					sbDigits.Append("\"$\"");
+					break;
+			}
+
 			if (arg.UseSeparator)
 			{
 				sbDigits.Append("#,##");
