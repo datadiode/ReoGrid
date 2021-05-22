@@ -144,53 +144,6 @@ namespace unvell.Common
 				}
 			}
 		}
-
-		public static float GetLargerSize(float size)
-		{
-			return (size >= FontUIToolkit.FontSizeList.Max()) ? size : FontUIToolkit.FontSizeList.Where(fs => fs > size).Min();
-		}
-
-		public static float GetSmallerSize(float size)
-		{
-			return (size >= FontUIToolkit.FontSizeList.Max()) ? size : FontUIToolkit.FontSizeList.Where(fs => fs < size).Max();
-		}
-
-		public static Font GetFontIfExisted(string name, float size, FontStyle style)
-		{
-			Font f = null;
-			try
-			{
-				FontFamily ff = new FontFamily(name);
-				if (!ff.IsStyleAvailable(style)) style = FontStyle.Regular;
-				f = new Font(ff, size, style);
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine("info: " + ex.Message, "font toolkit");
-
-				f = SystemFonts.DefaultFont;
-			}
-			return f;
-		}
-
-		public static FontFamily GetFontFamilyIfExisted(string name)
-		{
-			try
-			{
-				return new FontFamily(name);
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine("font family does not exist: " + ex.Message, "font toolkit");
-
-				return null;
-			}
-		}
-
-		public static bool AreCloseSize(float s1, float s2)
-		{
-			return Math.Abs(s1 - s2) < 0.3f;
-		}
 	}
 
 	public class FontFamilyInfo
