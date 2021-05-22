@@ -346,67 +346,69 @@ namespace unvell.ReoGrid.IO.OpenXML
 			if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
 			sb.Append(digits);
 			if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
-			sb.Append(';');
 
-			#region Negative part
-			// Pattern to use for negative values
-			switch (arg.NegativeStyle)
+			if (arg.NegativeStyle != NumberDataFormatter.NumberNegativeStyle.Default)
 			{
-				default:
-				case NumberDataFormatter.NumberNegativeStyle.Default:
-					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
-					sb.Append('-');
-					sb.Append(digits);
-					if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
-					break;
+				#region Negative part
+				sb.Append(';');
+				// Pattern to use for negative values
+				switch (arg.NegativeStyle)
+				{
+					default:
+					case NumberDataFormatter.NumberNegativeStyle.Default:
+						if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
+						sb.Append('-');
+						sb.Append(digits);
+						if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
+						break;
 
-				case NumberDataFormatter.NumberNegativeStyle.Red:
-				case NumberDataFormatter.NumberNegativeStyle.RedMinus:
-					sb.Append("[Red]");
-					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
-					if ((arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.Minus) == NumberDataFormatter.NumberNegativeStyle.Minus) sb.Append("-");
-					sb.Append(digits);
-					if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
-					break;
+					case NumberDataFormatter.NumberNegativeStyle.Red:
+					case NumberDataFormatter.NumberNegativeStyle.RedMinus:
+						sb.Append("[Red]");
+						if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
+						if ((arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.Minus) == NumberDataFormatter.NumberNegativeStyle.Minus) sb.Append("-");
+						sb.Append(digits);
+						if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
+						break;
 
-				case NumberDataFormatter.NumberNegativeStyle.Brackets:
-				case NumberDataFormatter.NumberNegativeStyle.BracketsMinus:
-					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
-					sb.Append('(');
-					if ((arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.Minus) == NumberDataFormatter.NumberNegativeStyle.Minus) sb.Append("-");
-					sb.Append(digits);
-					sb.Append(')');
-					if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
-					break;
+					case NumberDataFormatter.NumberNegativeStyle.Brackets:
+					case NumberDataFormatter.NumberNegativeStyle.BracketsMinus:
+						if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
+						sb.Append('(');
+						if ((arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.Minus) == NumberDataFormatter.NumberNegativeStyle.Minus) sb.Append("-");
+						sb.Append(digits);
+						sb.Append(')');
+						if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
+						break;
 
-				case NumberDataFormatter.NumberNegativeStyle.RedBrackets:
-				case NumberDataFormatter.NumberNegativeStyle.RedBracketsMinus:
-					sb.Append("[Red]");
-					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
-					sb.Append('(');
-					if ((arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.Minus) == NumberDataFormatter.NumberNegativeStyle.Minus) sb.Append("-");
-					sb.Append(digits);
-					sb.Append(')');
-					if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
-					break;
+					case NumberDataFormatter.NumberNegativeStyle.RedBrackets:
+					case NumberDataFormatter.NumberNegativeStyle.RedBracketsMinus:
+						sb.Append("[Red]");
+						if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
+						sb.Append('(');
+						if ((arg.NegativeStyle & NumberDataFormatter.NumberNegativeStyle.Minus) == NumberDataFormatter.NumberNegativeStyle.Minus) sb.Append("-");
+						sb.Append(digits);
+						sb.Append(')');
+						if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
+						break;
 
 #if LANG_JP
-				case NumberDataFormatter.NumberNegativeStyle.Prefix_Sankaku:
-					if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
-					sb.Append("\"▲ \"");
-					sb.Append(digits);
-					if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
-					break;
+					case NumberDataFormatter.NumberNegativeStyle.Prefix_Sankaku:
+						if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
+						sb.Append("\"▲ \"");
+						sb.Append(digits);
+						if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
+						break;
 #endif // LANG_JP
+				}
+				#endregion // Negative part
+
+				sb.Append(';');
+				// Pattern to use for a value of zero
+				if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
+				sb.Append(digits);
+				if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
 			}
-
-			sb.Append(';');
-			#endregion // Negative part
-
-			// Pattern to use for a value of zero
-			if (!string.IsNullOrEmpty(prefix)) sb.Append(prefix);
-			sb.Append(digits);
-			if (!string.IsNullOrEmpty(postfix)) sb.Append(postfix);
 
 			return sb.ToString();
 		}
@@ -565,7 +567,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 								{
 									_iarg = dtarg,
 									formatId = id,
-									formatCode = dtarg.Format,
+									formatCode = dtarg.Format.ToLowerInvariant(),
 								});
 
 								return id;
