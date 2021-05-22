@@ -1569,15 +1569,6 @@ namespace unvell.ReoGrid.IO.OpenXML
 				pattern = pattern.Substring(5);
 			}
 
-			try
-			{
-				pattern = Regex.Unescape(pattern);
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine(ex.Message);
-			}
-
 			if (pattern.StartsWith("(") && pattern.EndsWith(")"))
 			{
 				// add bracket style
@@ -1665,7 +1656,18 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 				if (numFormat != null)
 				{
-					string[] patterns = numFormat.formatCode.Split(';');
+					var formatCode = numFormat.formatCode;
+
+					try
+					{
+						formatCode = Regex.Unescape(formatCode);
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine(ex.Message);
+					}
+
+					string[] patterns = formatCode.Split(';');
 
 					if (patterns != null && patterns.Length > 0)
 					{
@@ -1762,14 +1764,14 @@ namespace unvell.ReoGrid.IO.OpenXML
 								string enquoted = pattern.Substring(i + 1, j - i - 1);
 								if (enquoted.StartsWith("$-"))
 								{
-									if (int.TryParse(enquoted.Substring(2), NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out var culture))
+									try
 									{
-										if (culture == 0xF800)
-											darg.Format = "D";
-										else if (culture == 0xF400)
-											darg.Format = "T";
-										else
-											darg.CultureName = (new CultureInfo(culture & 0xFFFF)).IetfLanguageTag;
+										int culture = int.Parse(enquoted.Substring(2), NumberStyles.HexNumber, ExcelWriter.EnglishCulture);
+										darg.CultureName = (new CultureInfo(culture & 0xFFFF)).IetfLanguageTag;
+									}
+									catch (Exception ex)
+									{
+										Debug.WriteLine(ex.Message);
 									}
 								}
 								pattern = pattern.Remove(i, j + 1 - i);
