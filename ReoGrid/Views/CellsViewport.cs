@@ -844,68 +844,47 @@ namespace unvell.ReoGrid.Views
 				RGFloat cellScaledWidth = cell.Width * this.scaleFactor;
 				RGFloat cellScaledHeight = (float)Math.Floor(cell.Height * this.scaleFactor) - 1;
 
-				Rectangle clipRect = new Rectangle(this.ScrollViewLeft * this.scaleFactor, cell.Top * this.scaleFactor, this.Width, cellScaledHeight);
+				Rectangle clipRect = cell.Bounds;
+				Rectangle textBounds = cell.TextBounds;
 
-				bool needWidthClip = cell.IsMergedCell || cell.InnerStyle.TextWrapMode == TextWrapMode.WordBreak || dc.AllowCellClip;
-
-				if (!needWidthClip)
+				if (!(cell.IsMergedCell || cell.InnerStyle.TextWrapMode == TextWrapMode.WordBreak || dc.AllowCellClip))
 				{
-					if (cell.InternalCol < this.sheet.cols.Count - 1)
+					int i;
+					// Ask left neighbors for consent to draw into their area
+					for (i = cell.InternalCol; --i >= 0; )
 					{
-						if (cell.RenderHorAlign == ReoGridRenderHorAlign.Left
-							|| cell.RenderHorAlign == ReoGridRenderHorAlign.Center)
-						{
-							var nextCell = sheet.cells[cell.InternalRow, cell.InternalCol + 1];
-
-							needWidthClip = nextCell != null
-								&& cell.TextBounds.Right > cell.Right
-								&& !string.IsNullOrEmpty(nextCell.DisplayText);
-						}
+						Rectangle cellBounds = sheet.GetCellBounds(cell.InternalRow, i);
+						if (cellBounds.Right <= textBounds.Left)
+							break;
+						var neighbor = sheet.cells[cell.InternalRow, i];
+						if (neighbor != null && (!string.IsNullOrEmpty(neighbor.DisplayText) || neighbor.InsideMergedRange))
+							break;
+						// Extend clipping rectangle across neighbor cell
+						clipRect.Width += clipRect.X - cellBounds.Left;
+						clipRect.X = cellBounds.Left;
 					}
-
-					if (!needWidthClip
-						&& cell.InternalCol > 0
-						&& (cell.RenderHorAlign == ReoGridRenderHorAlign.Right
-							|| cell.RenderHorAlign == ReoGridRenderHorAlign.Center))
+					// Ask right neighbors for consent to draw into their area
+					for (i = cell.InternalCol; ++i < sheet.cols.Count; )
 					{
-						var prevCell = sheet.cells[cell.InternalRow, cell.InternalCol - 1];
-
-						needWidthClip = prevCell != null
-							&& prevCell.TextBounds.Left < cell.Left
-							&& !string.IsNullOrEmpty(prevCell.DisplayText);
+						Rectangle cellBounds = sheet.GetCellBounds(cell.InternalRow, i);
+						if (cellBounds.Left >= textBounds.Right)
+							break;
+						var neighbor = sheet.cells[cell.InternalRow, i];
+						if (neighbor != null && (!string.IsNullOrEmpty(neighbor.DisplayText) || neighbor.InsideMergedRange))
+							break;
+						// Extend clipping rectangle across neighbor cell
+						clipRect.Width = cellBounds.Right - clipRect.X;
 					}
 				}
 
-				if (needWidthClip)
-				{
-					clipRect = cell.Bounds;
-					clipRect.X *= this.scaleFactor;
-					clipRect.Y *= this.scaleFactor;
-					clipRect.Width = cellScaledWidth;
-					clipRect.Height = cellScaledHeight;
-				}
-				else
-				{
-					needWidthClip = cell.TextBounds.Height > cellScaledHeight;
-				}
-
-				if (needWidthClip)
-				{
-					g.PushClip(clipRect);
-
-					//dc.Renderer.DrawRectangle(cell.PrintTextBounds, SolidColor.Blue);
-				}
+				g.PushClip(clipRect * this.scaleFactor);
+				//dc.Renderer.DrawRectangle(cell.PrintTextBounds, SolidColor.Blue);
 
 				#endregion // Determine clip region
 
 				dc.Renderer.DrawCellText(cell, textColor, dc.DrawMode, this.scaleFactor);
 
-				#region clip region
-				if (needWidthClip)
-				{
-					dc.Graphics.PopClip();
-				}
-				#endregion clip region
+				dc.Graphics.PopClip();
 
 				#endregion // Plain Text
 			}
