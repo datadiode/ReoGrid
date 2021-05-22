@@ -1690,9 +1690,15 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 								if (currencyMatch.Groups[4].Length > 0)
 								{
-									int culture = 0;
-									if (int.TryParse(currencyMatch.Groups[4].Value, NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out culture))
-										carg.CultureEnglishName = (new CultureInfo(culture)).IetfLanguageTag;
+									try
+									{
+										int culture = int.Parse(currencyMatch.Groups[4].Value, NumberStyles.HexNumber, ExcelWriter.EnglishCulture);
+										carg.CultureEnglishName = CultureInfo.GetCultureInfo(culture & 0xFFFF).IetfLanguageTag;
+									}
+									catch (Exception ex)
+									{
+										Debug.WriteLine(ex.Message);
+									}
 								}
 
 								if (currencyMatch.Groups[5].Length > 0)
@@ -1711,9 +1717,15 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 								if (currencyMatch.Groups[4].Length > 0)
 								{
-									int culture = 0;
-									if (int.TryParse(currencyMatch.Groups[4].Value, NumberStyles.HexNumber, ExcelWriter.EnglishCulture, out culture))
-										carg.CultureEnglishName = (new CultureInfo(culture)).IetfLanguageTag;
+									try
+									{
+										int culture = int.Parse(currencyMatch.Groups[4].Value, NumberStyles.HexNumber, ExcelWriter.EnglishCulture);
+										carg.CultureEnglishName = CultureInfo.GetCultureInfo(culture & 0xFFFF).IetfLanguageTag;
+									}
+									catch (Exception ex)
+									{
+										Debug.WriteLine(ex.Message);
+									}
 								}
 
 								if (currencyMatch.Groups[2].Length > 0)
@@ -1767,7 +1779,7 @@ namespace unvell.ReoGrid.IO.OpenXML
 									try
 									{
 										int culture = int.Parse(enquoted.Substring(2), NumberStyles.HexNumber, ExcelWriter.EnglishCulture);
-										darg.CultureName = (new CultureInfo(culture & 0xFFFF)).IetfLanguageTag;
+										darg.CultureName = CultureInfo.GetCultureInfo(culture & 0xFFFF).IetfLanguageTag;
 									}
 									catch (Exception ex)
 									{
