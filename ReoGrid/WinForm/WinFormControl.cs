@@ -1137,9 +1137,9 @@ namespace unvell.ReoGrid
 				{
 					this.SuspendLayout();
 
-					if (Width < size.Width + 5)
+					if (Width < size.Width + 8)
 					{
-						int widthOffset = size.Width + 5 - Width;
+						int widthOffset = size.Width + 8 - Width;
 
 						switch (TextAlign)
 						{
