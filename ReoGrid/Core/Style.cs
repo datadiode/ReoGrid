@@ -155,7 +155,7 @@ namespace unvell.ReoGrid
 			if (isRootStyle)
 			{
 				#region All headers style updating
-				StyleUtility.CopyStyle(style, this.RootStyle);
+				RootStyle.CopyFrom(style);
 
 				// update styles which has been set into row headers
 				for (int r = 0; r < this.rows.Count; r++)
@@ -164,7 +164,7 @@ namespace unvell.ReoGrid
 
 					if (rowHead != null && rowHead.InnerStyle != null)
 					{
-						StyleUtility.CopyStyle(style, rowHead.InnerStyle);
+						rowHead.InnerStyle.CopyFrom(style);
 					}
 				}
 
@@ -196,11 +196,12 @@ namespace unvell.ReoGrid
 
 					if (rowHeader.InnerStyle == null)
 					{
-						rowHeader.InnerStyle = StyleUtility.CreateMergedStyle(style, this.RootStyle);
+						rowHeader.InnerStyle = new WorksheetRangeStyle(style);
+						rowHeader.InnerStyle.MergeFrom(this.RootStyle);
 					}
 					else
 					{
-						StyleUtility.CopyStyle(style, rowHeader.InnerStyle);
+						rowHeader.InnerStyle.CopyFrom(style);
 					}
 				}
 				#endregion // Rows in range updating
@@ -217,11 +218,12 @@ namespace unvell.ReoGrid
 
 					if (colHeader.InnerStyle == null)
 					{
-						colHeader.InnerStyle = StyleUtility.CreateMergedStyle(style, RootStyle);
+						colHeader.InnerStyle = new WorksheetRangeStyle(style);
+						colHeader.InnerStyle.MergeFrom(RootStyle);
 					}
 					else
 					{
-						StyleUtility.CopyStyle(style, colHeader.InnerStyle);
+						colHeader.InnerStyle.CopyFrom(style);
 					}
 				}
 				#endregion // Columns in range updating
@@ -360,12 +362,8 @@ namespace unvell.ReoGrid
 			if (cell.StyleParentKind == StyleParentKind.Own
 			|| parentKind == StyleParentKind.Own)
 			{
-				if (cell.StyleParentKind != StyleParentKind.Own)
-				{
-					cell.CreateOwnStyle();
-				}
-
-				StyleUtility.CopyStyle(style, cell.InnerStyle);
+				cell.CreateOwnStyle();
+				cell.InnerStyle.CopyFrom(style);
 
 				// auto remove fill pattern when pattern color is empty
 				if ((cell.InnerStyle.Flag & PlainStyleFlag.FillPattern) != 0
@@ -611,7 +609,7 @@ namespace unvell.ReoGrid
 
 			if (newFlags != PlainStyleFlag.None)
 			{
-				Utility.StyleUtility.CopyStyle(pStyle, cell.InnerStyle, newFlags);
+				cell.InnerStyle.CopyFrom(pStyle, newFlags);
 			}
 
 			// copy flags from parent style
@@ -1410,9 +1408,66 @@ namespace unvell.ReoGrid
 		/// Copy styles from another specified one.
 		/// </summary>
 		/// <param name="s">Style to be copied.</param>
-		public void CopyFrom(WorksheetRangeStyle s)
+		public void CopyFrom(WorksheetRangeStyle s, PlainStyleFlag sFlag = PlainStyleFlag.All)
 		{
-			StyleUtility.CopyStyle(s, this);
+			sFlag &= s.Flag;
+			Flag &= ~sFlag;
+			MergeFrom(s, sFlag);
+		}
+
+		public void MergeFrom(WorksheetRangeStyle s, PlainStyleFlag sFlag = PlainStyleFlag.All)
+		{
+			sFlag &= s.Flag;
+
+			if ((Flag & PlainStyleFlag.BackColor) < (sFlag & PlainStyleFlag.BackColor))
+				BackColor = s.BackColor;
+
+			if ((Flag & PlainStyleFlag.FillPatternColor) < (sFlag & PlainStyleFlag.FillPatternColor))
+				FillPatternColor = s.FillPatternColor;
+
+			if ((Flag & PlainStyleFlag.FillPatternStyle) < (sFlag & PlainStyleFlag.FillPatternStyle))
+				FillPatternStyle = s.FillPatternStyle;
+
+			if ((Flag & PlainStyleFlag.TextColor) < (sFlag & PlainStyleFlag.TextColor))
+				TextColor = s.TextColor;
+
+			if ((Flag & PlainStyleFlag.FontName) < (sFlag & PlainStyleFlag.FontName))
+				FontName = s.FontName;
+
+			if ((Flag & PlainStyleFlag.FontSize) < (sFlag & PlainStyleFlag.FontSize))
+				FontSize = s.FontSize;
+
+			if ((Flag & PlainStyleFlag.FontStyleBold) < (sFlag & PlainStyleFlag.FontStyleBold))
+				Bold = s.Bold;
+
+			if ((Flag & PlainStyleFlag.FontStyleItalic) < (sFlag & PlainStyleFlag.FontStyleItalic))
+				Italic = s.Italic;
+
+			if ((Flag & PlainStyleFlag.FontStyleStrikethrough) < (sFlag & PlainStyleFlag.FontStyleStrikethrough))
+				Strikethrough = s.Strikethrough;
+
+			if ((Flag & PlainStyleFlag.FontStyleUnderline) < (sFlag & PlainStyleFlag.FontStyleUnderline))
+				Underline = s.Underline;
+
+			if ((Flag & PlainStyleFlag.HorizontalAlign) < (sFlag & PlainStyleFlag.HorizontalAlign))
+				HAlign = s.HAlign;
+
+			if ((Flag & PlainStyleFlag.VerticalAlign) < (sFlag & PlainStyleFlag.VerticalAlign))
+				VAlign = s.VAlign;
+
+			if ((Flag & PlainStyleFlag.TextWrap) < (sFlag & PlainStyleFlag.TextWrap))
+				TextWrapMode = s.TextWrapMode;
+
+			if ((Flag & PlainStyleFlag.Indent) < (sFlag & PlainStyleFlag.Indent))
+				Indent = s.Indent;
+
+			if ((Flag & PlainStyleFlag.Padding) < (sFlag & PlainStyleFlag.Padding))
+				Padding = s.Padding;
+
+			if ((Flag & PlainStyleFlag.RotationAngle) < (sFlag & PlainStyleFlag.RotationAngle))
+				RotationAngle = s.RotationAngle;
+
+			Flag |= sFlag;
 		}
 
 		/// <summary>

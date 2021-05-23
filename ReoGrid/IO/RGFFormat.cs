@@ -378,9 +378,8 @@ namespace unvell.ReoGrid
 			// root style
 			if (xmlSheet.style != null)
 			{
-				this.RootStyle = StyleUtility.ConvertFromXmlStyle(this, xmlSheet.style, culture);
-
-				StyleUtility.CopyStyle(Worksheet.DefaultStyle, this.RootStyle, Worksheet.DefaultStyle.Flag & ~this.RootStyle.Flag);
+				RootStyle = StyleUtility.ConvertFromXmlStyle(this, xmlSheet.style, culture);
+				RootStyle.MergeFrom(DefaultStyle);
 			}
 			#endregion // Root Style
 
@@ -416,10 +415,8 @@ namespace unvell.ReoGrid
 
 				if (xmlCol.style != null)
 				{
-					colhead.InnerStyle = new WorksheetRangeStyle(RootStyle);
-
-					StyleUtility.CopyStyle(StyleUtility.ConvertFromXmlStyle(
-						this, xmlCol.style, culture), cols[xmlCol.col].InnerStyle);
+					colhead.InnerStyle = StyleUtility.ConvertFromXmlStyle(this, xmlCol.style, culture);
+					colhead.InnerStyle.MergeFrom(RootStyle);
 				}
 
 				if (!string.IsNullOrEmpty(xmlCol.defaultCellBody))
@@ -463,10 +460,8 @@ namespace unvell.ReoGrid
 
 				if (row.style != null)
 				{
-					rowhead.InnerStyle = new WorksheetRangeStyle(RootStyle);
-
-					StyleUtility.CopyStyle(StyleUtility.ConvertFromXmlStyle(
-						this, row.style, culture), rows[row.row].InnerStyle);
+					rowhead.InnerStyle = StyleUtility.ConvertFromXmlStyle(this, row.style, culture);
+					rowhead.InnerStyle.MergeFrom(RootStyle);
 				}
 			}
 			#endregion // Rows

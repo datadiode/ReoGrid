@@ -975,16 +975,17 @@ namespace unvell.ReoGrid
 
 		internal void CreateOwnStyle()
 		{
-			this.InnerStyle = new WorksheetRangeStyle(this.InnerStyle);
-
-			this.StyleParentKind = StyleParentKind.Own;
-
-#if DEBUG
-			if ((++_count % 50) == 0)
+			if (this.StyleParentKind != StyleParentKind.Own)
 			{
-				unvell.Common.Logger.Log("style", "new style created, count: " + _count);
-			}
+				this.InnerStyle = new WorksheetRangeStyle(this.InnerStyle);
+				this.StyleParentKind = StyleParentKind.Own;
+#if DEBUG
+				if ((++_count % 50) == 0)
+				{
+					unvell.Common.Logger.Log("style", "new style created, count: " + _count);
+				}
 #endif // DEBUG
+			}
 		}
 
 		[NonSerialized]

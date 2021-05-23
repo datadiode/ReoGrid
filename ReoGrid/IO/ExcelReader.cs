@@ -673,15 +673,15 @@ namespace unvell.ReoGrid.IO.OpenXML
 
 								if (rowStyle != null && rowStyle != rgCell.InnerStyle)
 								{
-									rgCell.InnerStyle = StyleUtility.CreateMergedStyle(rgCell.InnerStyle, rowStyle);
-									rgCell.StyleParentKind = Core.StyleParentKind.Own;
+									rgCell.CreateOwnStyle();
+									rgCell.InnerStyle.MergeFrom(rowStyle);
 								}
 
 								var colStyle = rgSheet.RetrieveColumnHeader(pos.Col).InnerStyle;
 								if (colStyle != null && colStyle != rgCell.InnerStyle)
 								{
-									rgCell.InnerStyle = StyleUtility.CreateMergedStyle(rgCell.InnerStyle, colStyle);
-									rgCell.StyleParentKind = Core.StyleParentKind.Own;
+									rgCell.CreateOwnStyle();
+									rgCell.InnerStyle.MergeFrom(colStyle);
 								}
 
 								StyleUtility.UpdateCellRenderAlign(rgSheet, rgCell);

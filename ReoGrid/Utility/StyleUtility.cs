@@ -136,19 +136,14 @@ namespace unvell.ReoGrid.Utility
 			if (style == null || style.Flag == PlainStyleFlag.None) return null;
 			if (referStyle == null || referStyle.Flag == PlainStyleFlag.None) return new WorksheetRangeStyle(style);
 
-			//var returnStyle = new WorksheetRangeStyle(style);
 			var distinctedFlag = CheckDistinctStyle(style, referStyle);
-
-			if (distinctedFlag == PlainStyleFlag.None)
+			WorksheetRangeStyle distinctedStyle = null;
+			if (distinctedFlag != PlainStyleFlag.None)
 			{
-				return null;
+				distinctedStyle = new WorksheetRangeStyle();
+				distinctedStyle.CopyFrom(style, distinctedFlag);
 			}
-			else
-			{
-				var distinctedStyle = new WorksheetRangeStyle();
-				StyleUtility.CopyStyle(style, distinctedStyle, distinctedFlag);
-				return distinctedStyle;
-			}
+			return distinctedStyle;
 		}
 
 		/// <summary>
@@ -179,160 +174,6 @@ namespace unvell.ReoGrid.Utility
 			WorksheetRangeStyle defaultStyle = FindCellParentStyle(grid, row, col, out pKind);
 
 			return DistinctStyle(style, defaultStyle);
-		}
-
-		internal static void CopyStyle(WorksheetRangeStyle sourceStyle, WorksheetRangeStyle targetStyle)
-		{
-			CopyStyle(sourceStyle, targetStyle, sourceStyle.Flag);
-		}
-
-		internal static void CopyStyle(WorksheetRangeStyle sourceStyle, WorksheetRangeStyle targetStyle, PlainStyleFlag flag)
-		{
-			if ((flag & PlainStyleFlag.BackColor) == PlainStyleFlag.BackColor)
-				targetStyle.BackColor = sourceStyle.BackColor;
-
-			if ((flag & PlainStyleFlag.FillPatternColor) == PlainStyleFlag.FillPatternColor)
-				targetStyle.FillPatternColor = sourceStyle.FillPatternColor;
-
-			if ((flag & PlainStyleFlag.FillPatternStyle) == PlainStyleFlag.FillPatternStyle)
-				targetStyle.FillPatternStyle = sourceStyle.FillPatternStyle;
-
-			if ((flag & PlainStyleFlag.TextColor) == PlainStyleFlag.TextColor)
-				targetStyle.TextColor = sourceStyle.TextColor;
-
-			if ((flag & PlainStyleFlag.FontName) == PlainStyleFlag.FontName)
-			{
-				targetStyle.FontName = sourceStyle.FontName;
-				System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(targetStyle.FontName));
-			}
-
-			if ((flag & PlainStyleFlag.FontSize) == PlainStyleFlag.FontSize)
-				targetStyle.FontSize = sourceStyle.FontSize;
-
-			if ((flag & PlainStyleFlag.FontStyleBold) == PlainStyleFlag.FontStyleBold)
-				targetStyle.Bold = sourceStyle.Bold;
-
-			if ((flag & PlainStyleFlag.FontStyleItalic) == PlainStyleFlag.FontStyleItalic)
-				targetStyle.Italic = sourceStyle.Italic;
-
-			if ((flag & PlainStyleFlag.FontStyleStrikethrough) == PlainStyleFlag.FontStyleStrikethrough)
-				targetStyle.Strikethrough = sourceStyle.Strikethrough;
-
-			if ((flag & PlainStyleFlag.FontStyleUnderline) == PlainStyleFlag.FontStyleUnderline)
-				targetStyle.Underline = sourceStyle.Underline;
-
-			if ((flag & PlainStyleFlag.HorizontalAlign) == PlainStyleFlag.HorizontalAlign)
-				targetStyle.HAlign = sourceStyle.HAlign;
-
-			if ((flag & PlainStyleFlag.VerticalAlign) == PlainStyleFlag.VerticalAlign)
-				targetStyle.VAlign = sourceStyle.VAlign;
-
-			if ((flag & PlainStyleFlag.TextWrap) == PlainStyleFlag.TextWrap)
-				targetStyle.TextWrapMode = sourceStyle.TextWrapMode;
-
-			if ((flag & PlainStyleFlag.Indent) == PlainStyleFlag.Indent)
-				targetStyle.Indent = sourceStyle.Indent;
-
-			if ((flag & PlainStyleFlag.Padding) == PlainStyleFlag.Padding)
-				targetStyle.Padding = sourceStyle.Padding;
-
-			if ((flag & PlainStyleFlag.RotationAngle) == PlainStyleFlag.RotationAngle)
-				targetStyle.RotationAngle = sourceStyle.RotationAngle;
-
-			targetStyle.Flag |= flag;
-		}
-
-		internal static WorksheetRangeStyle CreateMergedStyle(WorksheetRangeStyle style1, WorksheetRangeStyle style2)
-		{
-			var style = new WorksheetRangeStyle()
-			{
-				Flag = style1.Flag | style2.Flag,
-			};
-
-			var flag1 = style1.Flag;
-			var flag2 = style2.Flag;
-
-			if ((flag1 & PlainStyleFlag.BackColor) == PlainStyleFlag.BackColor)
-				style.BackColor = style1.BackColor;
-			else if ((flag2 & PlainStyleFlag.BackColor) == PlainStyleFlag.BackColor)
-				style.BackColor = style2.BackColor;
-
-			if ((flag1 & PlainStyleFlag.FillPatternColor) == PlainStyleFlag.FillPatternColor)
-				style.FillPatternColor = style1.FillPatternColor;
-			else if ((flag2 & PlainStyleFlag.FillPatternColor) == PlainStyleFlag.FillPatternColor)
-				style.FillPatternColor = style2.FillPatternColor;
-
-			if ((flag1 & PlainStyleFlag.FillPatternStyle) == PlainStyleFlag.FillPatternStyle)
-				style.FillPatternStyle = style1.FillPatternStyle;
-			else if ((flag2 & PlainStyleFlag.FillPatternStyle) == PlainStyleFlag.FillPatternStyle)
-				style.FillPatternStyle = style2.FillPatternStyle;
-
-			if ((flag1 & PlainStyleFlag.TextColor) == PlainStyleFlag.TextColor)
-				style.TextColor = style1.TextColor;
-			else if ((flag2 & PlainStyleFlag.TextColor) == PlainStyleFlag.TextColor)
-				style.TextColor = style2.TextColor;
-
-			if ((flag1 & PlainStyleFlag.FontName) == PlainStyleFlag.FontName)
-				style.FontName = style1.FontName;
-			else if ((flag2 & PlainStyleFlag.FontName) == PlainStyleFlag.FontName)
-				style.FontName = style2.FontName;
-
-			if ((flag1 & PlainStyleFlag.FontSize) == PlainStyleFlag.FontSize)
-				style.FontSize = style1.FontSize;
-			else if ((flag2 & PlainStyleFlag.FontSize) == PlainStyleFlag.FontSize)
-				style.FontSize = style2.FontSize;
-
-			if ((flag1 & PlainStyleFlag.FontStyleBold) == PlainStyleFlag.FontStyleBold)
-				style.Bold = style1.Bold;
-			else if ((flag2 & PlainStyleFlag.FontStyleBold) == PlainStyleFlag.FontStyleBold)
-				style.Bold = style2.Bold;
-
-			if ((flag1 & PlainStyleFlag.FontStyleItalic) == PlainStyleFlag.FontStyleItalic)
-				style.Italic = style1.Italic;
-			else if ((flag2 & PlainStyleFlag.FontStyleItalic) == PlainStyleFlag.FontStyleItalic)
-				style.Italic = style2.Italic;
-
-			if ((flag1 & PlainStyleFlag.FontStyleStrikethrough) == PlainStyleFlag.FontStyleStrikethrough)
-				style.Strikethrough = style1.Strikethrough;
-			else if ((flag2 & PlainStyleFlag.FontStyleStrikethrough) == PlainStyleFlag.FontStyleStrikethrough)
-				style.Strikethrough = style2.Strikethrough;
-
-			if ((flag1 & PlainStyleFlag.FontStyleUnderline) == PlainStyleFlag.FontStyleUnderline)
-				style.Underline = style1.Underline;
-			else if ((flag2 & PlainStyleFlag.FontStyleUnderline) == PlainStyleFlag.FontStyleUnderline)
-				style.Underline = style2.Underline;
-
-			if ((flag1 & PlainStyleFlag.HorizontalAlign) == PlainStyleFlag.HorizontalAlign)
-				style.HAlign = style1.HAlign;
-			else if ((flag2 & PlainStyleFlag.HorizontalAlign) == PlainStyleFlag.HorizontalAlign)
-				style.HAlign = style2.HAlign;
-
-			if ((flag1 & PlainStyleFlag.VerticalAlign) == PlainStyleFlag.VerticalAlign)
-				style.VAlign = style1.VAlign;
-			else if ((flag2 & PlainStyleFlag.VerticalAlign) == PlainStyleFlag.VerticalAlign)
-				style.VAlign = style2.VAlign;
-
-			if ((flag1 & PlainStyleFlag.TextWrap) == PlainStyleFlag.TextWrap)
-				style.TextWrapMode = style1.TextWrapMode;
-			else if ((flag2 & PlainStyleFlag.TextWrap) == PlainStyleFlag.TextWrap)
-				style.TextWrapMode = style2.TextWrapMode;
-
-			if ((flag1 & PlainStyleFlag.Indent) == PlainStyleFlag.Indent)
-				style.Indent = style1.Indent;
-			else if ((flag2 & PlainStyleFlag.Indent) == PlainStyleFlag.Indent)
-				style.Indent = style2.Indent;
-
-			if ((flag1 & PlainStyleFlag.Padding) == PlainStyleFlag.Padding)
-				style.Padding = style1.Padding;
-			else if ((flag2 & PlainStyleFlag.Padding) == PlainStyleFlag.Padding)
-				style.Padding = style2.Padding;
-
-			if ((flag1 & PlainStyleFlag.RotationAngle) == PlainStyleFlag.RotationAngle)
-				style.RotationAngle = style1.RotationAngle;
-			else if ((flag2 & PlainStyleFlag.RotationAngle) == PlainStyleFlag.RotationAngle)
-				style.RotationAngle = style2.RotationAngle;
-
-			return style;
 		}
 
 		internal static WorksheetRangeStyle FindCellParentStyle(Worksheet sheet, int row, int col, out StyleParentKind pKind)
