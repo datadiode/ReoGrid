@@ -510,7 +510,7 @@ namespace unvell.ReoGrid.WinForm
 	#region GDIRenderer
 	internal class GDIRenderer : GDIGraphics, IRenderer
 	{
-		private System.Drawing.Graphics cachedGraphics;
+		private readonly System.Drawing.Graphics cachedGraphics;
 
 		private StringFormat headerSf;
 
@@ -669,7 +669,7 @@ namespace unvell.ReoGrid.WinForm
 		#endregion Line
 
 		#region Cell
-		public void DrawCellText(Cell cell, SolidColor textColor, DrawMode drawMode, float scale)
+		public void DrawCellText(Cell cell, Rectangle textBounds, SolidColor textColor, DrawMode drawMode, float scale)
 		{
 			var sheet = cell.Worksheet;
 
@@ -678,7 +678,6 @@ namespace unvell.ReoGrid.WinForm
 			var b = this.GetBrush(textColor);
 			if (b == null) return;
 
-			Rectangle textBounds;
 			System.Drawing.Font scaledFont;
 
 			#region Determine text bounds
@@ -686,13 +685,11 @@ namespace unvell.ReoGrid.WinForm
 			{
 				default:
 				case DrawMode.View:
-					textBounds = cell.Worksheet.UpdateCellTextBounds(this, cell, drawMode, scale);
 					scaledFont = cell.RenderFont;
 					break;
 
 				case DrawMode.Preview:
 				case DrawMode.Print:
-					textBounds = cell.Worksheet.UpdateCellTextBounds(this, cell, drawMode, scale);
 					scaledFont = this.resourceManager.GetFont(cell.RenderFont.Name,
 						cell.InnerStyle.FontSize * scale, cell.RenderFont.Style);
 					break;
@@ -991,11 +988,7 @@ namespace unvell.ReoGrid.WinForm
 				this.linePen.Dispose();
 			}
 
-			if (this.cachedGraphics != null)
-			{
-				this.cachedGraphics.Dispose();
-				this.cachedGraphics = null;
-			}
+			this.cachedGraphics.Dispose();
 
 			if (this.sf != null)
 			{

@@ -84,7 +84,7 @@ namespace unvell.ReoGrid.Rendering
 
 		void EndDrawLine();
 
-		void DrawCellText(Cell cell, SolidColor textColor, DrawMode drawMode, RGFloat scale);
+		void DrawCellText(Cell cell, Rectangle textBounds, SolidColor textColor, DrawMode drawMode, RGFloat scale);
 
 		void UpdateCellRenderFont(Cell cell, Core.UpdateFontReason reason);
 
@@ -94,7 +94,7 @@ namespace unvell.ReoGrid.Rendering
 
 		void DrawHeaderText(string text, RGBrush brush, Rectangle rect);
 
-		void DrawLeadHeadArrow(Graphics.Rectangle bounds, SolidColor startColor, SolidColor endColor);
+		void DrawLeadHeadArrow(Rectangle bounds, SolidColor startColor, SolidColor endColor);
 
 		RGPen GetPen(SolidColor color);
 

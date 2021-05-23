@@ -565,7 +565,7 @@ namespace unvell.ReoGrid.Rendering
 			}
 		}
 
-		public void DrawCellText(Cell cell, SolidColor textColor, DrawMode drawMode, double scale)
+		public void DrawCellText(Cell cell, Rectangle textBounds, SolidColor textColor, DrawMode drawMode, double scale)
 		{
 			var sheet = cell.Worksheet;
 
@@ -588,7 +588,7 @@ namespace unvell.ReoGrid.Rendering
 			}
 			else
 			{
-				this.PlatformGraphics.DrawText(cell.formattedText, cell.TextBounds.Location);
+				this.PlatformGraphics.DrawText(cell.formattedText, textBounds.Location);
 			}
 		}
 

@@ -845,7 +845,7 @@ namespace unvell.ReoGrid.Views
 				RGFloat cellScaledHeight = (float)Math.Floor(cell.Height * this.scaleFactor) - 1;
 
 				Rectangle clipRect = cell.Bounds;
-				Rectangle textBounds = cell.TextBounds;
+				Rectangle textBounds = cell.Worksheet.UpdateCellTextBounds(dc.Renderer, cell, dc.DrawMode, this.scaleFactor);
 
 				if (!(cell.IsMergedCell || cell.InnerStyle.TextWrapMode == TextWrapMode.WordBreak || dc.AllowCellClip))
 				{
@@ -882,7 +882,7 @@ namespace unvell.ReoGrid.Views
 
 				#endregion // Determine clip region
 
-				dc.Renderer.DrawCellText(cell, textColor, dc.DrawMode, this.scaleFactor);
+				dc.Renderer.DrawCellText(cell, textBounds, textColor, dc.DrawMode, this.scaleFactor);
 
 				dc.Graphics.PopClip();
 
@@ -899,8 +899,7 @@ namespace unvell.ReoGrid.Views
 			HatchStyles FillPatternStyle = HatchStyles.Min;
 			if (cell == null)
 			{
-				StyleParentKind pKind = StyleParentKind.Own;
-				WorksheetRangeStyle style = StyleUtility.FindCellParentStyle(this.sheet, row, col, out pKind);
+				WorksheetRangeStyle style = StyleUtility.FindCellParentStyle(this.sheet, row, col, out var pKind);
 				BackColor = style.BackColor;
 				FillPatternColor = style.FillPatternColor;
 				FillPatternStyle = style.FillPatternStyle;
