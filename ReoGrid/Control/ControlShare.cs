@@ -122,6 +122,7 @@ namespace unvell.ReoGrid
 			{
 				this.ClearActionHistoryForWorksheet(e.Worksheet);
 
+				this.currentWorksheet = null;
 				if (this.workbook.worksheets.Count > 0)
 				{
 					int index = this.sheetTab.SelectedIndex;
@@ -131,12 +132,11 @@ namespace unvell.ReoGrid
 						index = this.workbook.worksheets.Count - 1;
 					}
 
-					this.currentWorksheet = this.workbook.worksheets[index];
+					this.CurrentWorksheet = this.workbook.worksheets[index];
 					this.sheetTab.SelectedIndex = index;
 				}
 				else
 				{
-					this.currentWorksheet = null;
 					this.sheetTab.SelectedIndex = -1;
 				}
 
