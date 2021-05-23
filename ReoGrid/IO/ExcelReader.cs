@@ -668,18 +668,23 @@ namespace unvell.ReoGrid.IO.OpenXML
 #if DEBUG
 								swStyle.Start();
 #endif // DEBUG
-								if (rowStyle != null && rowStyle != style._cachedStyleSet)
+								rgCell.InnerStyle = style._cachedStyleSet;
+								rgCell.StyleParentKind = Core.StyleParentKind.Range;
+
+								if (rowStyle != null && rowStyle != rgCell.InnerStyle)
 								{
-									rgCell.InnerStyle = StyleUtility.CreateMergedStyle(style._cachedStyleSet, rowStyle);
+									rgCell.InnerStyle = StyleUtility.CreateMergedStyle(rgCell.InnerStyle, rowStyle);
 									rgCell.StyleParentKind = Core.StyleParentKind.Own;
-									StyleUtility.UpdateCellRenderAlign(rgSheet, rgCell);
 								}
-								else
+
+								var colStyle = rgSheet.RetrieveColumnHeader(pos.Col).InnerStyle;
+								if (colStyle != null && colStyle != rgCell.InnerStyle)
 								{
-									rgCell.InnerStyle = style._cachedStyleSet;
-									rgCell.StyleParentKind = Core.StyleParentKind.Range;
-									StyleUtility.UpdateCellRenderAlign(rgSheet, rgCell);
+									rgCell.InnerStyle = StyleUtility.CreateMergedStyle(rgCell.InnerStyle, colStyle);
+									rgCell.StyleParentKind = Core.StyleParentKind.Own;
 								}
+
+								StyleUtility.UpdateCellRenderAlign(rgSheet, rgCell);
 #if DEBUG
 								swStyle.Stop();
 #endif // DEBUG
