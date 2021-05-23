@@ -258,13 +258,6 @@ namespace unvell.ReoGrid.Print
 			this.PrintViewport = new SheetViewport(this.printViewportController);
 			this.PrintViewport.Bounds = this.CurrentPaperBounds;
 
-			// refresh cells text boundary
-			sheet.IterateCells(gr.ToRange(), (_unused_r, _unused_c, cell) =>
-			{
-				sheet.UpdateCellTextBounds(ig, cell, DrawMode.Print, this.CurrentPrintSettings.PageScaling);
-				return true;
-			});
-
 			this.PrintViewport.VisibleRegion = gr;
 			this.PrintViewport.ScaleFactor = this.CurrentPrintSettings.PageScaling;
 			this.PrintViewport.ViewStart = new Point(sheet.cols[col].Left, sheet.rows[row].Top);
