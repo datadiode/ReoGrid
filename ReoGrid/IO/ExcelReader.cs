@@ -809,16 +809,13 @@ namespace unvell.ReoGrid.IO.OpenXML
 						{
 							if (sharedStringTable != null)
 							{
-								int sharedTextIndex = 0;
-
-								if (int.TryParse(cell.value.val, out sharedTextIndex))
+								if (int.TryParse(cell.value.val, out var sharedTextIndex))
 								{
 									var ssitem = sharedStringTable.items[sharedTextIndex];
 
 									if (ssitem.text != null)
 									{
 										rgCell.InnerData = ssitem.text.val;
-										rgCell.DataFormat = CellDataFormatFlag.Text;
 									}
 									else if (ssitem.runs != null)
 									{
@@ -833,6 +830,10 @@ namespace unvell.ReoGrid.IO.OpenXML
 						{
 							rgCell.InnerData = OpenXMLUtility.IsTrue(cell.value.val);
 						}
+						else if (cell.dataType == "e")
+						{
+							rgCell.InnerData = cell.value.val;
+						}
 						else
 						{
 							switch (rgCell.DataFormat)
@@ -844,15 +845,17 @@ namespace unvell.ReoGrid.IO.OpenXML
 										ExcelWriter.EnglishCulture, out var numval))
 									{
 										rgCell.InnerData = numval;
+										break;
 									}
-									break;
+									goto default;
 								case CellDataFormatFlag.DateTime:
 									if (double.TryParse(cell.value.val, ExcelWriter.Number,
 										ExcelWriter.EnglishCulture, out numval))
 									{
 										rgCell.InnerData = DateTime.FromOADate(numval);
+										break;
 									}
-									break;
+									goto default;
 								default:
 									rgCell.InnerData = cell.value.val;
 									break;
