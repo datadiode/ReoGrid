@@ -1048,7 +1048,7 @@ namespace unvell.ReoGrid.Editor
 
 		public ReoGridControl GridControl { get { return formulaBar.GridControl; } }
 
-		public Worksheet CurrentWorksheet { get { return GridControl.CurrentWorksheet; } }
+		public Worksheet CurrentWorksheet { get { return GridControl?.CurrentWorksheet; } }
 
 		public RangePosition CurrentSelectionRange
 		{
@@ -1479,7 +1479,7 @@ namespace unvell.ReoGrid.Editor
 			selModeRowToolStripMenuItem.Checked = false;
 			selModeColumnToolStripMenuItem.Checked = false;
 
-			switch (CurrentWorksheet.SelectionMode)
+			switch (CurrentWorksheet?.SelectionMode)
 			{
 				case WorksheetSelectionMode.None:
 					selModeNoneToolStripMenuItem.Checked = true;
@@ -1503,7 +1503,7 @@ namespace unvell.ReoGrid.Editor
 			selStyleDefaultToolStripMenuItem.Checked = false;
 			selStyleFocusRectToolStripMenuItem.Checked = false;
 
-			switch (CurrentWorksheet.SelectionStyle)
+			switch (CurrentWorksheet?.SelectionStyle)
 			{
 				case WorksheetSelectionStyle.None:
 					selStyleNoneToolStripMenuItem.Checked = true;
@@ -1520,7 +1520,7 @@ namespace unvell.ReoGrid.Editor
 			focusStyleDefaultToolStripMenuItem.Checked = false;
 			focusStyleNoneToolStripMenuItem.Checked = false;
 
-			switch (CurrentWorksheet.FocusPosStyle)
+			switch (CurrentWorksheet?.FocusPosStyle)
 			{
 				default:
 				case FocusPosStyle.Default:
