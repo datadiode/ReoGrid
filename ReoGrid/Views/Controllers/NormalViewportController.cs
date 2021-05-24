@@ -880,15 +880,11 @@ namespace unvell.ReoGrid.Views
 			this.worksheet.workbook?.RaiseWorksheetScrolledEvent(this.worksheet, x, y);
 		}
 
-		public virtual void ScrollToRange(RangePosition range, CellPosition basePos)
+		public virtual void ScrollToRange(RangePosition range)
 		{
 			if (this.FocusView is Viewport view)
 			{
 				Rectangle rect = this.worksheet.GetScaledRangeBounds(range);
-
-				//var rect = this.worksheet.GetGridBounds(basePos.Row, basePos.Col);
-				//rect.Width /= this.worksheet.scaleFactor;
-				//rect.Height /= this.worksheet.scaleFactor;
 
 				RGFloat scale = this.ScaleFactor;
 

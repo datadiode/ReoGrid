@@ -460,7 +460,7 @@ namespace unvell.ReoGrid
 		/// <param name="pos">index position to locate specified cell</param>
 		public void ScrollToCell(CellPosition pos)
 		{
-			this.ScrollToRange(new RangePosition(pos), pos);
+			this.ScrollToRange(new RangePosition(pos));
 		}
 
 		/// <summary>
@@ -525,19 +525,9 @@ namespace unvell.ReoGrid
 		/// <param name="range">range index to locate a range on spreadsheet</param>
 		public void ScrollToRange(RangePosition range)
 		{
-			this.ScrollToRange(range, range.EndPos);
-		}
-
-		/// <summary>
-		/// Scroll to specified range based on a position to the range
-		/// </summary>
-		/// <param name="range">Range to be displayed</param>
-		/// <param name="basePos">Base point to scroll views</param>
-		public void ScrollToRange(RangePosition range, CellPosition basePos)
-		{
 			if (this.viewportController is IScrollableViewportController svc)
 			{
-				svc.ScrollToRange(this.FixRange(range), basePos);
+				svc.ScrollToRange(this.FixRange(range));
 			}
 		}
 

@@ -51,7 +51,7 @@ namespace unvell.ReoGrid.Views
 
 		void ScrollOffsetViews(ScrollDirection dir, RGFloat x, RGFloat y);
 
-		void ScrollToRange(RangePosition range, CellPosition pos);
+		void ScrollToRange(RangePosition range);
 
 		void SynchronizeScrollBar();
 	}
