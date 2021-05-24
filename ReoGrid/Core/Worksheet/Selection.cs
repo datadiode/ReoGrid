@@ -789,11 +789,10 @@ namespace unvell.ReoGrid
 		{
 			if (range.IsEmpty || this.selectionMode == WorksheetSelectionMode.None) return;
 
-			bool scrollToSelectionEnd = range.Rows != -1 && range.Cols != -1;
 			range = this.FixRange(range);
 
 			// submit to select a range 
-			ApplyRangeSelection(range.StartPos, range.EndPos, scrollToSelectionEnd);
+			ApplyRangeSelection(range.StartPos, range.EndPos, false);
 		}
 
 		/// <summary>
