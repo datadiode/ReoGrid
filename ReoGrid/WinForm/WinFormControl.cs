@@ -300,9 +300,7 @@ namespace unvell.ReoGrid
 			this.bottomPanel.VisibleChanged += canvasElements_VisibleChanged;
 			this.vScrollBar.VisibleChanged += canvasElements_VisibleChanged;
 
-			var g = System.Drawing.Graphics.FromHwnd(this.Handle);
-
-			this.renderer = new GDIRenderer(g);
+			this.renderer = new GDIRenderer(CreateGraphics());
 		}
 
 		void canvasElements_VisibleChanged(object sender, EventArgs e)
@@ -999,7 +997,7 @@ namespace unvell.ReoGrid
 			internal bool TextWrap { get; set; }
 			internal Size InitialSize { get; set; }
 			internal ReoGridVerAlign VAlign { get; set; }
-			private System.Drawing.Graphics graphics;
+			private readonly System.Drawing.Graphics graphics;
 			private StringFormat sf;
 
 			internal InputTextBox(ReoGridControl owner)
@@ -1012,7 +1010,7 @@ namespace unvell.ReoGrid
 				AcceptsTab = true;
 				AcceptsReturn = true;
 
-				this.graphics = System.Drawing.Graphics.FromHwnd(this.Handle);
+				this.graphics = CreateGraphics();
 			}
 			protected override void OnCreateControl()
 			{

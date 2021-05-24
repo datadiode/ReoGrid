@@ -38,11 +38,11 @@ namespace unvell.ReoGrid.WinForm
 	/// </summary>
 	internal class SheetTabControl : Control, ISheetTabControl
 	{
-		private ReoGridControl grid;
-		private System.Drawing.Graphics g;
+		private readonly ReoGridControl grid;
+		private readonly System.Drawing.Graphics g;
 
-		private Image newButtonImage;
-		private Image newButtonDisableImage;
+		private readonly Image newButtonImage;
+		private readonly Image newButtonDisableImage;
 
 		/// <summary>
 		/// Construct the control
@@ -68,7 +68,7 @@ namespace unvell.ReoGrid.WinForm
 			}
 
 			DoubleBuffered = true;
-			this.g = System.Drawing.Graphics.FromHwnd(this.Handle);
+			this.g = CreateGraphics();
 		}
 
 		protected override void DestroyHandle()
