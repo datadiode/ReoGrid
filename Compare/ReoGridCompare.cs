@@ -191,6 +191,8 @@ namespace unvell.ReoGrid.Editor
 			header1.SelectionChanged += (s, e) => arg1 = LoadOneFile(grid1, header1);
 			header2.SelectionChanged += (s, e) => arg2 = LoadOneFile(grid2, header2);
 
+			grid1.Disposed += Grid_Disposed;
+			grid2.Disposed += Grid_Disposed;
 			grid1.GotFocus += Grid_GotFocus;
 			grid2.GotFocus += Grid_GotFocus;
 			grid1.LostFocus += Grid_LostFocus;
@@ -1048,7 +1050,7 @@ namespace unvell.ReoGrid.Editor
 
 		public ReoGridControl GridControl { get { return formulaBar.GridControl; } }
 
-		public Worksheet CurrentWorksheet { get { return GridControl?.CurrentWorksheet; } }
+		public Worksheet CurrentWorksheet { get { return GridControl.CurrentWorksheet; } }
 
 		public RangePosition CurrentSelectionRange
 		{
@@ -1479,7 +1481,7 @@ namespace unvell.ReoGrid.Editor
 			selModeRowToolStripMenuItem.Checked = false;
 			selModeColumnToolStripMenuItem.Checked = false;
 
-			switch (CurrentWorksheet?.SelectionMode)
+			switch (CurrentWorksheet.SelectionMode)
 			{
 				case WorksheetSelectionMode.None:
 					selModeNoneToolStripMenuItem.Checked = true;
@@ -1503,7 +1505,7 @@ namespace unvell.ReoGrid.Editor
 			selStyleDefaultToolStripMenuItem.Checked = false;
 			selStyleFocusRectToolStripMenuItem.Checked = false;
 
-			switch (CurrentWorksheet?.SelectionStyle)
+			switch (CurrentWorksheet.SelectionStyle)
 			{
 				case WorksheetSelectionStyle.None:
 					selStyleNoneToolStripMenuItem.Checked = true;
@@ -1520,7 +1522,7 @@ namespace unvell.ReoGrid.Editor
 			focusStyleDefaultToolStripMenuItem.Checked = false;
 			focusStyleNoneToolStripMenuItem.Checked = false;
 
-			switch (CurrentWorksheet?.FocusPosStyle)
+			switch (CurrentWorksheet.FocusPosStyle)
 			{
 				default:
 				case FocusPosStyle.Default:
@@ -3196,6 +3198,17 @@ namespace unvell.ReoGrid.Editor
 			}
 		}
 		#endregion // Filter
+		private void Grid_Disposed(object sender, EventArgs e)
+		{
+			var grid = sender as ReoGridControl;
+			grid.GotFocus -= Grid_GotFocus;
+			grid.LostFocus -= Grid_LostFocus;
+			grid.WorksheetInserted -= Grid_WorksheetInserted;
+			grid.WorksheetRemoved -= Grid_WorksheetRemoved;
+			grid.CurrentWorksheetChanged -= Grid_CurrentWorksheetChanged;
+			grid.ActionPerformed -= Grid_ActionPerformed;
+			grid.Disposed -= Grid_Disposed;
+		}
 		private void Grid_ActionPerformed(object sender, ActionEventArgs e)
 		{
 			var grid = sender as ReoGridControl;
