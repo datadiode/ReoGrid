@@ -170,36 +170,26 @@ namespace unvell.ReoGrid.Utility
 
 			WorksheetRangeStyle style = cell.InnerStyle;
 
-			StyleParentKind pKind = StyleParentKind.Own;
-			WorksheetRangeStyle defaultStyle = FindCellParentStyle(grid, row, col, out pKind);
+			WorksheetRangeStyle defaultStyle = FindCellParentStyle(grid, row, col);
 
 			return DistinctStyle(style, defaultStyle);
 		}
 
-		internal static WorksheetRangeStyle FindCellParentStyle(Worksheet sheet, int row, int col, out StyleParentKind pKind)
+		internal static WorksheetRangeStyle FindCellParentStyle(Worksheet sheet, int row, int col)
 		{
 			RowHeader rowhead = sheet.RetrieveRowHeader(row);
+			ColumnHeader colhead = sheet.RetrieveColumnHeader(col);
 
-			if (rowhead.InnerStyle != null)
-			{
-				pKind = StyleParentKind.Row;
-				return rowhead.InnerStyle;
-			}
-			else
-			{
-				ColumnHeader colhead = sheet.RetrieveColumnHeader(col);
+			if (rowhead.InnerStyle == null)
+				return colhead.InnerStyle ?? sheet.RootStyle;
 
-				if (colhead.InnerStyle != null)
-				{
-					pKind = StyleParentKind.Col;
-					return colhead.InnerStyle;
-				}
-				else
-				{
-					pKind = StyleParentKind.Root;
-					return sheet.RootStyle;
-				}
-			}
+			if (colhead.InnerStyle == null)
+				return rowhead.InnerStyle ?? sheet.RootStyle;
+
+			var style = new WorksheetRangeStyle();
+			style.MergeFrom(rowhead.InnerStyle);
+			style.MergeFrom(colhead.InnerStyle);
+			return style;
 		}
 
 		internal static void UpdateCellParentStyle(Worksheet grid, Cell cell)

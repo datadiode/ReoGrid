@@ -686,9 +686,8 @@ namespace unvell.ReoGrid
 		public WorksheetRangeStyle GetCellStyles(int row, int col)
 		{
 			Cell cell = cells[row, col];
-			StyleParentKind pKind = StyleParentKind.Own;
 			if (cell == null)
-				return StyleUtility.FindCellParentStyle(this, row, col, out pKind);
+				return StyleUtility.FindCellParentStyle(this, row, col);
 			else
 				return new WorksheetRangeStyle(cell.InnerStyle);
 		}
@@ -704,10 +703,8 @@ namespace unvell.ReoGrid
 		{
 			Cell cell = cells[row, col];
 
-			StyleParentKind pKind = StyleParentKind.Own;
-
 			WorksheetRangeStyle style = (cell == null) ?
-				unvell.ReoGrid.Utility.StyleUtility.FindCellParentStyle(this, row, col, out pKind) : cell.InnerStyle;
+				unvell.ReoGrid.Utility.StyleUtility.FindCellParentStyle(this, row, col) : cell.InnerStyle;
 
 			return unvell.ReoGrid.Utility.StyleUtility.GetStyleItem(style, flag);
 		}

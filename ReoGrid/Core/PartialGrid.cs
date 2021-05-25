@@ -403,8 +403,7 @@ namespace unvell.ReoGrid
 						}
 						else
 						{
-							StyleParentKind pKind = StyleParentKind.Own;
-							var style = StyleUtility.FindCellParentStyle(this, r, c, out pKind);
+							var style = StyleUtility.FindCellParentStyle(this, r, c);
 
 							style = StyleUtility.DistinctStyle(style, Worksheet.DefaultStyle);
 

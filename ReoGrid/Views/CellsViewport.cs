@@ -899,7 +899,7 @@ namespace unvell.ReoGrid.Views
 			HatchStyles FillPatternStyle = HatchStyles.Min;
 			if (cell == null)
 			{
-				WorksheetRangeStyle style = StyleUtility.FindCellParentStyle(this.sheet, row, col, out var pKind);
+				WorksheetRangeStyle style = StyleUtility.FindCellParentStyle(this.sheet, row, col);
 				BackColor = style.BackColor;
 				FillPatternColor = style.FillPatternColor;
 				FillPatternStyle = style.FillPatternStyle;
