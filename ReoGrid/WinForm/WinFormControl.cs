@@ -998,7 +998,6 @@ namespace unvell.ReoGrid
 			internal Size InitialSize { get; set; }
 			internal ReoGridVerAlign VAlign { get; set; }
 			private readonly System.Drawing.Graphics graphics;
-			private StringFormat sf;
 
 			internal InputTextBox(ReoGridControl owner)
 				: base()
@@ -1009,13 +1008,11 @@ namespace unvell.ReoGrid
 				BackColor = Color.Transparent;
 				AcceptsTab = true;
 				AcceptsReturn = true;
+				AutoSize = false;
 
 				this.graphics = CreateGraphics();
 			}
-			protected override void OnCreateControl()
-			{
-				sf = new StringFormat(StringFormat.GenericDefault);
-			}
+
 			protected override void OnKeyDown(KeyEventArgs e)
 			{
 				var sheet = owner.currentWorksheet;
@@ -1074,93 +1071,43 @@ namespace unvell.ReoGrid
 
 			private void CheckAndUpdateWidth()
 			{
-				if (sf == null) sf = new StringFormat(StringFormat.GenericTypographic);
+				this.SuspendLayout();
 
-				int fieldWidth = 0;
-
-				if (TextWrap)
+				if (!TextWrap)
 				{
-					fieldWidth = InitialSize.Width;
-				}
-				else
-				{
-					fieldWidth = 9999999; // todo: avoid unsafe magic number
-				}
+					const TextFormatFlags flags = TextFormatFlags.SingleLine |
+						TextFormatFlags.NoPrefix | TextFormatFlags.TextBoxControl;
+					Size size = TextRenderer.MeasureText(Text, Font, new Size(int.MaxValue, 0), flags);
 
-				if (TextWrap)
-				{
-					sf.FormatFlags &= ~StringFormatFlags.NoWrap;
-				}
-				else
-				{
-					sf.FormatFlags |= StringFormatFlags.NoWrap;
-				}
-
-				Size size = Size.Round(graphics.MeasureString(Text, Font, fieldWidth, sf));
-
-				if (TextWrap)
-				{
-					this.SuspendLayout();
-
-					if (Height < size.Height)
+					if (Width < size.Width + 5)
 					{
-						int offset = size.Height - Height + 1;
-
-						Height += offset;
-
-						if (Height < Font.Height)
-						{
-							offset = Font.Height - Height;
-						}
-
-						Height += offset;
-
-						switch (VAlign)
-						{
-							case ReoGridVerAlign.Top:
-								break;
-							default:
-							case ReoGridVerAlign.Middle:
-								Top -= offset / 2;
-								break;
-							case ReoGridVerAlign.Bottom:
-								Top -= offset;
-								break;
-						}
-					}
-
-					this.ResumeLayout();
-				}
-				else
-				{
-					this.SuspendLayout();
-
-					if (Width < size.Width + 8)
-					{
-						int widthOffset = size.Width + 8 - Width;
-
+						int offset = size.Width + 5 - Width;
+						Width += offset;
 						switch (TextAlign)
 						{
 							default:
 							case HorizontalAlignment.Left:
 								break;
 							case HorizontalAlignment.Right:
-								Left -= widthOffset;
+								Left -= offset;
+								break;
+							case HorizontalAlignment.Center:
+								Left -= offset / 2;
 								break;
 						}
-
-						Width += widthOffset;
 					}
-
-					if (Height < size.Height + 1)
-					{
-						int offset = size.Height - 1 - Height;
-						Top -= offset / 2 + 0;
-						Height = size.Height + 1;
-					}
-
-					this.ResumeLayout();
 				}
+
+				if (Height < Font.Height)
+				{
+					int offset = Font.Height - Height;
+					Height += offset;
+					Top -= offset / 2;
+				}
+
+				ScrollToCaret();
+
+				this.ResumeLayout();
 			}
 
 			protected override void OnGotFocus(EventArgs e)
@@ -1266,7 +1213,6 @@ namespace unvell.ReoGrid
 			protected override void Dispose(bool disposing)
 			{
 				if (graphics != null) graphics.Dispose();
-				if (sf != null) sf.Dispose();
 
 				base.Dispose(disposing);
 			}
