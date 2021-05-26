@@ -1066,6 +1066,7 @@ namespace unvell.ReoGrid
 				if (Visible)
 				{
 					CheckAndUpdateWidth();
+					ScrollToCaret();
 				}
 			}
 
@@ -1104,8 +1105,6 @@ namespace unvell.ReoGrid
 					Height += offset;
 					Top -= offset / 2;
 				}
-
-				ScrollToCaret();
 
 				this.ResumeLayout();
 			}

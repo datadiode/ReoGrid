@@ -233,6 +233,19 @@ namespace unvell.ReoGrid
 				this.controlAdapter.SetEditControlCaretPos(editText.Length - 1);
 			}
 
+			var scale = this.renderScaleFactor;
+			var activeViewport = viewportController.FocusView as IViewport;
+			var textBounds = cell.TextBounds;
+
+#if WINFORM
+			var rect = cell.Bounds;
+			rect.Offset(viewportController.FocusView.Left, viewportController.FocusView.Top);
+			if (activeViewport != null)
+			{
+				rect.Offset(-activeViewport.ScrollViewLeft * scale, -activeViewport.ScrollViewTop * scale);
+			}
+			rect.Inflate(-1, -1);
+#else
 			RGFloat x = 0;
 
 			RGFloat width = (cell.Width - 1) * this.renderScaleFactor;
@@ -245,17 +258,13 @@ namespace unvell.ReoGrid
 			//width -= indentSize;
 			//}
 
-#if WINFORM
-			width = Math.Max(width, cell.TextBounds.Width);
-#elif WPF
+#if WPF
 			// why + 6 ?
-			if (width < cell.TextBounds.Width) width = cell.TextBounds.Width + 6;
+			if (width < textBounds.Width) width = textBounds.Width + 6;
 #endif
 
 			width--;
 			//width = (width - 1);
-
-			RGFloat scale = this.renderScaleFactor;
 
 			#region Horizontal alignment
 			switch (cell.RenderHorAlign)
@@ -285,8 +294,6 @@ namespace unvell.ReoGrid
 
 			RGFloat y = cell.Top * scale + 1;
 
-			var activeViewport = viewportController.FocusView as IViewport;
-
 			int boxX = (int)Math.Round(x + viewportController.FocusView.Left - (activeViewport == null ? 0 : (activeViewport.ScrollViewLeft * scale)));
 			int boxY = (int)Math.Round(y + viewportController.FocusView.Top - (activeViewport == null ? 0 : (activeViewport.ScrollViewTop * scale)));
 
@@ -294,7 +301,7 @@ namespace unvell.ReoGrid
 
 			if (!cell.IsMergedCell && cell.InnerStyle.TextWrapMode != TextWrapMode.NoWrap)
 			{
-				if (height < cell.TextBounds.Height) height = cell.TextBounds.Height;
+				if (height < textBounds.Height) height = textBounds.Height;
 			}
 
 			int offsetHeight = 0;// (int)Math.Round(height);// (int)Math.Round(height + 2 - (cell.Height));
@@ -316,6 +323,7 @@ namespace unvell.ReoGrid
 			}
 
 			Rectangle rect = new Rectangle(boxX, boxY, width, height);
+#endif
 
 			this.controlAdapter.ShowEditControl(rect, cell);
 
