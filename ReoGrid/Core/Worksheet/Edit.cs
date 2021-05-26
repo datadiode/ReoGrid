@@ -238,7 +238,7 @@ namespace unvell.ReoGrid
 			var textBounds = cell.TextBounds;
 
 #if WINFORM
-			var rect = cell.Bounds;
+			var rect = cell.Bounds * scale;
 			rect.Offset(viewportController.FocusView.Left, viewportController.FocusView.Top);
 			if (activeViewport != null)
 			{
