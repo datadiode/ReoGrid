@@ -1993,32 +1993,52 @@ namespace unvell.ReoGrid
 		/// </summary>
 		internal void ExpandToContent()
 		{
-			var entireRange = new RangePosition(0, 0, MaxContentRow + 1, MaxContentCol + 1);
-
-			IterateCells(entireRange, (row, col, cell) =>
+			var sheetEndRow = MaxContentRow + 1;
+			var sheetEndCol = MaxContentCol + 1;
+			if (settings.Has(WorksheetSettings.Edit_AutoExpandRowHeight))
 			{
-				if (settings.Has(WorksheetSettings.Edit_AutoExpandRowHeight))
+				SetRowsHeight(0, sheetEndRow, r =>
 				{
-					var rowHeader = rows[cell.Row];
-
+					var rowHeader = GetRowHeader(r);
+					double maxHeight = rowHeader.Height;
 					if (rowHeader.IsVisible && rowHeader.IsAutoHeight)
 					{
-						ExpandRowHeightToFitCell(cell);
+						for (var c = 0; c < sheetEndCol; ++c)
+						{
+							var cell = cells[r, c];
+							if (cell != null && cell.IsValidCell && !string.IsNullOrEmpty(cell.DisplayText))
+							{
+								double textHeight = cell.TextBounds.Height;
+								if (maxHeight < textHeight)
+									maxHeight = textHeight;
+							}
+						}
 					}
-				}
-
-				if (settings.Has(WorksheetSettings.Edit_AutoExpandColumnWidth))
+					return (ushort)Math.Min(Math.Ceiling(maxHeight / renderScaleFactor), ushort.MaxValue);
+				});
+			}
+			if (settings.Has(WorksheetSettings.Edit_AutoExpandColumnWidth))
+			{
+				SetColumnsWidth(0, sheetEndCol, c =>
 				{
-					var colHeader = cols[cell.Column];
-
+					var colHeader = GetColumnHeader(c);
+					double maxWidth = colHeader.Width;
 					if (colHeader.IsVisible && colHeader.IsAutoWidth)
 					{
-						ExpandColumnWidthFitToCell(cell);
+						for (var r = 0; r < sheetEndRow; ++r)
+						{
+							var cell = cells[r, c];
+							if (cell != null && cell.IsValidCell && !string.IsNullOrEmpty(cell.DisplayText))
+							{
+								double textWidth = cell.TextBounds.Width;
+								if (maxWidth < textWidth)
+									maxWidth = textWidth;
+							}
+						}
 					}
-				}
-
-				return true;
-			});
+					return (ushort)Math.Min(Math.Ceiling(maxWidth / renderScaleFactor), ushort.MaxValue);
+				});
+			}
 		}
 		#endregion // Internal Utilites
 
