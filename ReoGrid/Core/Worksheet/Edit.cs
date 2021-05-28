@@ -245,6 +245,12 @@ namespace unvell.ReoGrid
 				rect.Offset(-activeViewport.ScrollViewLeft * scale, -activeViewport.ScrollViewTop * scale);
 			}
 			rect.Inflate(-1, -1);
+
+			controlAdapter.SetEditControlAlignment(
+				cell.InnerStyle.HAlign == ReoGridHorAlign.DistributedIndent ||
+				cell.RenderHorAlign == ReoGridRenderHorAlign.Center ? ReoGridHorAlign.Center :
+				cell.RenderHorAlign == ReoGridRenderHorAlign.Right ? ReoGridHorAlign.Right :
+				ReoGridHorAlign.Left);
 #else
 			RGFloat x = 0;
 
