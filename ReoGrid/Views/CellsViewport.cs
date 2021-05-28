@@ -841,10 +841,7 @@ namespace unvell.ReoGrid.Views
 
 				#region Determine clip region
 
-				RGFloat cellScaledWidth = cell.Width * this.scaleFactor;
-				RGFloat cellScaledHeight = (float)Math.Floor(cell.Height * this.scaleFactor) - 1;
-
-				Rectangle clipRect = cell.Bounds;
+				Rectangle clipRect = cell.Bounds * this.scaleFactor;
 				Rectangle textBounds = cell.Worksheet.UpdateCellTextBounds(dc.Renderer, cell, dc.DrawMode, this.scaleFactor);
 
 				if (!(cell.IsMergedCell || cell.InnerStyle.TextWrapMode == TextWrapMode.WordBreak || dc.AllowCellClip))
@@ -853,7 +850,7 @@ namespace unvell.ReoGrid.Views
 					// Ask left neighbors for consent to draw into their area
 					for (i = cell.InternalCol; --i >= 0; )
 					{
-						Rectangle cellBounds = sheet.GetCellBounds(cell.InternalRow, i);
+						Rectangle cellBounds = sheet.GetCellBounds(cell.InternalRow, i) * this.scaleFactor;
 						if (cellBounds.Right <= textBounds.Left)
 							break;
 						var neighbor = sheet.cells[cell.InternalRow, i];
@@ -866,7 +863,7 @@ namespace unvell.ReoGrid.Views
 					// Ask right neighbors for consent to draw into their area
 					for (i = cell.InternalCol; ++i < sheet.cols.Count; )
 					{
-						Rectangle cellBounds = sheet.GetCellBounds(cell.InternalRow, i);
+						Rectangle cellBounds = sheet.GetCellBounds(cell.InternalRow, i) * this.scaleFactor;
 						if (cellBounds.Left >= textBounds.Right)
 							break;
 						var neighbor = sheet.cells[cell.InternalRow, i];
@@ -877,7 +874,7 @@ namespace unvell.ReoGrid.Views
 					}
 				}
 
-				g.PushClip(clipRect * this.scaleFactor);
+				g.PushClip(clipRect);
 				//dc.Renderer.DrawRectangle(cell.PrintTextBounds, SolidColor.Blue);
 
 				#endregion // Determine clip region
