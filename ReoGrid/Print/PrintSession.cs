@@ -226,13 +226,16 @@ namespace unvell.ReoGrid.Print
 					break;
 			}
 
-			if (this.DrawingContext.Graphics == null)
-			{
 #if WINFORM
-				this.DrawingContext.Graphics = new unvell.ReoGrid.WinForm.GDIRenderer(pg);
-#endif // WINFORM
+			// Always need a fresh GDIRenderer because the cachedGraphics of the used one is disposed
+			if (this.DrawingContext.Graphics is WinForm.GDIRenderer renderer)
+			{
+				renderer.Dispose();
 			}
-			else
+			this.DrawingContext.Graphics = new WinForm.GDIRenderer(pg);
+#else
+			if (this.DrawingContext.Graphics != null)
+#endif // WINFORM
 			{
 				this.DrawingContext.Graphics.Reset();
 			}

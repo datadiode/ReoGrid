@@ -46,7 +46,7 @@ namespace unvell.ReoGrid.WinForm
 	#region GDIGraphics
 	internal class GDIGraphics : IGraphics
 	{
-		protected ResourcePoolManager resourceManager = new ResourcePoolManager();
+		protected readonly ResourcePoolManager resourceManager = new ResourcePoolManager();
 
 		#region Platform Graphics
 		private System.Drawing.Graphics g = null;
@@ -54,14 +54,8 @@ namespace unvell.ReoGrid.WinForm
 		public PlatformGraphics PlatformGraphics { get { return this.g; } set { this.g = value; } }
 		#endregion // Platform Graphics
 
-		protected StringFormat sf;
-
 		public GDIGraphics()
 		{
-			this.sf = new StringFormat(StringFormat.GenericTypographic)
-			{
-				FormatFlags = StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.FitBlackBox | StringFormatFlags.NoClip
-			};
 		}
 
 		public GDIGraphics(PlatformGraphics g)
@@ -344,10 +338,12 @@ namespace unvell.ReoGrid.WinForm
 
 			if (font != null)
 			{
-				lock (this.sf)
+				using (var sf = new StringFormat(StringFormat.GenericTypographic)
 				{
-					sf.FormatFlags |= StringFormatFlags.NoWrap;
-
+					FormatFlags = StringFormatFlags.MeasureTrailingSpaces |
+						StringFormatFlags.FitBlackBox | StringFormatFlags.NoClip | StringFormatFlags.NoWrap
+				})
+				{
 					switch (halign)
 					{
 						default: sf.Alignment = StringAlignment.Near; break;
@@ -512,7 +508,8 @@ namespace unvell.ReoGrid.WinForm
 	{
 		private readonly System.Drawing.Graphics cachedGraphics;
 
-		private StringFormat headerSf;
+		private readonly StringFormat headerSf;
+		private readonly StringFormat measureSf;
 
 		internal static readonly System.Drawing.Font HeaderFont = new System.Drawing.Font(
 			System.Drawing.SystemFonts.DefaultFont.Name, 8f, System.Drawing.FontStyle.Regular);
@@ -527,6 +524,11 @@ namespace unvell.ReoGrid.WinForm
 				Alignment = System.Drawing.StringAlignment.Center,
 				Trimming = System.Drawing.StringTrimming.None,
 				FormatFlags = System.Drawing.StringFormatFlags.LineLimit,
+			};
+
+			this.measureSf = new StringFormat(StringFormat.GenericTypographic)
+			{
+				FormatFlags = StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.FitBlackBox | StringFormatFlags.NoClip
 			};
 		}
 
@@ -696,7 +698,7 @@ namespace unvell.ReoGrid.WinForm
 			}
 			#endregion // Determine text bounds
 
-			lock (this.sf)
+			using (var sf = new StringFormat(this.measureSf))
 			{
 				#region Set sf wrap
 				if (cell.InnerStyle.TextWrapMode == TextWrapMode.NoWrap)
@@ -708,8 +710,6 @@ namespace unvell.ReoGrid.WinForm
 					sf.FormatFlags &= ~StringFormatFlags.NoWrap;
 				}
 				#endregion // Set sf wrap
-
-				var g = base.PlatformGraphics;
 
 				#region Rotate text
 				if (cell.InnerStyle.RotationAngle != 0)
@@ -726,7 +726,7 @@ namespace unvell.ReoGrid.WinForm
 					sf.LineAlignment = StringAlignment.Center;
 					sf.Alignment = StringAlignment.Center;
 
-					g.DrawString(cell.DisplayText, scaledFont, b, 0, 0, this.sf);
+					PlatformGraphics.DrawString(cell.DisplayText, scaledFont, b, 0, 0, sf);
 
 					this.PopTransform();
 				}
@@ -775,7 +775,7 @@ namespace unvell.ReoGrid.WinForm
 					}
 					#endregion // Align StringFormat
 
-					g.DrawString(cell.DisplayText, scaledFont, b, textBounds, this.sf);
+					PlatformGraphics.DrawString(cell.DisplayText, scaledFont, b, textBounds, sf);
 				}
 			}
 		}
@@ -820,8 +820,6 @@ namespace unvell.ReoGrid.WinForm
 
 			double s = 0, c = 0;
 
-			//if (sf == null) sf = new System.Drawing.StringFormat(System.Drawing.StringFormat.GenericTypographic);
-
 			if (cell.Style.RotationAngle != 0)
 			{
 				double d = (style.RotationAngle * Math.PI / 180.0d);
@@ -829,77 +827,58 @@ namespace unvell.ReoGrid.WinForm
 				c = Math.Cos(d);
 			}
 
-			lock (sf)
+			// merged cell need word break automatically
+			if (style.TextWrapMode != TextWrapMode.NoWrap)
 			{
-				// merged cell need word break automatically
-				if (style.TextWrapMode == TextWrapMode.NoWrap)
+				// get cell available width
+				float cellWidth = 0;
+
+				if (cell.Style.RotationAngle != 0)
 				{
-					// no word break
-					fieldWidth = 9999999; // TODO: avoid magic number
-					sf.FormatFlags |= StringFormatFlags.NoWrap;
+					cellWidth = (float)(Math.Abs(cell.Bounds.Width * c) + Math.Abs(cell.Bounds.Height * s));
 				}
 				else
 				{
-					// get cell available width
-					float cellWidth = 0;
+					cellWidth = cell.Bounds.Width;
 
-					if (cell.Style.RotationAngle != 0)
+					if (cell.InnerStyle != null)
 					{
-						cellWidth = (float)(Math.Abs(cell.Bounds.Width * c) + Math.Abs(cell.Bounds.Height * s));
-					}
-					else
-					{
-						cellWidth = cell.Bounds.Width;
-
-						if (cell.InnerStyle != null)
+						if ((cell.InnerStyle.Flag & PlainStyleFlag.Indent) == PlainStyleFlag.Indent)
 						{
-							if ((cell.InnerStyle.Flag & PlainStyleFlag.Indent) == PlainStyleFlag.Indent)
-							{
-								cellWidth -= (int)(cell.InnerStyle.Indent * sheet.IndentSize);
-							}
+							cellWidth -= (int)(cell.InnerStyle.Indent * sheet.IndentSize);
 						}
-
-						// border width
-						cellWidth -= 2;
 					}
 
-					// word break
-					fieldWidth = (int)Math.Round(cellWidth * scale);
-					sf.FormatFlags &= ~StringFormatFlags.NoWrap;
+					// border width
+					cellWidth -= 2;
 				}
 
-				var g = this.cachedGraphics;
-
-				System.Drawing.Font scaledFont;
-				switch (drawMode)
-				{
-					default:
-					case DrawMode.View:
-						scaledFont = cell.RenderFont;
-						break;
-
-					case DrawMode.Preview:
-					case DrawMode.Print:
-						scaledFont = this.resourceManager.GetFont(cell.RenderFont.Name,
-							style.FontSize * scale, cell.RenderFont.Style);
-						g = this.PlatformGraphics;
-						System.Diagnostics.Debug.Assert(g != null);
-						break;
-				}
-
-				SizeF size = g.MeasureString(cell.DisplayText, scaledFont, fieldWidth, sf);
-				size.Height++;
-
-				if (style.RotationAngle != 0)
-				{
-					float w = (float)(Math.Abs(size.Width * c) + Math.Abs(size.Height * s));
-					float h = (float)(Math.Abs(size.Width * s) + Math.Abs(size.Height * c));
-
-					size = new SizeF(w + 1, h + 1);
-				}
-
-				return size;
+				// word break
+				fieldWidth = (int)Math.Round(cellWidth * scale);
 			}
+
+			var scaledFont = cell.RenderFont;
+
+			switch (drawMode)
+			{
+				case DrawMode.Preview:
+				case DrawMode.Print:
+					scaledFont = resourceManager.GetFont(scaledFont.Name, style.FontSize * scale, scaledFont.Style);
+					break;
+			}
+
+			SizeF size = cachedGraphics.MeasureString(cell.DisplayText, scaledFont, fieldWidth, measureSf);
+			size.Height++;
+
+			if (style.RotationAngle != 0)
+			{
+				float w = (float)(Math.Abs(size.Width * c) + Math.Abs(size.Height * s));
+				float h = (float)(Math.Abs(size.Width * s) + Math.Abs(size.Height * c));
+
+				size = new SizeF(w + 1, h + 1);
+			}
+
+			return size;
 		}
 
 		#endregion // Cell
@@ -989,18 +968,8 @@ namespace unvell.ReoGrid.WinForm
 			}
 
 			this.cachedGraphics.Dispose();
-
-			if (this.sf != null)
-			{
-				this.sf.Dispose();
-				this.sf = null;
-			}
-
-			if (this.headerSf != null)
-			{
-				this.headerSf.Dispose();
-				this.headerSf = null;
-			}
+			this.headerSf.Dispose();
+			this.measureSf.Dispose();
 		}
 	}
 	#endregion // GDIRenderer
