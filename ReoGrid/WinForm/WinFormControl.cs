@@ -1076,8 +1076,7 @@ namespace unvell.ReoGrid
 
 				if (!TextWrap)
 				{
-					const TextFormatFlags flags = TextFormatFlags.SingleLine |
-						TextFormatFlags.NoPrefix | TextFormatFlags.TextBoxControl;
+					const TextFormatFlags flags = TextFormatFlags.NoPrefix | TextFormatFlags.TextBoxControl;
 					Size size = TextRenderer.MeasureText(Text, Font, new Size(int.MaxValue, 0), flags);
 
 					if (Width < size.Width + 5)
