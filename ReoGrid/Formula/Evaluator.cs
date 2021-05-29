@@ -273,7 +273,9 @@ namespace unvell.ReoGrid.Formula
 						FormulaValue v1 = Evaluate(workbook, cell, node[0]);
 						FormulaValue v2 = Evaluate(workbook, cell, node[1]);
 
-						if (v1.type != v2.type) return false;
+						if (v1.type == FormulaValueType.Nil) v1.type = v2.type;
+						else if (v2.type == FormulaValueType.Nil) v2.type = v1.type;
+						else if (v1.type != v2.type) return false;
 
 						switch (v1.type)
 						{
@@ -284,7 +286,7 @@ namespace unvell.ReoGrid.Formula
 								return (DateTime)v1.value == (DateTime)v2.value;
 
 							case FormulaValueType.String:
-								return (string)v1.value == (string)v2.value;
+								return (string)v1 == (string)v2;
 
 							case FormulaValueType.Boolean:
 								return (bool)v1.value == (bool)v2.value;
@@ -301,7 +303,9 @@ namespace unvell.ReoGrid.Formula
 						FormulaValue v1 = Evaluate(workbook, cell, node[0]);
 						FormulaValue v2 = Evaluate(workbook, cell, node[1]);
 
-						if (v1.type != v2.type) return true;
+						if (v1.type == FormulaValueType.Nil) v1.type = v2.type;
+						else if (v2.type == FormulaValueType.Nil) v2.type = v1.type;
+						else if (v1.type != v2.type) return true;
 
 						switch (v1.type)
 						{
@@ -312,7 +316,7 @@ namespace unvell.ReoGrid.Formula
 								return (DateTime)v1.value != (DateTime)v2.value;
 
 							case FormulaValueType.String:
-								return (string)v1.value != (string)v2.value;
+								return (string)v1 != (string)v2;
 
 							case FormulaValueType.Boolean:
 								return (bool)v1.value != (bool)v2.value;
