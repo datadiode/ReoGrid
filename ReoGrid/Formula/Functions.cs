@@ -803,36 +803,15 @@ namespace unvell.ReoGrid.Formula
 			{
 				throw new FormulaParameterMismatchException(cell);
 			}
-			FormulaValue val = Evaluator.Evaluate(cell, funNode.Children[0]);
-			int index = 1;
-			if (val.type == FormulaValueType.Boolean)
-			{
-				if ((bool)val.value == false)
-				{
-					index = 2;
-				}
-			}
-			else if (val.type == FormulaValueType.Number)
-			{
-				if ((double)val.value == 0)
-				{
-					index = 2;
-				}
-			}
-			else if (val.type == FormulaValueType.DateTime)
-			{
-				if (((DateTime)val.value).ToOADate() == 0)
-				{
-					index = 2;
-				}
-			}
-			else
+			var val = Evaluator.CheckAndGetDefaultValue(cell, Evaluator.Evaluate(cell, funNode.Children[0]));
+			if (val.type != FormulaValueType.Number)
 			{
 				throw new FormulaTypeMismatchException(cell);
 			}
+			int index = val != 0 ? 1 : 2;
 			if (index < funNode.Children.Count)
 			{
-				val = Evaluator.Evaluate(cell, funNode.Children[index]);
+				val = Evaluator.CheckAndGetDefaultValue(cell, Evaluator.Evaluate(cell, funNode.Children[index]));
 			}
 			else
 			{
@@ -845,35 +824,18 @@ namespace unvell.ReoGrid.Formula
 		#region AND
 		public static FormulaValue And(Cell cell, List<STNode> list)
 		{
+			if (list == null || list.Count <= 0)
+			{
+				throw new FormulaParameterMismatchException(cell, "At least one parameter is needed, but nothing specified.");
+			}
+
 			foreach (var node in list)
 			{
-				FormulaValue val = Evaluator.Evaluate(cell, node);
-
-				if (val.type == FormulaValueType.Boolean)
-				{
-					if ((bool)val.value == false)
-					{
-						return false;
-					}
-				}
-				else if (val.type == FormulaValueType.Number)
-				{
-					if ((double)val.value == 0)
-					{
-						return false;
-					}
-				}
-				else if (val.type == FormulaValueType.DateTime)
-				{
-					if (((DateTime)val.value).ToOADate() == 0)
-					{
-						return false;
-					}
-				}
-				else
-				{
+				var val = Evaluator.CheckAndGetDefaultValue(cell, Evaluator.Evaluate(cell, node));
+				if (val.type != FormulaValueType.Number)
 					throw new FormulaTypeMismatchException(cell);
-				}
+				if (val == 0)
+					return false;
 			}
 
 			return true;
@@ -890,33 +852,11 @@ namespace unvell.ReoGrid.Formula
 
 			foreach (var node in list)
 			{
-				FormulaValue val = Evaluator.Evaluate(cell, node);
-
-				if (val.type == FormulaValueType.Boolean)
-				{
-					if ((bool)val.value == true)
-					{
-						return true;
-					}
-				}
-				else if (val.type == FormulaValueType.Number)
-				{
-					if ((double)val.value != 0)
-					{
-						return true;
-					}
-				}
-				else if (val.type == FormulaValueType.DateTime)
-				{
-					if (((DateTime)val.value).ToOADate() != 0)
-					{
-						return true;
-					}
-				}
-				else
-				{
+				var val = Evaluator.CheckAndGetDefaultValue(cell, Evaluator.Evaluate(cell, node));
+				if (val.type != FormulaValueType.Number)
 					throw new FormulaTypeMismatchException(cell);
-				}
+				if (val != 0)
+					return true;
 			}
 
 			return false;
@@ -926,24 +866,10 @@ namespace unvell.ReoGrid.Formula
 		#region NOT
 		public static FormulaValue Not(Cell cell, STNode arg0)
 		{
-			FormulaValue val = Evaluator.Evaluate(cell, arg0);
-
-			if (val.type == FormulaValueType.Boolean)
-			{
-				return (bool)val.value == false;
-			}
-			else if (val.type == FormulaValueType.Number)
-			{
-				return (double)val.value == 0;
-			}
-			else if (val.type == FormulaValueType.DateTime)
-			{
-				return ((DateTime)val.value).ToOADate() == 0;
-			}
-			else
-			{
+			FormulaValue val = Evaluator.CheckAndGetDefaultValue(cell, Evaluator.Evaluate(cell, arg0));
+			if (val.type != FormulaValueType.Number)
 				throw new FormulaTypeMismatchException(cell);
-			}
+			return val == 0;
 		}
 		#endregion // NOT
 

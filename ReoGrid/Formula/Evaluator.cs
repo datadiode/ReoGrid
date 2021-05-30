@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -45,7 +46,7 @@ namespace unvell.ReoGrid.Formula
 
 		public static FormulaValue Evaluate(Cell cell, STNode node)
 		{
-			return Evaluate(cell.Worksheet == null ? null : cell.Worksheet.workbook, cell, node);
+			return Evaluate(cell.Worksheet?.workbook, cell, node);
 		}
 
 		private static FormulaValue Evaluate(IWorkbook workbook, Cell cell, STNode node)
@@ -173,16 +174,10 @@ namespace unvell.ReoGrid.Formula
 					{
 						if (node.Children.Count < 2) return FormulaValue.Nil;
 
-						FormulaValue v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
-						FormulaValue v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
+						var v1 = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[1]));
 
-						if (v1.type != FormulaValueType.Number || v2.type != FormulaValueType.Number)
-						{
-							throw new FormulaTypeMismatchException(cell);
-							//return FormulaValue.Nil;
-						}
-
-						return (double)v1.value * (double)v2.value;
+						return v1 * v2;
 					}
 				#endregion // Mul
 
@@ -191,16 +186,10 @@ namespace unvell.ReoGrid.Formula
 					{
 						if (node.Children.Count < 2) return FormulaValue.Nil;
 
-						FormulaValue v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
-						FormulaValue v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
+						var v1 = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[1]));
 
-						if (v1.type != FormulaValueType.Number || v2.type != FormulaValueType.Number)
-						{
-							throw new FormulaTypeMismatchException(cell);
-							//return FormulaValue.Nil;
-						}
-
-						return (double)v1.value / (double)v2.value;
+						return v1 / v2;
 					}
 				#endregion // Div
 				#endregion // ADD, SUB, MUL, DIV
@@ -238,29 +227,18 @@ namespace unvell.ReoGrid.Formula
 				case STNodeType.UNARY_MINUS:
 					#region UNARY_MINUS
 					{
-						FormulaValue val = Evaluate(workbook, cell, node[0]);
+						var val = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[0]));
 
-						if (val.type != FormulaValueType.Number)
-						{
-							throw new FormulaTypeMismatchException(cell);
-						}
-
-						return (FormulaValue)(-(double)val.value);
-						//return val.type == FormulaValueType.Number ? (FormulaValue)(-(double)val.value) : FormulaValue.Nil;
+						return -val;
 					}
 				#endregion // UNARY_MINUS
 
 				case STNodeType.UNARY_PERCENT:
 					#region UNARY_PERCENT
 					{
-						FormulaValue val = Evaluate(workbook, cell, node[0]);
+						var val = CheckAndGetDefaultValueDouble(cell, Evaluate(workbook, cell, node[0]));
 
-						if (val.type != FormulaValueType.Number)
-						{
-							throw new FormulaTypeMismatchException(cell);
-						}
-
-						return (FormulaValue)((double)val.value / 100d);
+						return val / 100d;
 					}
 				#endregion // UNARY_PERCENT
 
@@ -270,8 +248,8 @@ namespace unvell.ReoGrid.Formula
 				#region Equals
 				case STNodeType.EQUALS:
 					{
-						FormulaValue v1 = Evaluate(workbook, cell, node[0]);
-						FormulaValue v2 = Evaluate(workbook, cell, node[1]);
+						var v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
 
 						if (v1.type == FormulaValueType.Nil) v1.type = v2.type;
 						else if (v2.type == FormulaValueType.Nil) v2.type = v1.type;
@@ -280,16 +258,10 @@ namespace unvell.ReoGrid.Formula
 						switch (v1.type)
 						{
 							case FormulaValueType.Number:
-								return (double)v1.value == (double)v2.value;
-
-							case FormulaValueType.DateTime:
-								return (DateTime)v1.value == (DateTime)v2.value;
+								return (double)v1 == (double)v2;
 
 							case FormulaValueType.String:
 								return (string)v1 == (string)v2;
-
-							case FormulaValueType.Boolean:
-								return (bool)v1.value == (bool)v2.value;
 
 							default:
 								return false;
@@ -300,8 +272,8 @@ namespace unvell.ReoGrid.Formula
 				#region Not Equals
 				case STNodeType.NOT_EQUALS:
 					{
-						FormulaValue v1 = Evaluate(workbook, cell, node[0]);
-						FormulaValue v2 = Evaluate(workbook, cell, node[1]);
+						var v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
 
 						if (v1.type == FormulaValueType.Nil) v1.type = v2.type;
 						else if (v2.type == FormulaValueType.Nil) v2.type = v1.type;
@@ -310,16 +282,10 @@ namespace unvell.ReoGrid.Formula
 						switch (v1.type)
 						{
 							case FormulaValueType.Number:
-								return (double)v1.value != (double)v2.value;
-
-							case FormulaValueType.DateTime:
-								return (DateTime)v1.value != (DateTime)v2.value;
+								return (double)v1 != (double)v2;
 
 							case FormulaValueType.String:
 								return (string)v1 != (string)v2;
-
-							case FormulaValueType.Boolean:
-								return (bool)v1.value != (bool)v2.value;
 
 							default:
 								return true;
@@ -329,40 +295,35 @@ namespace unvell.ReoGrid.Formula
 
 				#region Greater than
 				case STNodeType.GREAT_EQUALS:
-				case STNodeType.GREAT_THAN:
 					{
-						FormulaValue v1 = Evaluate(workbook, cell, node[0]);
-						FormulaValue v2 = Evaluate(workbook, cell, node[1]);
+						var v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
 
 						if (v1.type == FormulaValueType.Number && v2.type == FormulaValueType.Number)
 						{
-							return (node.Type == STNodeType.GREAT_EQUALS)
-								? (double)v1.value >= (double)v2.value
-								: (double)v1.value > (double)v2.value;
-						}
-
-						if (v1.type == FormulaValueType.DateTime && v2.type == FormulaValueType.DateTime)
-						{
-							return (node.Type == STNodeType.GREAT_EQUALS)
-								? (DateTime)v1.value >= (DateTime)v2.value
-								: (DateTime)v1.value > (DateTime)v2.value;
+							return (double)v1 >= (double)v2;
 						}
 
 						if (v1.type == FormulaValueType.String || v2.type == FormulaValueType.String)
 						{
-							string str1 = (v1.type == FormulaValueType.String) ? (string)v1.value : Convert.ToString(v1.value);
-							string str2 = (v2.type == FormulaValueType.String) ? (string)v2.value : Convert.ToString(v2.value);
-
-							return node.Type == STNodeType.GREAT_EQUALS
-								? string.Compare(str1, str2) >= 0
-								: string.Compare(str1, str2) > 0;
+							return string.Compare(v1, v2) >= 0;
 						}
 
-						if (v1.type == FormulaValueType.Boolean && v2.type == FormulaValueType.Boolean)
+						return false;
+					}
+				case STNodeType.GREAT_THAN:
+					{
+						var v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
+
+						if (v1.type == FormulaValueType.Number && v2.type == FormulaValueType.Number)
 						{
-							return (node.Type == STNodeType.GREAT_EQUALS)
-								? ((bool)v1.value ? 1 : 0) >= ((bool)v2.value ? 1 : 0)
-								: ((bool)v1.value ? 1 : 0) > ((bool)v2.value ? 1 : 0);
+							return (double)v1 > (double)v2;
+						}
+
+						if (v1.type == FormulaValueType.String || v2.type == FormulaValueType.String)
+						{
+							return string.Compare(v1, v2) > 0;
 						}
 
 						return false;
@@ -371,40 +332,35 @@ namespace unvell.ReoGrid.Formula
 
 				#region Less than
 				case STNodeType.LESS_EQUALS:
-				case STNodeType.LESS_THAN:
 					{
-						FormulaValue v1 = Evaluate(workbook, cell, node[0]);
-						FormulaValue v2 = Evaluate(workbook, cell, node[1]);
+						var v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
 
 						if (v1.type == FormulaValueType.Number && v2.type == FormulaValueType.Number)
 						{
-							return (node.Type == STNodeType.LESS_EQUALS)
-								? (double)v1.value <= (double)v2.value
-								: (double)v1.value < (double)v2.value;
-						}
-
-						if (v1.type == FormulaValueType.DateTime && v2.type == FormulaValueType.DateTime)
-						{
-							return (node.Type == STNodeType.LESS_EQUALS)
-								? (DateTime)v1.value <= (DateTime)v2.value
-								: (DateTime)v1.value < (DateTime)v2.value;
+							return (double)v1 <= (double)v2;
 						}
 
 						if (v1.type == FormulaValueType.String || v2.type == FormulaValueType.String)
 						{
-							string str1 = (v1.type == FormulaValueType.String) ? (string)v1.value : Convert.ToString(v1.value);
-							string str2 = (v2.type == FormulaValueType.String) ? (string)v2.value : Convert.ToString(v2.value);
-
-							return node.Type == STNodeType.LESS_EQUALS
-								? string.Compare(str1, str2) <= 0
-								: string.Compare(str1, str2) < 0;
+							return string.Compare(v1, v2) <= 0;
 						}
 
-						if (v1.type == FormulaValueType.Boolean && v2.type == FormulaValueType.Boolean)
+						return false;
+					}
+				case STNodeType.LESS_THAN:
+					{
+						var v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
+						var v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]));
+
+						if (v1.type == FormulaValueType.Number && v2.type == FormulaValueType.Number)
 						{
-							return (node.Type == STNodeType.LESS_EQUALS)
-								? ((bool)v1.value ? 1 : 0) <= ((bool)v2.value ? 1 : 0)
-								: ((bool)v1.value ? 1 : 0) < ((bool)v2.value ? 1 : 0);
+							return (double)v1 < (double)v2;
+						}
+
+						if (v1.type == FormulaValueType.String || v2.type == FormulaValueType.String)
+						{
+							return string.Compare(v1, v2) < 0;
 						}
 
 						return false;
@@ -412,7 +368,8 @@ namespace unvell.ReoGrid.Formula
 				#endregion // Less than
 
 				case STNodeType.SUB_EXPR:
-					return (node.Children.Count < 1) ? FormulaValue.Nil : Evaluate(workbook, cell, node[0]);
+					return (node.Children.Count < 1) ? FormulaValue.Nil :
+						CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]));
 
 				case STNodeType._FORMULA_VALUE:
 					return ((STValueNode)node).Value;
@@ -426,17 +383,24 @@ namespace unvell.ReoGrid.Formula
 
 		internal static FormulaValue CheckAndGetDefaultValue(Cell cell, FormulaValue val)
 		{
-			if (val.type == FormulaValueType.Nil)
+			if (val.type == FormulaValueType.Nil && FormulaExtension.EmptyCellReferenceProvider != null)
 			{
-				if (FormulaExtension.EmptyCellReferenceProvider != null)
-				{
-					return CreateFormulaValue(FormulaExtension.EmptyCellReferenceProvider(cell.Worksheet, cell.InternalPos, null));
-				}
-				else
-					return 0;
+				val = CreateFormulaValue(FormulaExtension.EmptyCellReferenceProvider(cell.Worksheet, cell.InternalPos, null));
 			}
-			else
-				return val;
+			switch (val.type)
+			{
+				case FormulaValueType.Nil:
+					val.value = 0d;
+					break;
+				case FormulaValueType.Boolean:
+					val.type = FormulaValueType.Number;
+					break;
+				case FormulaValueType.DateTime:
+					val.value = ((DateTime)val.value).ToOADate();
+					val.type = FormulaValueType.Number;
+					break;
+			}
+			return val;
 		}
 
 		internal static double CheckAndGetDefaultValueDouble(Cell cell, FormulaValue val)
@@ -444,10 +408,9 @@ namespace unvell.ReoGrid.Formula
 			val = CheckAndGetDefaultValue(cell, val);
 			switch (val.type)
 			{
+				case FormulaValueType.Nil:
 				case FormulaValueType.Number:
-					return (double)val.value;
-				case FormulaValueType.DateTime:
-					return ((DateTime)val.value).ToOADate();
+					return val;
 			}
 			throw new FormulaTypeMismatchException(cell);
 		}
@@ -1227,9 +1190,9 @@ namespace unvell.ReoGrid.Formula
 		public FormulaValueType type;
 		public object value;
 
-		public static FormulaValue Nil = new FormulaValue { type = FormulaValueType.Nil };
-		public static FormulaValue True = new FormulaValue { type = FormulaValueType.Boolean, value = true };
-		public static FormulaValue False = new FormulaValue { type = FormulaValueType.Boolean, value = false };
+		public static readonly FormulaValue Nil = new FormulaValue { type = FormulaValueType.Nil };
+		public static readonly FormulaValue True = new FormulaValue { type = FormulaValueType.Boolean, value = true };
+		public static readonly FormulaValue False = new FormulaValue { type = FormulaValueType.Boolean, value = false };
 
 		//public static FormulaValue _Error = new FormulaValue { type = FormulaValueType._Error };
 		//public static FormulaValue _NoValue = new FormulaValue { type = FormulaValueType._NoValue };
@@ -1253,7 +1216,7 @@ namespace unvell.ReoGrid.Formula
 		#region String
 		public static implicit operator string(FormulaValue value)
 		{
-			return Convert.ToString(value.value);
+			return value.value as string ?? string.Empty;
 		}
 
 		public static implicit operator FormulaValue(string text)
@@ -1265,7 +1228,7 @@ namespace unvell.ReoGrid.Formula
 		#region Number
 		public static implicit operator double(FormulaValue value)
 		{
-			return value.type != FormulaValueType.Number ? 0 : (double)value.value;
+			return Convert.ToDouble(value.value, CultureInfo.InvariantCulture);
 		}
 
 		public static implicit operator FormulaValue(double num)
