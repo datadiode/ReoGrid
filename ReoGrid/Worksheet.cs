@@ -1226,16 +1226,10 @@ namespace unvell.ReoGrid
 		{
 			get
 			{
-				//return Math.Min(this.rows.Count - 1, 
-				//	Math.Max(Math.Max(cells.MaxRow, Math.Max(hBorders.MaxRow, vBorders.MaxRow)), 
-				//	maxRowHeader + 1));
-
 				return Math.Min(this.rows.Count - 1, 
-
-					Math.Max(Math.Max(cells.MaxRow, Math.Max(hBorders.MaxRow - 1, vBorders.MaxRow)), 
-					
-					// init is -1, so return +1=0 when -1
-					maxRowHeader + 1));
+					Math.Max(Math.Max(cells.MaxRow, Math.Max(hBorders.MaxRow - 1, vBorders.MaxRow)),
+					// init is -1, so return 0 when -1
+					Math.Max(maxRowHeader, 0)));
 			}
 		}
 
@@ -1246,15 +1240,10 @@ namespace unvell.ReoGrid
 		{
 			get
 			{
-				//return Math.Min(this.cols.Count - 1, 
-				//	Math.Max(Math.Max(cells.MaxCol, Math.Max(hBorders.MaxCol, vBorders.MaxCol)), 
-				//	maxColumnHeader + 1));
-
 				return Math.Min(this.cols.Count - 1, 
 					Math.Max(Math.Max(cells.MaxCol, Math.Max(hBorders.MaxCol, vBorders.MaxCol - 1)),
-					
-					// init is -1, so return +1=0 when -1
-					maxColumnHeader + 1));
+					// init is -1, so return 0 when -1
+					Math.Max(maxColumnHeader, 0)));
 			}
 		}
 
