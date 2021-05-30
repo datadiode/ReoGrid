@@ -27,6 +27,9 @@ namespace unvell.ReoGrid.Formula
 	{
 
 
+		public const string CONCATENATE_EN = "CONCATENATE";
+		public const string CONCATENATE_RU = "CONCATENATE";
+
 		public const string SUM_EN = "SUM";
 		public const string SUM_RU = "СУММ";
 

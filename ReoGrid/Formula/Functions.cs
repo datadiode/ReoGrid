@@ -45,6 +45,21 @@ namespace unvell.ReoGrid.Formula
 			return worksheet;
 		}
 
+		#region Concatenate
+		public static FormulaValue Concatenate(Cell cell, FormulaValue[] args)
+		{
+			var sb = new StringBuilder();
+
+			foreach (var arg in args)
+			{
+				var input = Evaluator.CheckAndGetDefaultValue(cell, arg, true);
+				sb.Append(Convert.ToString(input.value));
+			}
+
+			return sb.ToString();
+		}
+		#endregion // Concatenate
+
 		#region Statistics
 
 		#region Sum

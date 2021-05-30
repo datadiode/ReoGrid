@@ -199,8 +199,8 @@ namespace unvell.ReoGrid.Formula
 					{
 						if (node.Children.Count < 2) return FormulaValue.Nil;
 
-						FormulaValue v1 = Evaluate(workbook, cell, node[0]);
-						FormulaValue v2 = Evaluate(workbook, cell, node[1]);
+						var v1 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[0]), true);
+						var v2 = CheckAndGetDefaultValue(cell, Evaluate(workbook, cell, node[1]), true);
 
 						return Convert.ToString(v1.value) + Convert.ToString(v2.value);
 					}
@@ -381,7 +381,7 @@ namespace unvell.ReoGrid.Formula
 		}
 		#endregion // Evaluate
 
-		internal static FormulaValue CheckAndGetDefaultValue(Cell cell, FormulaValue val)
+		internal static FormulaValue CheckAndGetDefaultValue(Cell cell, FormulaValue val, bool connectable = false)
 		{
 			if (val.type == FormulaValueType.Nil && FormulaExtension.EmptyCellReferenceProvider != null)
 			{
@@ -390,10 +390,13 @@ namespace unvell.ReoGrid.Formula
 			switch (val.type)
 			{
 				case FormulaValueType.Nil:
-					val.value = 0d;
+					if (!connectable)
+						val.value = 0d;
 					break;
 				case FormulaValueType.Boolean:
 					val.type = FormulaValueType.Number;
+					if (connectable)
+						val.value = Convert.ToDouble(val.value, CultureInfo.InvariantCulture);
 					break;
 				case FormulaValueType.DateTime:
 					val.value = ((DateTime)val.value).ToOADate();
@@ -469,6 +472,10 @@ namespace unvell.ReoGrid.Formula
 
 			switch (funNode.Name)
 			{
+				case BuiltinFunctionNames.CONCATENATE_EN:
+				//case BuiltinFunctionNames.CONCATENATE_RU:
+					return ExcelFunctions.Concatenate(cell, GetFunctionArgs(cell, funNode.Children, 1));
+
 				#region Stat
 
 				case BuiltinFunctionNames.SUM_EN:
