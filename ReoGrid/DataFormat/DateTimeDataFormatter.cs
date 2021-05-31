@@ -108,6 +108,11 @@ namespace unvell.ReoGrid.DataFormat
 
 				try
 				{
+					if (value.ToOADate() == 0)
+					{
+						pattern = "''";
+					}
+
 					switch (pattern)
 					{
 						case "d":
