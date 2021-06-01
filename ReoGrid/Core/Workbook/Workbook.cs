@@ -131,9 +131,9 @@ namespace unvell.ReoGrid
 
 		static Workbook()
 		{
-			FileFormatProviders[FileFormat.ReoGridFormat] = (IFileFormatProvider)new ReoGridFileFormatProvider();
-			FileFormatProviders[FileFormat.Excel2007] = (IFileFormatProvider)new ExcelFileFormatProvider();
-			FileFormatProviders[FileFormat.CSV] = (IFileFormatProvider)new CSVFileFormatProvider();
+			FileFormatProviders[FileFormat.ReoGridFormat] = new ReoGridFileFormatProvider();
+			FileFormatProviders[FileFormat.Excel2007] = new ExcelFileFormatProvider();
+			FileFormatProviders[FileFormat.CSV] = new CSVFileFormatProvider();
 		}
 
 		/// <summary>

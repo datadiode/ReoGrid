@@ -1636,6 +1636,13 @@ namespace unvell.ReoGrid.Editor
 						break;
 					case FilePathBar.SeletionType.AutoDetect:
 						var loadFrom = header.Text;
+
+						if (IsFileType(loadFrom, ".tsv"))
+							goto case FilePathBar.SeletionType.TabDelimited;
+
+						if (IsFileType(loadFrom, ".psv"))
+							goto case FilePathBar.SeletionType.PipeDelimited;
+
 						if (IsFileTypeExcel2003(loadFrom))
 						{
 							var exe = xls2x();
