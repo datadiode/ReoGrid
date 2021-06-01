@@ -36,6 +36,10 @@ Custom Control Appearance<br />
 Script and Macro Execution<br />
 ![Snapshot - Script and Macro](Snapshots/27.png)
 
+ReoGridCompare performing Align by LCS<br />
+![Snapshot - Script and Macro](Snapshots/AlignByLCS.gif)
+<sup>*The data in this example is from [TOP ODE index](https://pypl.github.io/ODE.html), © Pierre Carbonnelle, 2020, License: [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)*</sup>
+
 # License
 
 MIT License
