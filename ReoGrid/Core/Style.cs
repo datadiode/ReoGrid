@@ -764,8 +764,8 @@ namespace unvell.ReoGrid
 				if (size.Width <= 0 || size.Height <= 0) return new Rectangle(0, 0, 0, 0);
 
 				// FIXME: get incorrect size if CJK fonts
-				size.Width += 2;
-				size.Height += 1;
+				size.Width += 2 * scaleFactor;
+				size.Height += 1 * scaleFactor;
 				#endregion // Plain Text Measure Size
 
 				Rectangle cellBounds = cell.Bounds;

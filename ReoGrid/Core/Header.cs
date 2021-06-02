@@ -644,7 +644,7 @@ namespace unvell.ReoGrid
 
 				if (cell != null && cell.Rowspan == 1)
 				{
-					double textHeight = Math.Ceiling(cell.TextBounds.Height) / renderScaleFactor;
+					double textHeight = Math.Ceiling(cell.TextBounds.Height / renderScaleFactor);
 
 					if (maxHeight < textHeight)
 					{
@@ -697,7 +697,7 @@ namespace unvell.ReoGrid
 
 				if (cell != null && cell.Colspan == 1)
 				{
-					double textWidth = Math.Ceiling(cell.TextBounds.Width) / renderScaleFactor;
+					double textWidth = Math.Ceiling(cell.TextBounds.Width / renderScaleFactor);
 
 					if (maxWidth < textWidth)
 					{

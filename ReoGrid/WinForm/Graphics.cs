@@ -868,14 +868,14 @@ namespace unvell.ReoGrid.WinForm
 			}
 
 			SizeF size = cachedGraphics.MeasureString(cell.DisplayText, scaledFont, fieldWidth, measureSf);
-			size.Height++;
+			size.Height += scale;
 
 			if (style.RotationAngle != 0)
 			{
 				float w = (float)(Math.Abs(size.Width * c) + Math.Abs(size.Height * s));
 				float h = (float)(Math.Abs(size.Width * s) + Math.Abs(size.Height * c));
 
-				size = new SizeF(w + 1, h + 1);
+				size = new SizeF(w + scale, h + scale);
 			}
 
 			return size;
