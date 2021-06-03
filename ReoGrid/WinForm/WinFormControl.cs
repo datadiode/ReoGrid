@@ -990,6 +990,30 @@ namespace unvell.ReoGrid
 
 		#region Edit Control
 
+		internal class ClientAccessibleObject : ControlAccessibleObject
+		{
+			public ClientAccessibleObject(ReoGridControl owner) : base(owner) { }
+
+			public override string Value
+			{
+				get
+				{
+					var sheet = ((ReoGridControl)Owner).CurrentWorksheet;
+					return sheet.selStart.IsEmpty ? null : sheet.GetCellText(sheet.focusPos);
+				}
+				set
+				{
+					var sheet = ((ReoGridControl)Owner).CurrentWorksheet;
+					if (!sheet.selStart.IsEmpty && sheet.GetCellText(sheet.focusPos) != value)
+					{
+						sheet.DoAction(new SetCellDataAction(sheet.focusPos.Row, sheet.focusPos.Col, value));
+					}
+				}
+			}
+		}
+
+		protected override AccessibleObject CreateAccessibilityInstance() => new ClientAccessibleObject(this);
+
 		#region InputTextBox
 		private class InputTextBox : TextBox
 		{
