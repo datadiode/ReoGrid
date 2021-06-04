@@ -27,10 +27,69 @@ namespace unvell.ReoGrid
 {
 	partial class Worksheet
 	{
+		internal string PreEdit(Cell cell)
+		{
+			string editText;
+			if (!string.IsNullOrEmpty(cell.InnerFormula))
+			{
+				editText = "=" + cell.InnerFormula;
+			}
+			else if (cell.InnerData is string)
+			{
+				editText = (string)cell.InnerData;
+			}
+#if DRAWING
+			else if (cell.InnerData is Drawing.RichText)
+			{
+				editText = ((Drawing.RichText)cell.InnerData).ToString();
+			}
+#endif // DRAWING
+			else
+			{
+				editText = Convert.ToString(cell.InnerData);
+			}
+			return editText;
+		}
+
+		internal object PostEdit(Cell cell, string datastr)
+		{
+			object data = null;
+			if (!string.IsNullOrEmpty(datastr))
+			{
+				data = datastr;
+				// convert data into cell data format
+				switch (cell.DataFormat)
+				{
+					case CellDataFormatFlag.Number:
+					case CellDataFormatFlag.Currency:
+						if (double.TryParse(datastr, out var numericValue))
+						{
+							data = numericValue;
+						}
+						break;
+
+					case CellDataFormatFlag.Percent:
+						if (datastr.EndsWith("%")
+							&& double.TryParse(datastr.Substring(0, datastr.Length - 1), out var val))
+						{
+							data = val / 100;
+						}
+						break;
+
+					case CellDataFormatFlag.DateTime:
+						if (DateTime.TryParse(datastr, out var dt))
+						{
+							data = dt;
+						}
+						break;
+				}
+			}
+			return data;
+		}
+
 		#region StartEdit
 
 		internal Cell currentEditingCell;
-		private string backupData;
 
 		/// <summary>
 		/// Start to edit selected cell
@@ -107,19 +166,7 @@ namespace unvell.ReoGrid
 		{
 			if (row < 0 || col < 0 || row >= this.cells.RowCapacity || col >= this.cells.ColCapacity) return false;
 
-			// if cell is part of merged cell
-			if (!IsValidCell(row, col))
-			{
-				// find the merged cell
-				Cell cell = GetMergedCellOfRange(row, col);
-
-				// start edit on merged cell
-				return StartEdit(cell, newText);
-			}
-			else
-			{
-				return StartEdit(CreateAndGetCell(row, col), newText);
-			}
+			return StartEdit(GetMergedCellOfRange(row, col), newText);
 		}
 
 		internal bool StartEdit(Cell cell)
@@ -145,37 +192,7 @@ namespace unvell.ReoGrid
 				this.ScrollToCell(cell);
 			}
 
-			string editText = null;
-
-			if (newText == null)
-			{
-				if (!string.IsNullOrEmpty(cell.InnerFormula))
-				{
-					editText = "=" + cell.InnerFormula;
-				}
-				else if (cell.InnerData is string)
-				{
-					editText = (string)cell.InnerData;
-				}
-#if DRAWING
-				else if (cell.InnerData is Drawing.RichText)
-				{
-					editText = ((Drawing.RichText)cell.InnerData).ToString();
-				}
-#endif // DRAWING
-				else
-				{
-					editText = Convert.ToString(cell.InnerData);
-				}
-				
-				this.backupData = editText;
-			}
-			else
-			{
-				editText = newText;
-
-				this.backupData = cell.DisplayText;
-			}
+			string editText = newText ?? PreEdit(cell);
 
 			if (cell.DataFormat == CellDataFormatFlag.Percent
 				&& this.HasSettings(WorksheetSettings.Edit_FriendlyPercentInput))
@@ -345,21 +362,12 @@ namespace unvell.ReoGrid
 		/// Check whether any cell current in edit mode
 		/// </summary>
 		/// <returns>true if any cell is editing</returns>
-		public bool IsEditing
-		{
-			get
-			{
-				return currentEditingCell != null;
-			}
-		}
+		public bool IsEditing => currentEditingCell != null;
 
 		/// <summary>
 		/// Get instance of current editing cell.
 		/// </summary>
-		public Cell EditingCell
-		{
-			get { return this.currentEditingCell; }
-		}
+		public Cell EditingCell => this.currentEditingCell;
 
 		private bool endEditProcessing = false;
 
@@ -424,54 +432,10 @@ namespace unvell.ReoGrid
 					break;
 
 				case EndEditReason.NormalFinish:
-					if (data is string)
+					if (data is string datastr)
 					{
-						var datastr = (string)data;
-
-						if (string.IsNullOrEmpty(datastr))
-						{
-							data = null;
-						}
-						else
-						{
-							// convert data into cell data format
-							switch (currentEditingCell.DataFormat)
-							{
-								case CellDataFormatFlag.Number:
-								case CellDataFormatFlag.Currency:
-									if (double.TryParse(datastr, out var numericValue))
-									{
-										data = numericValue;
-									}
-									break;
-
-								case CellDataFormatFlag.Percent:
-									if (datastr.EndsWith("%"))
-									{
-										if (double.TryParse(datastr.Substring(0, datastr.Length - 1), out var val))
-										{
-											data = val / 100;
-										}
-									}
-									else if (datastr == "%")
-									{
-										data = null;
-									}
-									break;
-
-								case CellDataFormatFlag.DateTime:
-									{
-										if (DateTime.TryParse(datastr, out var dt))
-										{
-											data = dt;
-										}
-									}
-									break;
-							}
-						}
+						data = PostEdit(currentEditingCell, datastr);
 					}
-
-					if (string.IsNullOrEmpty(backupData)) backupData = null;
 
 					var body = currentEditingCell.body;
 
@@ -480,9 +444,9 @@ namespace unvell.ReoGrid
 						data = body.OnEndEdit(data);
 					}
 
-					if (!object.Equals(data, backupData))
+					if (!object.Equals(data, PreEdit(currentEditingCell)))
 					{
-						DoAction(new SetCellDataAction(currentEditingCell.InternalRow, currentEditingCell.InternalCol, data));
+						DoAction(new SetCellDataAction(currentEditingCell.InternalPos, data));
 					}
 
 					break;

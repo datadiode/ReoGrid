@@ -999,15 +999,18 @@ namespace unvell.ReoGrid
 				get
 				{
 					var sheet = ((ReoGridControl)Owner).CurrentWorksheet;
-					return sheet.selStart.IsEmpty ? null : sheet.GetCellText(sheet.focusPos);
+					if (sheet.selStart.IsEmpty)
+						return null;
+					return sheet.PreEdit(sheet.GetMergedCellOfRange(sheet.focusPos));
 				}
 				set
 				{
 					var sheet = ((ReoGridControl)Owner).CurrentWorksheet;
-					if (!sheet.selStart.IsEmpty && sheet.GetCellText(sheet.focusPos) != value)
-					{
-						sheet.DoAction(new SetCellDataAction(sheet.focusPos.Row, sheet.focusPos.Col, value));
-					}
+					if (sheet.selStart.IsEmpty)
+						return;
+					var cell = sheet.GetMergedCellOfRange(sheet.focusPos);
+					if (sheet.PreEdit(cell) != value)
+						sheet.DoAction(new SetCellDataAction(sheet.focusPos, sheet.PostEdit(cell, value)));
 				}
 			}
 		}
