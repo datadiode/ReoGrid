@@ -22,12 +22,10 @@ namespace unvell.ReoGrid.Actions
 	/// </summary>
 	public class SetRangeStyleAction : WorksheetReusableAction
 	{
-		private WorksheetRangeStyle style;
-
 		/// <summary>
 		/// Styles to be set
 		/// </summary>
-		public WorksheetRangeStyle Style { get { return style; } set { style = value; } }
+		public readonly WorksheetRangeStyle Style;
 
 		private WorksheetRangeStyle backupRootStyle = null;
 		private WorksheetRangeStyle[] backupRowStyles = null;
@@ -38,25 +36,6 @@ namespace unvell.ReoGrid.Actions
 		private bool isFullGridSelected = false;
 
 		/// <summary>
-		/// Create an action to set styles into specified range
-		/// </summary>
-		/// <param name="address">Address to locate the cell or range on spreadsheet (Cannot specify named range for this method)</param>
-		/// <param name="style">Styles to be set</param>
-		/// <exception cref="InvalidAddressException">Throw if specified address or name is invalid</exception>
-		public SetRangeStyleAction(string address, WorksheetRangeStyle style)
-		{
-			if (RangePosition.IsValidAddress(address))
-			{
-				this.Range = new RangePosition(address);
-			}
-			else
-				throw new InvalidAddressException(address);
-
-			this.style = style;
-		}
-
-
-		/// <summary>
 		/// Create an action that perform set styles to specified range
 		/// </summary>
 		/// <param name="range">Range to be appiled this action</param>
@@ -64,7 +43,7 @@ namespace unvell.ReoGrid.Actions
 		public SetRangeStyleAction(RangePosition range, WorksheetRangeStyle style)
 			: base(range)
 		{
-			this.style = new WorksheetRangeStyle(style);
+			this.Style = new WorksheetRangeStyle(style);
 		}
 
 		private RangePosition affectedRange;
@@ -135,7 +114,7 @@ namespace unvell.ReoGrid.Actions
 				}
 			}
 
-			Worksheet.SetRangeStyles(affectedRange, style);
+			Worksheet.SetRangeStyles(affectedRange, Style);
 		}
 
 		/// <summary>
@@ -213,7 +192,7 @@ namespace unvell.ReoGrid.Actions
 		/// <returns>New action instance copied from this action.</returns>
 		public override WorksheetReusableAction Clone(RangePosition range)
 		{
-			return new SetRangeStyleAction(range, style);
+			return new SetRangeStyleAction(range, Style);
 		}
 	}
 
