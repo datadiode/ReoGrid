@@ -206,7 +206,7 @@ namespace unvell.ReoGrid.Tests
 			AssertEquals(worksheet.GetCellStyles(3, 3).BackColor, Color.Empty);
 
 			// set style to range
-			Grid.DoAction(new SetRangeStyleAction(3, 3, 3, 6, new WorksheetRangeStyle
+			Grid.DoAction(new SetRangeStyleAction(new RangePosition(3, 3, 3, 6), new WorksheetRangeStyle
 			{
 				Flag = PlainStyleFlag.BackColor,
 				BackColor = Color.Beige,

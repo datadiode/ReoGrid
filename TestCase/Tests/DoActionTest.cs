@@ -33,7 +33,7 @@ namespace unvell.ReoGrid.Tests
 		{
 			SetUp();
 
-			Grid.DoAction(new SetCellDataAction(1, 1, "abc"));
+			Grid.DoAction(new SetCellDataAction(new CellPosition(1, 1), "abc"));
 			Grid.Undo();
 			Grid.Redo();
 			AssertTrue(worksheet._Debug_Validate_All());

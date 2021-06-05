@@ -40,19 +40,6 @@ namespace unvell.ReoGrid.Actions
 		/// <summary>
 		/// Create an action to set styles into specified range
 		/// </summary>
-		/// <param name="row">Zero-based number of start row</param>
-		/// <param name="col">Zero-based number of start column</param>
-		/// <param name="rows">Number of rows in the range</param>
-		/// <param name="cols">Number of columns in the range</param>
-		/// <param name="style">Styles to be set</param>
-		public SetRangeStyleAction(int row, int col, int rows, int cols, WorksheetRangeStyle style)
-			: this(new RangePosition(row, col, rows, cols), style)
-		{
-		}
-
-		/// <summary>
-		/// Create an action to set styles into specified range
-		/// </summary>
 		/// <param name="address">Address to locate the cell or range on spreadsheet (Cannot specify named range for this method)</param>
 		/// <param name="style">Styles to be set</param>
 		/// <exception cref="InvalidAddressException">Throw if specified address or name is invalid</exception>
